@@ -8,15 +8,15 @@ EasyLive2d 可以通过多种包管理器进行安装：
 
 ::: code-group
 ```bash [npm]
-npm install easylive2d
+npm install easy-live2d
 ```
 
 ```bash [yarn]
-yarn add easylive2d
+yarn add easy-live2d
 ```
 
 ```bash [pnpm]
-pnpm add easylive2d
+pnpm add easy-live2d
 ```
 :::
 
@@ -72,29 +72,9 @@ canvas {
 }
 ```
 
-## 推荐配置
-
-### TypeScript 配置
-
-如果你使用 TypeScript，推荐以下 `tsconfig.json` 配置：
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  }
-}
-```
-
 ### 模型文件结构
 
-建议按照以下结构组织你的 Live2D 模型文件：
+建议按照官方推荐的结构组织你的 Live2D 模型文件：
 
 ```
 public/
@@ -119,24 +99,32 @@ public/
 import { Application, Ticker } from 'pixi.js';
 import { Live2DSprite } from 'easylive2d';
 
-// 创建应用
-const app = new Application();
-app.init({
-  view: document.getElementById('live2d'),
-  backgroundColor: 0x00000000
-});
+const init = async () => {
+  // 创建应用
+  const app = new Application();
+  await app.init({
+    view: document.getElementById('live2d'),
+    backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
+  });
 
-// 创建 Live2D 精灵
-const live2dSprite = new Live2DSprite();
-live2dSprite.init({
-  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared
-});
+  // 创建 Live2D 精灵
+  const live2dSprite = new Live2DSprite();
+  live2dSprite.init({
+    modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+    ticker: Ticker.shared
+  });
+    // Live2D精灵大小
+  live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+  live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
 
-// 添加到舞台
-app.stage.addChild(live2dSprite);
+  // 添加到舞台
+  app.stage.addChild(live2dSprite);
 
-console.log('EasyLive2d 初始化成功!');
+  console.log('EasyLive2d 初始化成功!');
+}
+
+init()
+
 ```
 
 如果你能看到模型正确加载并显示，说明安装和配置已成功。

@@ -7,7 +7,7 @@
 使用 EasyLive2d 的第一步是创建一个 Live2DSprite 实例并初始化它：
 
 ```js
-import { Live2DSprite } from 'easylive2d';
+import { Live2DSprite } from 'easy-live2d';
 import { Ticker } from 'pixi.js';
 
 // 创建 Live2D 精灵
@@ -29,13 +29,15 @@ import { Application } from 'pixi.js';
 
 // 创建 Pixi 应用
 const app = new Application();
-await app.init({
-  view: document.getElementById('canvas'),
-  backgroundAlpha: 0  // 透明背景
-});
-
-// 将精灵添加到舞台
-app.stage.addChild(live2dSprite);
+const init = async () => {
+  await app.init({
+    view: document.getElementById('canvas'),
+    backgroundAlpha: 0  // 透明背景
+  });
+  // 将精灵添加到舞台
+  app.stage.addChild(live2dSprite);
+}
+init()
 ```
 
 ## 设置位置和大小
@@ -43,18 +45,11 @@ app.stage.addChild(live2dSprite);
 你可以像操作普通 Pixi.js 精灵一样设置 Live2D 精灵的位置和大小：
 
 ```js
-// 设置位置
+// 设置位置和大小
 live2dSprite.x = 400;
 live2dSprite.y = 300;
-
-// 设置缩放
-live2dSprite.scale.set(0.5);
-
-// 设置锚点（中心点）
-live2dSprite.anchor.set(0.5, 0.5);
-
-// 设置旋转（弧度）
-live2dSprite.rotation = 0.1;
+live2DSprite.width = 1400
+live2DSprite.height = 900
 ```
 
 ## 播放动作
@@ -62,7 +57,7 @@ live2dSprite.rotation = 0.1;
 EasyLive2d 提供了简单的方法来播放模型的动作：
 
 ```js
-import { Priority } from 'easylive2d';
+import { Priority } from 'easy-live2d';
 
 // 播放指定的动作
 live2dSprite.startMotion({
@@ -183,22 +178,26 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning;
 Config.MouseFollow = true;
 
 // 创建应用
-const app = new Application();
-await app.init({
-  view: document.getElementById('canvas'),
-  backgroundAlpha: 0,
-  resizeTo: window
-});
+const init = async () => {
+  const app = new Application();
+  await app.init({
+    view: document.getElementById('canvas'),
+    backgroundAlpha: 0,
+    resizeTo: window
+  });
+  // 添加到舞台
+  app.stage.addChild(live2dSprite);
+}
+
 
 // 创建并初始化 Live2D 精灵
 const live2dSprite = new Live2DSprite();
-await live2dSprite.init({
+live2dSprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
   ticker: Ticker.shared
 });
 
-// 添加到舞台
-app.stage.addChild(live2dSprite);
+
 
 // 设置位置和锚点
 live2dSprite.anchor.set(0.5, 0.5);
@@ -225,6 +224,10 @@ window.addEventListener('resize', () => {
   live2dSprite.x = app.screen.width / 2;
   live2dSprite.y = app.screen.height / 2;
 });
+
+
+// 初始化
+init()
 
 // 清理函数
 function cleanup() {

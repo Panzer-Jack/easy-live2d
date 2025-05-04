@@ -2,104 +2,128 @@
 
 本页面提供了一些常见的 easy-live2d 使用示例，帮助您快速掌握库的基本功能。
 
-## 基本模型加载
+## 原生
 
 下面是加载并显示 Live2D 模型的最基本示例：
 
 ```html
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>easy-live2d 基础示例</title>
+  <title>easy-live2d 示例</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
       overflow: hidden;
     }
-    #canvas {
-      width: 100%;
-      height: 100%;
+    canvas {
+      width: 100vw;
+      height: 100vh;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-
+  <canvas id="live2d"></canvas>
   <script type="module">
     import { Application, Ticker } from 'pixi.js';
-    import { Live2DSprite, Config, LogLevel } from 'easylive2d';
+    import { Live2DSprite, Config, Priority } from 'easylive2d';
 
-    // 设置配置项
-    Config.CubismLoggingLevel = LogLevel.LogLevel_Warning; // 只显示警告及以上日志
-
-    // 创建 Pixi 应用
-    const app = new Application();
-    await app.init({
-      view: document.getElementById('canvas'),
-      backgroundAlpha: 0, // 透明背景
-      resizeTo: window, // 自动调整大小
-    });
-
+    // 配置基本设置
+    Config.MotionGroupIdle = 'Idle'; // 设置默认的空闲动作组
+    Config.MouseFollow = false; // 禁用鼠标跟随
     // 创建 Live2D 精灵
     const live2dSprite = new Live2DSprite();
-    await live2dSprite.init({
-      modelPath: './models/Hiyori/Hiyori.model3.json',
+    live2dSprite.init({
+      modelPath: '/Resources/Hiyori/Hiyori.model3.json',
       ticker: Ticker.shared
     });
 
-    // 添加到舞台
-    app.stage.addChild(live2dSprite);
-
-    // 居中模型
-    live2dSprite.x = app.screen.width / 2;
-    live2dSprite.y = app.screen.height / 2;
-    
-    // 设置锚点，使模型居中
-    live2dSprite.anchor.set(0.5, 0.5);
-
-    // 自适应窗口大小变化
-    window.addEventListener('resize', () => {
-      live2dSprite.x = app.screen.width / 2;
-      live2dSprite.y = app.screen.height / 2;
-    });
+    const init = async () => {
+      // 创建应用
+      const app = new Application();
+      await app.init({
+        view: document.getElementById('live2d'),
+        backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
+      });
+      // Live2D精灵大小
+      live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+      live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+      // 添加到舞台
+      app.stage.addChild(live2dSprite);
+      console.log('EasyLive2d 初始化成功!');
+    }
+    init()
   </script>
 </body>
 </html>
 ```
 
-## 响应点击事件
+## Vue3
 
-下面的示例展示了如何响应模型的点击事件：
+```vue
+<template>
+  <canvas ref="canvasRef" id="live2d" />
+</template>
 
-```js
-// 使用 onLive2D 方法监听 hit 事件
-live2dSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log(`点击了 ${hitAreaName}，坐标: (${x}, ${y})`);
-  
-  // 根据不同的点击区域播放不同的动作
-  switch (hitAreaName.toLowerCase()) {
-    case 'head':
-      live2dSprite.startMotion({
-        group: 'Tap',
-        no: 0,
-        priority: Priority.Force
-      });
-      break;
-    case 'body':
-      live2dSprite.startMotion({
-        group: 'Tap',
-        no: 1,
-        priority: Priority.Force
-      });
-      break;
-    // 更多区域...
+<script setup>
+import { onMounted, onUnmounted, ref } from 'vue'
+import { Application, Ticker } from 'pixi.js'
+import { Live2DSprite, Config, Priority } from 'easylive2d'
+
+const canvasRef = ref(null);
+const app = new Application();
+const live2DSprite = new Live2DSprite();
+
+// 配置基本设置
+Config.MotionGroupIdle = 'Idle'; // 设置默认的空闲动作组
+Config.MouseFollow = false; // 禁用鼠标跟随
+
+// 初始化 Live2D 精灵
+live2DSprite.init({
+  modelPath: '/path/to/your/model/Model.model3.json',
+  ticker: Ticker.shared
+});
+
+// 添加点击事件监听
+live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
+  console.log('点击区域:', hitAreaName, 'at', x, y);
+});
+
+onMounted(async () => {
+  if (canvasRef.value) {
+    await app.init({
+      view: canvasRef.value,
+      backgroundAlpha: 0, // 透明背景
+    });
+    
+    // 调整大小并添加到舞台
+    live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio;
+    live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio;
+    app.stage.addChild(live2DSprite);
+    
+    // 设置表情
+    live2DSprite.setExpression({
+      expressionId: 'normal'
+    });
   }
 });
+
+onUnmounted(() => {
+  // 释放资源
+  live2DSprite.destroy();
+});
+</script>
+
+<style scoped>
+#live2d {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
 ```
 
 ## 表情切换
@@ -214,38 +238,6 @@ Config.EyeBlinkEnabled = true;         // 启用眨眼效果
 // 性能和调试配置
 Config.CubismLoggingLevel = LogLevel.LogLevel_Warning; // 设置日志级别
 Config.UseHighPrecisionMatrix = true;   // 使用高精度矩阵（可能影响性能）
-```
-
-## 进阶：自定义渲染
-
-如果您需要更多控制渲染过程，可以添加自定义渲染逻辑：
-
-```js
-// 在使用标准 Pixi.js 渲染器的基础上添加自定义后处理效果
-
-// 导入必要的滤镜
-import { BlurFilter, ColorMatrixFilter } from 'pixi.js';
-
-// 创建滤镜
-const blurFilter = new BlurFilter(2);
-const colorMatrix = new ColorMatrixFilter();
-colorMatrix.brightness(1.2); // 增加亮度
-
-// 将滤镜应用到 Live2D 精灵
-live2dSprite.filters = [blurFilter, colorMatrix];
-
-// 创建动画效果
-let time = 0;
-app.ticker.add(() => {
-  time += 0.01;
-  
-  // 创建呼吸效果
-  const scale = 1 + Math.sin(time) * 0.01;
-  live2dSprite.scale.set(scale);
-  
-  // 调整模糊效果
-  blurFilter.blur = 1 + Math.sin(time * 0.5) * 0.5;
-});
 ```
 
 ## 下一步

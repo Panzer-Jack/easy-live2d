@@ -1,29 +1,32 @@
 # EasyLive2D（还在加紧开发中。。。）
 
-让 Live2D 集成更简单！一个轻量、开发者友好的 Live2D Web SDK 封装库。
+让 Live2D 集成更简单！一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库。
+
+---
+
+## 📖 文档
+
+👉 [EasyLive2D 官方文档](https://panzer-jack.github.io/easy-live2d)
 
 ---
 
 ## TODO
 - （✅）将Core能力转移成Sprite
-  - 可以如同Sprite一样 自由控制x、y、大小等 
-
 - （✅）读取模型路径
 - （✅）配置文件迁移
 - （✅）可以直接控制表情、动作
 - （✅）各种事件函数暴露
+- （）官方文档
 - 语音
 - 嘴巴同步
 - webgl渲染挂载问题 （暂定）
 
-
 ## ✨ 特性
 
-- ⚡️ 支持Pixi.js v8 和 Cubism 5 （ 均为当前最新版本 ）
+- ⚡️ 支持 Pixi.js v8 和 Cubism 5 （ 均为当前最新版本 ）
 - 🌟 极致轻量，去除冗余功能
 - 🚀 更简单的 API 接口
 - 🛠️ 兼容官方 Live2D Web SDK
-- 🎯 支持自定义加载与渲染
 - 📦 适配现代前端框架（如 Vue、React）
 
 ---
@@ -31,11 +34,11 @@
 ## 📦 安装
 
 ```bash
-pnpm add easylive2d
+pnpm add easy-live2d
 # 或者
-npm install easylive2d
+npm install easy-live2d
 # 或
-yarn add easylive2d
+yarn add easy-live2d
 ```
 
 ---
@@ -45,7 +48,7 @@ yarn add easylive2d
 ```vue
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { Config, Live2DSprite, LogLevel, Priority } from '@easy-live2d/core'
+import { Config, Live2DSprite, LogLevel, Priority } from 'easy-live2d'
 import { Application, Ticker } from 'pixi.js'
 import { initDevtools } from '@pixi/devtools'
 
@@ -83,24 +86,25 @@ onMounted(async () => {
   })
   if (canvasRef.value) {
 
-    // live2DSprite.x = -300
-    // live2DSprite.y = -300
+    // Live2D精灵大小坐标设置
+    live2DSprite.x = -300
+    live2DSprite.y = -300
     live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
     app.stage.addChild(live2DSprite);
 
+    // 设置表情
     live2DSprite.setExpression({
       expressionId: 'normal',
     })
 
-    // live2DSprite.startMotion({
-    //   group: 'test',
-    //   no: 0,
-    //   priority: 3,
-    // })
+    // 设置动作
+    live2DSprite.startMotion({
+      group: 'test',
+      no: 0,
+      priority: 3,
+    })
   }
-
-  initDevtools({ app: app })
 })
 
 onUnmounted(() => {
@@ -138,12 +142,6 @@ onUnmounted(() => {
 </style>
 
 ```
-
----
-
-## 📖 文档
-
-👉 [使用指南（正在完善）](#)
 
 ---
 

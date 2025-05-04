@@ -2,13 +2,11 @@
 
 本页将指导您快速上手 easy-live2d，在几分钟内将 Live2D 模型集成到您的网页应用中。
 
-## 前置要求
-
-在开始前，确保您的开发环境满足以下条件：
+## 推荐配置
 
 - Node.js >= 18
-- npm、yarn 或 pnpm 包管理器
-- 基本的 JavaScript/TypeScript 知识
+- Pixi.js >= 8
+- Cubism 5 模型
 
 ## 安装
 
@@ -55,34 +53,31 @@ pnpm add easy-live2d
     import { Application, Ticker } from 'pixi.js';
     import { Live2DSprite, Config, Priority } from 'easylive2d';
 
-    // 创建 Pixi 应用
-    const app = new Application();
-    app.init({
-      view: document.getElementById('live2d'),
-      backgroundAlpha: 0, // 透明背景
-    });
-
+    // 配置基本设置
+    Config.MotionGroupIdle = 'Idle'; // 设置默认的空闲动作组
+    Config.MouseFollow = false; // 禁用鼠标跟随
     // 创建 Live2D 精灵
-    const live2DSprite = new Live2DSprite();
-    
-    // 初始化精灵，设置模型路径
-    live2DSprite.init({
-      modelPath: '/path/to/your/model/Model.model3.json',
+    const live2dSprite = new Live2DSprite();
+    live2dSprite.init({
+      modelPath: '/Resources/Hiyori/Hiyori.model3.json',
       ticker: Ticker.shared
     });
 
-    // 添加事件监听
-    live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-      console.log('点击了模型的:', hitAreaName, '位置:', x, y);
-    });
-
-    // 将 Live2D 精灵添加到舞台
-    app.stage.addChild(live2DSprite);
-    
-    // 设置表情
-    live2DSprite.setExpression({
-      expressionId: 'normal'
-    });
+    const init = async () => {
+      // 创建应用
+      const app = new Application();
+      await app.init({
+        view: document.getElementById('live2d'),
+        backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
+      });
+      // Live2D精灵大小
+      live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+      live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+      // 添加到舞台
+      app.stage.addChild(live2dSprite);
+      console.log('EasyLive2d 初始化成功!');
+    }
+    init()
   </script>
 </body>
 </html>

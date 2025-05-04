@@ -1,22 +1,32 @@
-# Easy-Live2D (still in intensive development...)
-  (Developing)
-  <p>
-    🌐 Available in:
-    <a href="README.zh.md">中文 (Chinese)</a>
-  </p>
+# EasyLive2D (Under active development...)
 
-Simplify your Live2D integration! A lightweight, developer-friendly wrapper for the Live2D Web SDK.
+Making Live2D integration easier! A lightweight, developer-friendly Live2D Web SDK wrapper library based on Pixi.js.
 
 ---
 
+## 📖 Documentation
+
+👉 [EasyLive2D Official Documentation](https://panzer-jack.github.io/easy-live2d/en/)
+
+---
+
+## TODO
+- (✅) Transfer Core capabilities to Sprite
+- (✅) Read model paths
+- (✅) Configuration file migration
+- (✅) Direct control of expressions and actions
+- (✅) Expose various event functions
+- Voice functionality
+- Mouth synchronization
+- WebGL rendering mounting issues (tentative)
+
 ## ✨ Features
 
-- ⚡️ Support for Pixi.js v8 and Cubism 5 (both the latest versions)
-- 🌟 Ultra lightweight, removes redundant features
-- 🚀 Simplified and intuitive API
-- 🛠️ Compatible with the official Live2D Web SDK
-- 🎯 Supports custom loading and rendering
-- 📦 Works well with modern frameworks like Vue and React
+- ⚡️ Support for Pixi.js v8 and Cubism 5 (both latest versions)
+- 🌟 Ultra-lightweight, removing redundant features
+- 🚀 Simpler API interface
+- 🛠️ Compatible with official Live2D Web SDK
+- 📦 Adaptable to modern frontend frameworks (like Vue, React)
 
 ---
 
@@ -37,32 +47,32 @@ yarn add easy-live2d
 ```vue
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { Config, Live2DSprite, LogLevel, Priority } from '@easy-live2d/core'
+import { Config, Live2DSprite, LogLevel, Priority } from 'easy-live2d'
 import { Application, Ticker } from 'pixi.js'
 import { initDevtools } from '@pixi/devtools'
 
 const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
 
-// 设置 Config 默认配置
-Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
-Config.MouseFollow = false // 禁用鼠标跟随
-Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
+// Set default Config configuration
+Config.MotionGroupIdle = 'Idle' // Set default idle motion group
+Config.MouseFollow = false // Disable mouse following
+Config.CubismLoggingLevel = LogLevel.LogLevel_Off // Set logging level
 
 
-// 创建Live2D精灵 并初始化
+// Create Live2D sprite and initialize
 const live2DSprite = new Live2DSprite()
 live2DSprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
   ticker: Ticker.shared
 });
 
-// 监听点击事件
+// Listen for click events
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
   console.log('hit', hitAreaName, x, y);
 })
 
-// 你也可以直接这样初始化
+// You can also initialize directly like this
 // const live2DSprite = new Live2DSprite({
 //   modelPath: '/Resources/Huusya/Huusya.model3.json',
 //   ticker: Ticker.shared
@@ -71,32 +81,33 @@ live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 onMounted(async () => {
   await app.init({
     view: canvasRef.value,
-    backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
+    backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
   })
   if (canvasRef.value) {
 
-    // live2DSprite.x = -300
-    // live2DSprite.y = -300
+    // Live2D sprite size and position settings
+    live2DSprite.x = -300
+    live2DSprite.y = -300
     live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
     app.stage.addChild(live2DSprite);
 
+    // Set expression
     live2DSprite.setExpression({
       expressionId: 'normal',
     })
 
-    // live2DSprite.startMotion({
-    //   group: 'test',
-    //   no: 0,
-    //   priority: 3,
-    // })
+    // Set motion
+    live2DSprite.startMotion({
+      group: 'test',
+      no: 0,
+      priority: 3,
+    })
   }
-
-  initDevtools({ app: app })
 })
 
 onUnmounted(() => {
-  // 释放实例
+  // Release instance
   live2DSprite.destroy()
 })
 
@@ -133,17 +144,11 @@ onUnmounted(() => {
 
 ---
 
-## 📖 Documentation
+## 🤝 Contributing
 
-👉 [Usage Guide (Coming Soon)](#)
+PRs and Issues are welcome! Please read the [contribution guidelines](#) before participating in development.
 
----
-
-## 🤝 Contribution
-
-Contributions are welcome! Feel free to open PRs and issues after reading the [Contribution Guide](#).
-
----
+--- 
 
 ## 📄 License
 

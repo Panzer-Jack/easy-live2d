@@ -52,9 +52,6 @@ interface Live2DSpriteInit {
 interface Live2DSpriteEvents {
   // 点击事件，返回点击区域名称和坐标
   hit: [{ hitAreaName: string; x: number; y: number }];
-  // 模型加载完成事件
-  load: [];
-  // 更多事件...
 }
 ```
 
@@ -86,22 +83,12 @@ enum LogLevel {
 }
 ```
 
-## 函数命名约定
-
-easy-live2d 的函数命名遵循以下约定：
-
-- `init` 和 `initialize` 前缀用于初始化方法
-- `set` 前缀用于设置值的方法
-- `get` 前缀用于获取值的方法
-- `release` 和 `destroy` 用于释放资源的方法
-- `on` 前缀用于事件监听相关方法
-
 ## 示例用法
 
 下面是一个简单的使用示例：
 
 ```ts
-import { Live2DSprite, Config, Priority } from 'easylive2d';
+import { Live2DSprite, Config, Priority } from 'easy-live2d';
 import { Application, Ticker } from 'pixi.js';
 
 // 创建应用

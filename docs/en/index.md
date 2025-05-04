@@ -3,8 +3,8 @@
 layout: home
 
 hero:
-  name: "easy-live2d"
-  text: "A lightweight, developer-friendly Live2D Web SDK wrapper based on Pixi.js"
+  name: "EasyLive2d"
+  text: "Live2D Web SDK based on Pixi.js"
   tagline: Making Live2D integration simple and efficient
   actions:
     - theme: brand
@@ -16,14 +16,17 @@ hero:
     - theme: alt
       text: Examples
       link: /en/examples/basic
+  image:
+    src: /EasyLive2D.png
+    alt: EasyLive2d
 
 features:
   - icon: ⚡️
     title: Lightweight & Efficient
-    details: Supports Pixi.js v8 and Cubism 5, removes redundant features, optimizes performance
+    details: Supports the latest Pixi.js v8 and Cubism 5, removes redundant features, optimizes performance
   - icon: 🚀
     title: Simple & Intuitive
-    details: Provides simpler and more intuitive APIs, lowering the barrier to entry
+    details: Provides simpler and more intuitive APIs, lowering the barrier to entry with full control over models, motions, expressions, and events
   - icon: 🛠️
     title: Compatible with Official SDK
     details: Fully compatible with the official Live2D Web SDK, seamlessly integrates with existing projects

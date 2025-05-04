@@ -1,10 +1,10 @@
-# 什么是 easy-live2d
+# 什么是 EasyLive2D
 
-easy-live2d 是一个基于 Pixi.js 的轻量、开发者友好的 Live2D Web SDK 封装库，旨在简化 Live2D 模型在网页应用中的集成和使用。
+EasyLive2D 是一个基于 Pixi.js 的轻量、开发者友好的 Live2D Web SDK 封装库，旨在简化 Live2D 模型在网页应用中的集成和使用。
 
 ## 项目背景
 
-在 Web 前端开发中，添加 Live2D 模型通常需要使用官方的 Live2D Cubism SDK，但官方 SDK 的使用相对复杂，且与现代前端框架的集成不够友好。easy-live2d 项目致力于解决这些问题，提供一种更简单、更友好的方式来使用 Live2D 模型。
+在 Web 前端开发中，添加 Live2D 模型通常需要使用官方的 Live2D Cubism SDK，但官方 SDK 的使用相对复杂，且与现代前端框架的集成不够友好。EasyLive2D 项目致力于解决这些问题，提供一种更简单、更友好的方式来使用 Live2D 模型。
 
 ## 核心特性
 
@@ -17,7 +17,7 @@ easy-live2d 是一个基于 Pixi.js 的轻量、开发者友好的 Live2D Web SD
 
 ## 与官方 SDK 的区别
 
-easy-live2d 不是对官方 Live2D Cubism SDK 的替代，而是在其基础上进行封装和优化，使其更适合网页开发者使用。与官方 SDK 相比，easy-live2d 具有以下优势：
+EasyLive2D 不是对官方 Live2D Cubism SDK 的替代，而是在其基础上进行封装和优化，使其更适合网页开发者使用。与官方 SDK 相比，EasyLive2D 具有以下优势：
 
 - 简化了复杂的 API，降低了学习成本
 - 更好地集成了 Pixi.js 生态系统，使 Live2D 模型可以像普通 Pixi 精灵一样使用
@@ -26,7 +26,7 @@ easy-live2d 不是对官方 Live2D Cubism SDK 的替代，而是在其基础上�
 
 ## 适用场景
 
-easy-live2d 适用于以下场景：
+EasyLive2D 适用于以下场景：
 
 - 网页应用中需要添加 Live2D 模型作为虚拟助手或角色
 - 游戏开发中需要集成 Live2D 模型作为角色或 UI 元素
@@ -35,4 +35,4 @@ easy-live2d 适用于以下场景：
 
 ## 许可说明
 
-easy-live2d 是基于 MIT 许可的开源项目，但请注意，使用 easy-live2d 时，您仍需遵守 Live2D Cubism SDK 的相关许可要求。详细信息请参见[许可声明](/license)。
+EasyLive2D 是基于 MIT 许可的开源项目，但请注意，使用 EasyLive2D 时，您仍需遵守 Live2D Cubism SDK 的相关许可要求。详细信息请参见[许可声明](/license)。

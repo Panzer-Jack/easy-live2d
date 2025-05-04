@@ -1,14 +1,12 @@
-# Quick Start
+# Getting Started
 
-This page will guide you through getting started with easy-live2d, allowing you to integrate Live2D models into your web applications in just a few minutes.
+This page will guide you on how to quickly get started with easy-live2d, integrating Live2D models into your web application in just a few minutes.
 
-## Prerequisites
+## Recommended Configuration
 
-Before you begin, ensure your development environment meets the following requirements:
-
-- Node.js 14.x or higher
-- npm, yarn, or pnpm package manager
-- Basic knowledge of JavaScript/TypeScript
+- Node.js >= 18
+- Pixi.js >= 8
+- Cubism 5 models
 
 ## Installation
 
@@ -16,21 +14,21 @@ Install easy-live2d using your preferred package manager:
 
 ::: code-group
 ```bash [npm]
-npm install easylive2d
+npm install easy-live2d
 ```
 
 ```bash [yarn]
-yarn add easylive2d
+yarn add easy-live2d
 ```
 
 ```bash [pnpm]
-pnpm add easylive2d
+pnpm add easy-live2d
 ```
 :::
 
 ## Basic Usage
 
-Here's a simple example showing how to load and display a Live2D model in a web page:
+Here's a simple example showing how to load and display a Live2D model on a webpage:
 
 ```html
 <!DOCTYPE html>
@@ -55,40 +53,41 @@ Here's a simple example showing how to load and display a Live2D model in a web 
     import { Application, Ticker } from 'pixi.js';
     import { Live2DSprite, Config, Priority } from 'easylive2d';
 
-    // Create a Pixi application
-    const app = new Application();
-    app.init({
-      view: document.getElementById('live2d'),
-      backgroundAlpha: 0, // Transparent background
-    });
-
-    // Create a Live2D sprite
-    const live2DSprite = new Live2DSprite();
+    // Configure basic settings
+    Config.MotionGroupIdle = 'Idle'; // Set the default idle motion group
+    Config.MouseFollow = false; // Disable mouse following
     
-    // Initialize the sprite, set the model path
-    live2DSprite.init({
-      modelPath: '/path/to/your/model/Model.model3.json',
+    // Create Live2D sprite
+    const live2dSprite = new Live2DSprite();
+    live2dSprite.init({
+      modelPath: '/Resources/Hiyori/Hiyori.model3.json',
       ticker: Ticker.shared
     });
 
-    // Add event listener
-    live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-      console.log('Clicked on model part:', hitAreaName, 'position:', x, y);
-    });
-
-    // Add the Live2D sprite to the stage
-    app.stage.addChild(live2DSprite);
+    const init = async () => {
+      // Create application
+      const app = new Application();
+      await app.init({
+        view: document.getElementById('live2d'),
+        backgroundAlpha: 0, // Set to 0 for transparency if needed
+      });
+      
+      // Live2D sprite size
+      live2dSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio;
+      live2dSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio;
+      
+      // Add to stage
+      app.stage.addChild(live2dSprite);
+      console.log('EasyLive2d initialized successfully!');
+    }
     
-    // Set expression
-    live2DSprite.setExpression({
-      expressionId: 'normal'
-    });
+    init();
   </script>
 </body>
 </html>
 ```
 
-## Vue Integration
+## Integration with Vue
 
 Here's an example of integrating easy-live2d in a Vue 3 project:
 
@@ -98,16 +97,16 @@ Here's an example of integrating easy-live2d in a Vue 3 project:
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
-import { Application, Ticker } from 'pixi.js'
-import { Live2DSprite, Config, Priority } from 'easylive2d'
+import { onMounted, onUnmounted, ref } from 'vue';
+import { Application, Ticker } from 'pixi.js';
+import { Live2DSprite, Config, Priority } from 'easylive2d';
 
 const canvasRef = ref(null);
 const app = new Application();
 const live2DSprite = new Live2DSprite();
 
 // Configure basic settings
-Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
+Config.MotionGroupIdle = 'Idle'; // Set the default idle motion group
 Config.MouseFollow = false; // Disable mouse following
 
 // Initialize Live2D sprite
@@ -116,9 +115,9 @@ live2DSprite.init({
   ticker: Ticker.shared
 });
 
-// Add click event listener
+// Add hit area event listener
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('Clicked area:', hitAreaName, 'at', x, y);
+  console.log('Hit area:', hitAreaName, 'at', x, y);
 });
 
 onMounted(async () => {
@@ -160,6 +159,6 @@ onUnmounted(() => {
 ## Next Steps
 
 - Check out [Installation](/en/guide/installation) for more detailed installation information
-- Read [Basic Usage](/en/guide/basic-usage) to learn about more basic functions
+- Read [Basic Usage](/en/guide/basic-usage) to understand more basic features
 - Refer to the [API Documentation](/en/api/) for complete interface descriptions
-- Explore [Examples](/en/examples/basic) to learn about more advanced usage
+- Explore [Examples](/en/examples/basic) to learn more advanced usage
