@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import * as pkg from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -9,7 +10,17 @@ export default defineConfig({
     // 忽略死链接检查
     ignoreDeadLinks: true,
 
-    head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
+    head: [
+        ['meta', { name: 'author', content: pkg.author }],
+        [
+            'meta',
+            {
+                name: 'keywords',
+                content: 'EasyLive2D, Live2D, Pixi.js, Web SDK, JavaScript, TypeScript',
+            },
+        ],
+        ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ],
 
     // 国际化配置
     locales: {
