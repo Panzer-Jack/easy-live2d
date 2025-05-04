@@ -1,0 +1,36 @@
+{
+  "name": "@easy-live2d/core",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "author": {
+    "name": "Panzer_Jack",
+    "email": "panzer_jack@panzer-jack.cn",
+    "url": "https://www.panzer-jack.cn"
+  },
+  "license": "MPL-2.0",
+  "homepage": "",
+  "repository": "https://github.com/Panzer-Jack/easy-live2d",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@tweenjs/tween.js": "catalog:dep",
+    "dayjs": "catalog:dep",
+    "localforage": "catalog:dep",
+    "pixi-filters": "catalog:dep",
+    "pixi.js": "catalog:dep"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/tsconfig-paths": "catalog:dev",
+    "@pixi/devtools": "catalog:dev",
+    "@types/node": "catalog:dev",
+    "@unocss/eslint-plugin": "catalog:",
+    "tsup": "catalog:dev",
+    "typescript": "catalog:dev"
+  }
+}

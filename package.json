@@ -1,0 +1,29 @@
+{
+  "name": "easy-live2d",
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.10.0",
+  "description": "",
+  "author": "",
+  "keywords": [],
+  "main": "index.js",
+  "license": "MPL-2.0",
+  "homepage": "",
+  "repository": "https://github.com/Panzer-Jack/easy-live2d",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "pnpm -C docs docs:dev",
+    "docs:build": "pnpm -C docs docs:build",
+    "docs:preview": "pnpm -C docs docs:preview",
+    "dev": "vite",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@easy-live2d/core": "workspace:*",
+    "@antfu/eslint-config": "catalog:dev",
+    "@types/node": "catalog:dev",
+    "eslint": "^9.25.1",
+    "jiti": "catalog:dev",
+    "typescript": "catalog:dev"
+  }
+}

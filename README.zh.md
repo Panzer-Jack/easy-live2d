@@ -1,38 +1,46 @@
-# Easy-Live2D (still in intensive development...)
-  (Developing)
-  <p>
-    🌐 Available in:
-    <a href="README.zh.md">中文 (Chinese)</a>
-  </p>
+# EasyLive2D（还在加紧开发中。。。）
 
-Simplify your Live2D integration! A lightweight, developer-friendly wrapper for the Live2D Web SDK.
+让 Live2D 集成更简单！一个轻量、开发者友好的 Live2D Web SDK 封装库。
 
 ---
 
-## ✨ Features
+## TODO
+- （✅）将Core能力转移成Sprite
+  - 可以如同Sprite一样 自由控制x、y、大小等 
 
-- ⚡️ Support for Pixi.js v8 and Cubism 5 (both the latest versions)
-- 🌟 Ultra lightweight, removes redundant features
-- 🚀 Simplified and intuitive API
-- 🛠️ Compatible with the official Live2D Web SDK
-- 🎯 Supports custom loading and rendering
-- 📦 Works well with modern frameworks like Vue and React
+- （✅）读取模型路径
+- （✅）配置文件迁移
+- （✅）可以直接控制表情、动作
+- （✅）各种事件函数暴露
+- 语音
+- 嘴巴同步
+- webgl渲染挂载问题 （暂定）
+
+
+## ✨ 特性
+
+- ⚡️ 支持Pixi.js v8 和 Cubism 5 （ 均为当前最新版本 ）
+- 🌟 极致轻量，去除冗余功能
+- 🚀 更简单的 API 接口
+- 🛠️ 兼容官方 Live2D Web SDK
+- 🎯 支持自定义加载与渲染
+- 📦 适配现代前端框架（如 Vue、React）
 
 ---
 
-## 📦 Installation
+## 📦 安装
 
 ```bash
-pnpm add easy-live2d
-# or
-npm install easy-live2d
-# or
-yarn add easy-live2d
+pnpm add easylive2d
+# 或者
+npm install easylive2d
+# 或
+yarn add easylive2d
 ```
 
 ---
 
-## 🛠️ Quick Start
+## 🛠️ 快速上手
 
 ```vue
 <script setup lang="ts">
@@ -133,15 +141,15 @@ onUnmounted(() => {
 
 ---
 
-## 📖 Documentation
+## 📖 文档
 
-👉 [Usage Guide (Coming Soon)](#)
+👉 [使用指南（正在完善）](#)
 
 ---
 
-## 🤝 Contribution
+## 🤝 贡献
 
-Contributions are welcome! Feel free to open PRs and issues after reading the [Contribution Guide](#).
+欢迎 PR 和 Issue！请阅读 [贡献指南](#) 后参与开发。
 
 ---
 

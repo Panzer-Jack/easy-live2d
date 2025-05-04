@@ -1,40 +1,3 @@
-# Easy-Live2D (still in intensive development...)
-  (Developing)
-  <p>
-    🌐 Available in:
-    <a href="README.zh.md">中文 (Chinese)</a>
-  </p>
-
-Simplify your Live2D integration! A lightweight, developer-friendly wrapper for the Live2D Web SDK.
-
----
-
-## ✨ Features
-
-- ⚡️ Support for Pixi.js v8 and Cubism 5 (both the latest versions)
-- 🌟 Ultra lightweight, removes redundant features
-- 🚀 Simplified and intuitive API
-- 🛠️ Compatible with the official Live2D Web SDK
-- 🎯 Supports custom loading and rendering
-- 📦 Works well with modern frameworks like Vue and React
-
----
-
-## 📦 Installation
-
-```bash
-pnpm add easy-live2d
-# or
-npm install easy-live2d
-# or
-yarn add easy-live2d
-```
-
----
-
-## 🛠️ Quick Start
-
-```vue
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { Config, Live2DSprite, LogLevel, Priority } from '@easy-live2d/core'
@@ -128,23 +91,3 @@ onUnmounted(() => {
   background-color: pink;
 }
 </style>
-
-```
-
----
-
-## 📖 Documentation
-
-👉 [Usage Guide (Coming Soon)](#)
-
----
-
-## 🤝 Contribution
-
-Contributions are welcome! Feel free to open PRs and issues after reading the [Contribution Guide](#).
-
----
-
-## 📄 License
-
-[MIT](./LICENSE)

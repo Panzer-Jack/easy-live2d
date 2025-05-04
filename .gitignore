@@ -1,0 +1,35 @@
+# Mac.
+.DS_Store
+
+# Node modules.
+node_modules/
+**/node_modules/
+
+# Dist.
+dist/
+**/dist/
+dist_offline_*/
+dist_offline/
+
+# Testfile.
+test/unit/coverage
+test/e2e/reports
+.coverage-report/
+
+# Debug log.
+npm-debug.log
+selenium-debug.log
+
+# IDEs.
+.idea/
+.vscode/
+
+# Cache-Loader.
+.cache-loader/
+.cache/
+
+**/public/Resources/
+
+# 忽略 npm 锁文件，但保留 pnpm 锁文件
+package-lock.json
+# pnpm-lock.yaml - 不忽略此文件

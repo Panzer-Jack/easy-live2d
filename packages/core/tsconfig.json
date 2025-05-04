@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "baseUrl": ".",
+    "moduleResolution": "Node",
+    "paths": {
+      "@Framework/*": ["../cubism/Framework/src/*"]
+    },
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist"
+  },
+  "splitting": true,
+  "sourcemap": true,
+  "include": [
+    "src/**/*.ts",
+    "../cubism/Core/*.ts"
+  ]
+}
