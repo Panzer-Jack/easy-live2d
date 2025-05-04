@@ -1,5 +1,7 @@
 # EasyLive2D (Under active development...)
 
+English | [中文](/README.zh.md)
+
 Making Live2D integration easier! A lightweight, developer-friendly Live2D Web SDK wrapper library based on Pixi.js.
 
 ---

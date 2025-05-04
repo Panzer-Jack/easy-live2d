@@ -1,5 +1,7 @@
 # EasyLive2D（还在加紧开发中。。。）
 
+中文 | [English](/README.md)
+
 让 Live2D 集成更简单！一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库。
 
 ---
