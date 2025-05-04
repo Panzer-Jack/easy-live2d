@@ -1,13 +1,38 @@
 {
   "name": "easy-live2d",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "packageManager": "pnpm@10.10.0",
-  "description": "",
-  "author": "Panzer_Jack",
-  "keywords": [],
-  "main": "index.js",
+  "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "author": {
+    "name": "Panzer_Jack",
+    "email": "panzer_jack@panzer-jack.cn",
+    "url": "https://www.panzer-jack.cn"
+  },
+  "keywords": [
+    "easy-live2d",
+    "EasyLive2D",
+    "Live2D Web SDK",
+    "live2d"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "license": "MPL-2.0",
-  "homepage": "",
+  "homepage": "https://panzer-jack.github.io/easy-live2d/",
   "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,7 +41,11 @@
     "docs:preview": "pnpm -C docs docs:preview",
     "dev": "vite",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "build:core": "pnpm -C packages/core build",
+    "build": "pnpm build:core && tsup",
+    "prepublishOnly": "pnpm build",
+    "publish": "npm publish"
   },
   "devDependencies": {
     "@easy-live2d/core": "workspace:*",
@@ -24,6 +53,8 @@
     "@types/node": "catalog:dev",
     "eslint": "^9.25.1",
     "jiti": "catalog:dev",
-    "typescript": "catalog:dev"
+    "tsup": "catalog:dev",
+    "typescript": "catalog:dev",
+    "@esbuild-plugins/tsconfig-paths": "^0.1.0"
   }
 }

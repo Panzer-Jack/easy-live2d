@@ -1,10 +1,13 @@
 {
   "name": "@easy-live2d/playground",
+  "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
   "type": "module",
-  "version": "0.0.0",
   "private": true,
   "license": "MPL-2.0",
-  "homepage": "",
+  "homepage": "https://panzer-jack.github.io/easy-live2d/",
   "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "scripts": {
     "dev": "vite",

@@ -1,10 +1,10 @@
-# Installation
+# Installation & Configuration
 
-This page will guide you through the installation and configuration of EasyLive2D.
+This page will guide you on how to install and configure EasyLive2d.
 
 ## Installation
 
-EasyLive2D can be installed through various package managers:
+EasyLive2d can be installed using various package managers:
 
 ::: code-group
 ```bash [npm]
@@ -22,18 +22,18 @@ pnpm add easy-live2d
 
 ## Dependencies
 
-EasyLive2D requires the following dependencies:
+EasyLive2d requires the following dependencies:
 
 - [Pixi.js](https://pixijs.com/) v8.0.0+
-- [Live2D Cubism](https://www.live2d.com/en/download/cubism-sdk/) SDK Core
+- [Live2D Cubism](https://www.live2d.com/en/download/cubism-sdk/) SDK Core 
 
-## Environment Setup
+## Environment Configuration
 
-### Basic Configuration
+### Basic Setup
 
-Before using EasyLive2D, you need to ensure that you have properly configured Pixi.js and Live2D Cubism SDK.
+Before using EasyLive2d, you need to ensure that Pixi.js and Live2D Cubism SDK are correctly configured.
 
-1. **Include Live2D Cubism Core**
+1. **Import Live2D Cubism Core**
 
    Make sure to include Live2D Cubism Core in your HTML file:
 
@@ -57,7 +57,7 @@ Before using EasyLive2D, you need to ensure that you have properly configured Pi
 
 ### Style Settings
 
-To display Live2D models correctly, it's recommended to add the following CSS styles:
+To properly display Live2D models, it's recommended to add the following CSS styles:
 
 ```css
 html, body {
@@ -74,7 +74,7 @@ canvas {
 
 ### Model File Structure
 
-It's recommended to organize your Live2D model files according to the official structure:
+It's recommended to organize your Live2D model files according to the official recommendation:
 
 ```
 public/
@@ -91,9 +91,9 @@ public/
         *.exp3.json
 ```
 
-## Verify Installation
+## Verifying Installation
 
-After installation, you can verify that EasyLive2D has been correctly installed and configured with the following simple code:
+After installation, you can verify that EasyLive2d is correctly installed and configured with the following simple code:
 
 ```js
 import { Application, Ticker } from 'pixi.js';
@@ -104,7 +104,7 @@ const init = async () => {
   const app = new Application();
   await app.init({
     view: document.getElementById('live2d'),
-    backgroundAlpha: 0, // Set to 0 for transparency if needed
+    backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
   });
 
   // Create Live2D sprite
@@ -113,15 +113,14 @@ const init = async () => {
     modelPath: '/Resources/Hiyori/Hiyori.model3.json',
     ticker: Ticker.shared
   });
-  
-  // Set Live2D sprite size
-  live2dSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-  live2dSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+    // Live2D sprite size
+  live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+  live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
 
   // Add to stage
   app.stage.addChild(live2dSprite);
 
-  console.log('EasyLive2D initialized successfully!');
+  console.log('EasyLive2d initialized successfully!');
 }
 
 init()
@@ -131,17 +130,17 @@ If you can see the model loading and displaying correctly, the installation and 
 
 ## Common Issues
 
-### Model Fails to Load
+### Model Cannot Load
 
 - Check if the path is correct
-- Confirm that Live2D Cubism Core has been loaded correctly
-- Check the browser console for error messages
+- Confirm that Live2D Cubism Core has been loaded properly
+- Check for error messages in the browser console
 
 ### WebGL Compatibility Issues
 
-EasyLive2D depends on WebGL. If you encounter rendering issues, please ensure:
+EasyLive2d depends on WebGL. If you encounter rendering issues, make sure:
 
-- You are using a modern browser that supports WebGL
+- You're using a modern browser that supports WebGL
 - Your graphics card drivers are updated
 
-If you have other issues, please refer to the [API Documentation](/en/api/) or submit a [GitHub Issue](https://github.com/Panzer-Jack/easy-live2d/issues).
+If you have any other issues, please refer to the [API Documentation](/en/api/) or submit a [GitHub Issue](https://github.com/Panzer-Jack/easy-live2d/issues).

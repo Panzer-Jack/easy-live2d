@@ -1,6 +1,6 @@
 # Getting Started
 
-This page will guide you on how to quickly get started with easy-live2d, integrating Live2D models into your web application in just a few minutes.
+This page will guide you to quickly get started with easy-live2d, integrating Live2D models into your web application in just a few minutes.
 
 ## Recommended Configuration
 
@@ -28,7 +28,7 @@ pnpm add easy-live2d
 
 ## Basic Usage
 
-Here's a simple example showing how to load and display a Live2D model on a webpage:
+Here is a simple example showing how to load and display a Live2D model on a webpage:
 
 ```html
 <!DOCTYPE html>
@@ -54,9 +54,8 @@ Here's a simple example showing how to load and display a Live2D model on a webp
     import { Live2DSprite, Config, Priority } from 'easylive2d';
 
     // Configure basic settings
-    Config.MotionGroupIdle = 'Idle'; // Set the default idle motion group
+    Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
     Config.MouseFollow = false; // Disable mouse following
-    
     // Create Live2D sprite
     const live2dSprite = new Live2DSprite();
     live2dSprite.init({
@@ -69,19 +68,16 @@ Here's a simple example showing how to load and display a Live2D model on a webp
       const app = new Application();
       await app.init({
         view: document.getElementById('live2d'),
-        backgroundAlpha: 0, // Set to 0 for transparency if needed
+        backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
       });
-      
       // Live2D sprite size
-      live2dSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio;
-      live2dSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio;
-      
+      live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+      live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
       // Add to stage
       app.stage.addChild(live2dSprite);
       console.log('EasyLive2d initialized successfully!');
     }
-    
-    init();
+    init()
   </script>
 </body>
 </html>
@@ -97,16 +93,16 @@ Here's an example of integrating easy-live2d in a Vue 3 project:
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite, Config, Priority } from 'easylive2d';
+import { onMounted, onUnmounted, ref } from 'vue'
+import { Application, Ticker } from 'pixi.js'
+import { Live2DSprite, Config, Priority } from 'easylive2d'
 
 const canvasRef = ref(null);
 const app = new Application();
 const live2DSprite = new Live2DSprite();
 
 // Configure basic settings
-Config.MotionGroupIdle = 'Idle'; // Set the default idle motion group
+Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
 Config.MouseFollow = false; // Disable mouse following
 
 // Initialize Live2D sprite
@@ -115,9 +111,9 @@ live2DSprite.init({
   ticker: Ticker.shared
 });
 
-// Add hit area event listener
+// Add click event listener
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('Hit area:', hitAreaName, 'at', x, y);
+  console.log('Click area:', hitAreaName, 'at', x, y);
 });
 
 onMounted(async () => {
@@ -158,7 +154,7 @@ onUnmounted(() => {
 
 ## Next Steps
 
-- Check out [Installation](/en/guide/installation) for more detailed installation information
-- Read [Basic Usage](/en/guide/basic-usage) to understand more basic features
+- Check out [Installation & Configuration](/en/guide/installation) for more detailed installation information
+- Read [Basic Usage](/en/guide/basic-usage) to learn more about basic functionality
 - Refer to the [API Documentation](/en/api/) for complete interface descriptions
 - Explore [Examples](/en/examples/basic) to learn more advanced usage

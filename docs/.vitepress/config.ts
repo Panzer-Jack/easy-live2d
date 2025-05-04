@@ -5,13 +5,13 @@ import * as pkg from '../../package.json'
 export default defineConfig({
     base: '/easy-live2d/',
     title: "EasyLive2d",
-    description: "一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库",
+    description: "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
 
     // 忽略死链接检查
     ignoreDeadLinks: true,
 
     head: [
-        ['meta', { name: 'author', content: pkg.author }],
+        ['meta', { name: 'author', content: pkg.author.name }],
         [
             'meta',
             {

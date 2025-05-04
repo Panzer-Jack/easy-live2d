@@ -1,15 +1,13 @@
 {
   "name": "@easy-live2d/core",
   "type": "module",
-  "version": "1.0.0",
-  "private": true,
   "author": {
     "name": "Panzer_Jack",
     "email": "panzer_jack@panzer-jack.cn",
     "url": "https://www.panzer-jack.cn"
   },
   "license": "MPL-2.0",
-  "homepage": "",
+  "homepage": "https://panzer-jack.github.io/easy-live2d/",
   "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "main": "dist/index.js",
   "module": "dist/index.js",

@@ -29,6 +29,7 @@ selenium-debug.log
 .cache/
 
 **/public/Resources/
+**/Samples/
 
 # 忽略 npm 锁文件，但保留 pnpm 锁文件
 package-lock.json

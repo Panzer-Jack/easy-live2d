@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "baseUrl": ".",
+        "moduleResolution": "Node",
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": "dist"
+    },
+    "splitting": true,
+    "sourcemap": true,
+    "include": [
+        "src"
+    ]
+}
