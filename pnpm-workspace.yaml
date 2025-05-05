@@ -1,0 +1,44 @@
+packages:
+  - docs
+  - packages/*
+
+catalogs:
+  dep:
+    # 核心运行时依赖
+    '@tweenjs/tween.js': ^25.0.0
+    'dayjs': ^1.11.13
+    'localforage': ^1.10.0
+    'pixi-filters': ^6.1.0
+    'pixi.js': ^8.9.1
+
+  dev:
+    # 构建工具
+    '@esbuild-plugins/tsconfig-paths': ^0.1.0
+    'tsup': ^8.4.0
+    'vite': ^6.0.5
+    'rimraf': ^6.0.1
+
+    # TypeScript 相关
+    '@tsconfig/node22': ^22.0.1
+    'typescript': ^5.7.2
+    '@types/jsdom': ^21.1.6
+    '@types/node': ^22.14.1
+
+    # 代码风格和工具
+    '@antfu/eslint-config': ^4.12.0
+    '@pixi/devtools': ^2.0.1
+    'prettier': ^3.4.2
+    'jiti': ^2.4.2
+catalog:
+  '@unocss/eslint-plugin': 66.1.0-beta.12
+  '@vitejs/plugin-vue': ^5.2.3
+  '@vue/test-utils': ^2.4.6
+  '@vue/tsconfig': ^0.7.0
+  jsdom: ^26.0.0
+  npm-run-all2: ^7.0.2
+  pinia: ^3.0.1
+  vite-plugin-vue-devtools: ^7.7.2
+  vitest: ^3.1.1
+  vue: ^3.5.13
+  vue-router: ^4.5.0
+  vue-tsc: ^2.2.8

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        margin: 0;
+      }
+
+      html {
+        overscroll-behavior-x: none;
+        touch-action: none;
+      }
+
+      body {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      body > canvas:only-child {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script src="/Core/live2dcubismcore.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
