@@ -19,7 +19,7 @@ export default defineConfig({
                 content: 'easy-live2d, Live2D, Pixi.js, Web SDK, JavaScript, TypeScript',
             },
         ],
-        ['link', { rel: 'icon', href: '/favicon.ico' }],
+        ['link', { rel: 'shortcut icon', href: 'https://pic1.imgdb.cn/item/6818d04758cb8da5c8dde8ba.png' }],
     ],
 
     // 国际化配置
