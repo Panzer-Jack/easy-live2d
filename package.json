@@ -1,6 +1,6 @@
 {
   "name": "easy-live2d",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "packageManager": "pnpm@10.11.0",
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
   "engines": {
@@ -48,8 +48,7 @@
     "lint:fix": "eslint --fix"
   },
   "dependencies": {
-    "@pixi/sound": "^6.0.1",
-    "pixi.js": "catalog:dep"
+    "@pixi/sound": "^6.0.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

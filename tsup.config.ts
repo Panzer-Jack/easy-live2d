@@ -20,7 +20,6 @@ export default defineConfig({
         'pixi-filters',
         'pixi.js'
     ],
-
     esbuildPlugins: [
         TsconfigPathsPlugin({ tsconfig: './tsconfig.json' }),
     ],
