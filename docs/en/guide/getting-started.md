@@ -130,6 +130,23 @@ onMounted(async () => {
     live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio;
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio;
     app.stage.addChild(live2DSprite);
+
+    // play voice
+    live2DSprite.playVoice({
+    // only support wav
+      voicePath: '/Resources/Huusya/voice/test.wav',
+    })
+
+    // stop voice
+    // live2DSprite.stopVoice()
+
+    setTimeout(() => {
+      // play voice
+      live2DSprite.playVoice({
+        voicePath: '/Resources/Huusya/voice/test.wav',
+        immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+      })
+    }, 10000)
     
     // Set expression
     live2DSprite.setExpression({

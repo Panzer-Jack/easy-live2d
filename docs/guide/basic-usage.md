@@ -79,6 +79,75 @@ live2DSprite.width = 1400
 live2DSprite.height = 900
 ```
 
+## 角色说话（口型同步）
+当前音嘴同步 仅支持wav格式
+
+首先确保live2d模型已设置 MouthMovement，没有参考下面方法
+
+### 方法1:
+
+在Live2D模型编辑器 中开启口型同步 设置 MouthMovement
+
+这里方法可以参看[官方文档](https://docs.live2d.com/zh-CHS/cubism-sdk-tutorials/lipsync-cocos/)
+
+### 方法2:
+
+在模型的 xx.model3.json 中 找到 “Groups” 中 那个 `"Name": "LipSync"` 的部分，添加：`"Ids":"ParamMouthOpenY"`, 参考如下
+```json
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "xx.moc3",
+		"Textures": [
+			"xx.2048/texture_00.png"
+		],
+		"Physics": "xx.physics3.json",
+		"DisplayInfo": "xx.cdi3.json",
+		"Motions": {
+			"test": [],
+			"idle": []
+		},
+		"Expressions": []
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY"
+			]
+		}
+	],
+	"HitAreas": []
+}
+```
+
+### 角色说话
+```js
+// 播放声音
+live2DSprite.playVoice({
+  // 当前音嘴同步 仅支持wav格式
+  voicePath: '/Resources/Huusya/voice/test.wav',
+})
+
+// 停止声音
+// live2DSprite.stopVoice()
+
+setTimeout(() => {
+  // 播放声音
+  live2DSprite.playVoice({
+    voicePath: '/Resources/Huusya/voice/test.wav',
+    immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+  })
+}, 10000)
+```
+
+
 ## 播放动作
 
 easy-live2d 提供了简单的方法来播放模型的动作：

@@ -21,9 +21,8 @@ You can directly experience the charm of easy-live2d in your browser using this 
 - (✅) Configuration file migration
 - (✅) Direct control of expressions and actions
 - (✅) Expose various event functions
-- ( ) Official documentation
-- Voice functionality
-- Mouth synchronization
+- (✅) Voice functionality
+- (✅ -) Mouth synchronization - Currently only supports wav format
 - WebGL rendering mounting issues (tentative)
 
 ## ✨ Features
@@ -85,17 +84,30 @@ Native HTML
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
       import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority } from 'easy-live2d';
+      import { Live2DSprite, Config, Priority, LogLevel } from 'easy-live2d';
 
       // Configure basic settings
       Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
       Config.MouseFollow = false; // Disable mouse following
-      // Create Live2D sprite
-      const live2dSprite = new Live2DSprite();
-      live2dSprite.init({
-        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+      Config.CubismLoggingLevel = LogLevel.LogLevel_Off // Set logging level
+      
+      // Create Live2D sprite and initialize
+      const live2DSprite = new Live2DSprite();
+      live2DSprite.init({
+        modelPath: '/Resources/Huusya/Huusya.model3.json',
         ticker: Ticker.shared
       });
+
+      // Listen for click events
+      live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
+        console.log('hit', hitAreaName, x, y);
+      })
+
+      // You can also initialize directly like this
+      // const live2DSprite = new Live2DSprite({
+      //   modelPath: '/Resources/Huusya/Huusya.model3.json',
+      //   ticker: Ticker.shared
+      // })
 
       const init = async () => {
         // Create application
@@ -104,12 +116,41 @@ Native HTML
           view: document.getElementById('live2d'),
           backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
         });
-        // Live2D sprite size
+        // Live2D sprite size and position settings
+        live2DSprite.x = -300
+        live2DSprite.y = -300
         live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
         live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        // Add to stage
         app.stage.addChild(live2dSprite);
-        console.log('easy-live2d initialized successfully!');
+
+        // Set expression
+        live2DSprite.setExpression({
+          expressionId: 'normal',
+        })
+
+        // Play voice
+        live2DSprite.playVoice({
+          // Current mouth synchronization only supports wav format
+          voicePath: '/Resources/Huusya/voice/test.wav',
+        })
+
+        // Stop voice
+        // live2DSprite.stopVoice()
+
+        setTimeout(() => {
+          // Play voice
+          live2DSprite.playVoice({
+            voicePath: '/Resources/Huusya/voice/test.wav',
+            immediate: true // Whether to play immediately: default is true, will stop current playing voice and play new voice immediately
+          })
+        }, 10000)
+
+        // Set motion
+        live2DSprite.startMotion({
+          group: 'test',
+          no: 0,
+          priority: 3,
+        })
       }
       init()
     </script>
@@ -172,6 +213,23 @@ onMounted(async () => {
       expressionId: 'normal',
     })
 
+    // Play voice
+    live2DSprite.playVoice({
+      // Current mouth synchronization only supports wav format
+      voicePath: '/Resources/Huusya/voice/test.wav',
+    })
+
+    // Stop voice
+    // live2DSprite.stopVoice()
+
+    setTimeout(() => {
+      // Play voice
+      live2DSprite.playVoice({
+        voicePath: '/Resources/Huusya/voice/test.wav',
+        immediate: true // Whether to play immediately: default is true, will stop current playing voice and play new voice immediately
+      })
+    }, 10000)
+
     // Set motion
     live2DSprite.startMotion({
       group: 'test',
@@ -216,6 +274,51 @@ onUnmounted(() => {
 </style>
 
 ```
+
+## Voice Lip-Sync
+
+Method 1:
+
+Enable lip-sync by setting MouthMovement in the Live2D model editor.
+
+You can refer to the [official documentation](https://docs.live2d.com/en/cubism-sdk-tutorials/lipsync/) for this method.
+
+Method 2:
+In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"`, and add: `"Ids":"ParamMouthOpenY"`. See example below:
+```json
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "xx.moc3",
+		"Textures": [
+			"xx.2048/texture_00.png"
+		],
+		"Physics": "xx.physics3.json",
+		"DisplayInfo": "xx.cdi3.json",
+		"Motions": {
+			"test": [],
+			"idle": []
+		},
+		"Expressions": []
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY"
+			]
+		}
+	],
+	"HitAreas": []
+}
+```
+
 
 ## 🤝 Contributing
 

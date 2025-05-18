@@ -21,9 +21,8 @@
 - （✅）配置文件迁移
 - （✅）可以直接控制表情、动作
 - （✅）各种事件函数暴露
-- （）官方文档
-- 语音
-- 嘴巴同步
+- （✅）语音
+- （✅ -）语音口型同步 - 当前仅支持wav格式
 - webgl渲染挂载问题 （暂定）
 
 ## ✨ 特性
@@ -88,15 +87,28 @@ yarn add easy-live2d
       import { Application, Ticker } from 'pixi.js';
       import { Live2DSprite, Config, Priority } from 'easy-live2d';
 
-      // Configure basic settings
-      Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
-      Config.MouseFollow = false; // Disable mouse following
-      // Create Live2D sprite
-      const live2dSprite = new Live2DSprite();
-      live2dSprite.init({
-        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+      // 设置 Config 默认配置
+      Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
+      Config.MouseFollow = false // 禁用鼠标跟随
+      Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
+
+      // 创建Live2D精灵 并初始化
+      const live2DSprite = new Live2DSprite()
+      live2DSprite.init({
+        modelPath: '/Resources/Huusya/Huusya.model3.json',
         ticker: Ticker.shared
       });
+
+      // 监听点击事件
+      live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
+        console.log('hit', hitAreaName, x, y);
+      })
+
+      // 你也可以直接这样初始化
+      // const live2DSprite = new Live2DSprite({
+      //   modelPath: '/Resources/Huusya/Huusya.model3.json',
+      //   ticker: Ticker.shared
+      // })
 
       const init = async () => {
         // Create application
@@ -105,12 +117,41 @@ yarn add easy-live2d
           view: document.getElementById('live2d'),
           backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
         });
-        // Live2D sprite size
+        // Live2D精灵大小坐标设置
+        live2DSprite.x = -300
+        live2DSprite.y = -300
         live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
         live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        // Add to stage
-        app.stage.addChild(live2dSprite);
-        console.log('easy-live2d initialized successfully!');
+        app.stage.addChild(live2DSprite);
+
+        // 设置表情
+        live2DSprite.setExpression({
+          expressionId: 'normal',
+        })
+
+        // 播放声音
+        live2DSprite.playVoice({
+          // 当前音嘴同步 仅支持wav格式
+          voicePath: '/Resources/Huusya/voice/test.wav',
+        })
+
+        // 停止声音
+        // live2DSprite.stopVoice()
+
+        setTimeout(() => {
+          // 播放声音
+          live2DSprite.playVoice({
+            voicePath: '/Resources/Huusya/voice/test.wav',
+            immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+          })
+        }, 10000)
+
+        // 设置动作
+        live2DSprite.startMotion({
+          group: 'test',
+          no: 0,
+          priority: 3,
+        })
       }
       init()
     </script>
@@ -173,6 +214,23 @@ onMounted(async () => {
       expressionId: 'normal',
     })
 
+    // 播放声音
+    live2DSprite.playVoice({
+      // 当前音嘴同步 仅支持wav格式
+      voicePath: '/Resources/Huusya/voice/test.wav',
+    })
+
+        // 停止声音
+    // live2DSprite.stopVoice()
+
+    setTimeout(() => {
+      // 播放声音
+      live2DSprite.playVoice({
+        voicePath: '/Resources/Huusya/voice/test.wav',
+        immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+      })
+    }, 10000)
+
     // 设置动作
     live2DSprite.startMotion({
       group: 'test',
@@ -217,6 +275,51 @@ onUnmounted(() => {
 </style>
 
 ```
+
+## 语音口型同步
+
+方法1:
+
+在Live2D模型编辑器 中开启口型同步 设置 MouthMovement
+
+这里方法可以参看[官方文档](https://docs.live2d.com/zh-CHS/cubism-sdk-tutorials/lipsync-cocos/)
+
+方法2:
+在模型的 xx.model3.json 中 找到 “Groups” 中 那个 `"Name": "LipSync"` 的部分，添加：`"Ids":"ParamMouthOpenY"`, 参考如下
+```json
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "xx.moc3",
+		"Textures": [
+			"xx.2048/texture_00.png"
+		],
+		"Physics": "xx.physics3.json",
+		"DisplayInfo": "xx.cdi3.json",
+		"Motions": {
+			"test": [],
+			"idle": []
+		},
+		"Expressions": []
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY"
+			]
+		}
+	],
+	"HitAreas": []
+}
+```
+
 
 ## 🤝 贡献
 

@@ -1,38 +1,7 @@
 /* eslint-disable style/indent-binary-ops */
 
 
-/** @deprecated 随着getInstance()被弃用，此变量也已被弃用。 */
-// eslint-disable-next-line import/no-mutable-exports
-export let instance: SoundManager
-
 export class SoundManager {
-  /**
-   * 返回类的实例（单例）。
-   * 如果实例尚未创建，则在内部创建实例。
-   *
-   * @return 类的实例
-   * @deprecated 此类中单例模式的使用已被弃用。请改用 new LAppWavFileHandler()。
-   */
-  public static getInstance(): SoundManager {
-    if (instance === null) {
-      instance = new SoundManager()
-    }
-
-    return instance
-  }
-
-  /**
-   * 释放类的实例（单例）。
-   *
-   * @deprecated 随着getInstance()被弃用，此函数也已被弃用。
-   */
-  public static releaseInstance(): void {
-    if (instance != null) {
-      instance = void 0
-    }
-
-    instance = null
-  }
 
   public update(deltaTimeSeconds: number) {
     let goalOffset: number

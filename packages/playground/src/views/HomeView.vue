@@ -8,7 +8,7 @@ const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
 
 // 设置 Config 默认配置
-Config.MotionGroupIdle = 'idle' // 设置默认的空闲动作组
+Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
 Config.MouseFollow = false // 禁用鼠标跟随
 Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 
@@ -16,7 +16,7 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
 live2DSprite.init({
-  modelPath: '/Resources/尤利娅/尤利娅.model3.json',
+  modelPath: '/Resources/Huusya/Huusya.model3.json',
   ticker: Ticker.shared
 });
 
@@ -44,15 +44,32 @@ onMounted(async () => {
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
     app.stage.addChild(live2DSprite);
 
-    live2DSprite.setExpression({
-      expressionId: 'happy',
+    // live2DSprite.setExpression({
+    //   expressionId: 'happy',
+    // })
+
+    live2DSprite.startMotion({
+      group: 'idle',
+      no: 0,
+      priority: 3,
     })
 
-    // live2DSprite.startMotion({
-    //   group: 'test',
-    //   no: 0,
-    //   priority: 3,
-    // })
+    // 播放声音
+    live2DSprite.playVoice({
+      // 当前音嘴同步 仅支持wav格式
+      voicePath: '/Resources/Huusya/voice/test.wav',
+    })
+
+    // 停止声音
+    // live2DSprite.stopVoice()
+
+    setTimeout(() => {
+      // 播放声音
+      live2DSprite.playVoice({
+        voicePath: '/Resources/Huusya/voice/test.wav',
+        immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+      })
+    }, 10000)
   }
 
   initDevtools({ app: app })

@@ -36,6 +36,7 @@ import { Config, Priority } from '../utils/config'
 import { SoundManager } from './sound-manager'
 import { ToolManager } from './tool-manager'
 import { eventManager, EventManager } from './event-manager'
+import { sound } from '@pixi/sound'
 
 enum LoadStep {
   LoadAssets,
@@ -530,7 +531,6 @@ export class ModelManager extends CubismUserModel {
 
       this._wavFileHandler.update(deltaTimeSeconds)
       value = this._wavFileHandler.getRms()
-
       for (let i = 0; i < this._lipSyncIds.getSize(); ++i) {
         this._model.addParameterValueById(this._lipSyncIds.at(i), value, 0.8)
       }
@@ -542,6 +542,35 @@ export class ModelManager extends CubismUserModel {
     }
 
     this._model.update()
+  }
+
+  /**
+   * 开始播放指定的声音
+   * @param voicePath 声音路径
+   */
+  public async playVoice(
+    voicePath: string,
+    immediate: boolean,
+  ) {
+    if (voicePath !== '') {
+      if (immediate) {
+        this.stopVoice()
+      }
+      sound.add('voice', voicePath)
+      this._wavFileHandler.start(voicePath)
+      await sound.play('voice')
+    }
+  }
+
+  /**
+   * 停止播放指定的声音
+   */
+  public stopVoice() {
+    if (sound.find('voice')) {
+      sound.stop('voice')
+      sound.remove('voice')
+      this._wavFileHandler.releasePcmData()
+    }
   }
 
   /**
@@ -609,14 +638,6 @@ export class ModelManager extends CubismUserModel {
     } else {
       motion.setBeganMotionHandler(onBeganMotionHandler)
       motion.setFinishedMotionHandler(onFinishedMotionHandler)
-    }
-
-    // 语音
-    const voice = this._modelSetting.getMotionSoundFileName(group, no)
-    if (voice.localeCompare('') !== 0) {
-      let path = voice
-      path = this._modelHomeDir + path
-      this._wavFileHandler.start(path)
     }
 
     if (this._debugMode) {
@@ -720,7 +741,7 @@ export class ModelManager extends CubismUserModel {
     }
 
     const count: number = this._modelSetting.getHitAreasCount()
-    
+
     for (let i = 0; i < count; i++) {
       if (this._modelSetting.getHitAreaName(i) === hitAreaName) {
         const drawId: CubismIdHandle = this._modelSetting.getHitAreaId(i)
@@ -891,6 +912,8 @@ export class ModelManager extends CubismUserModel {
    */
   public constructor() {
     super()
+
+    sound.disableAutoPause = true
 
     this._modelSetting = null
     this._modelHomeDir = null

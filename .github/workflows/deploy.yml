@@ -43,6 +43,8 @@ jobs:
           cache: pnpm # 使用 pnpm 缓存
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      - name: Setup npm registry
+        run: pnpm config set registry https://registry.npmjs.org
       - name: Install dependencies
         run: pnpm install # 使用 pnpm install 而不是 npm ci
       - name: Build with VitePress

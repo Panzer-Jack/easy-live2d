@@ -95,6 +95,36 @@ class Live2DSprite extends Sprite {
   }
 
   /**
+   * 开始播放指定的声音
+   * @param voicePath 声音路径
+   * @param immediate 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+   */
+  public async playVoice({
+    voicePath,
+    immediate = true
+  }: {
+    voicePath: string
+    immediate?: boolean
+  }) {
+    if (this._initialized === false) {
+      this._preQueue.add(() => this.playVoice({ voicePath }))
+      return null
+    }
+    return this._model.playVoice(voicePath, immediate)
+  }
+
+  /**
+   * 停止播放声音
+   */
+  public stopVoice() {
+    if (this._initialized === false) {
+      this._preQueue.add(() => this.stopVoice())
+      return null
+    }
+    return this._model.stopVoice()
+  }
+
+  /**
    * 设置指定的表情动作
    *
    * @param expressionId 表情动作的ID

@@ -17,6 +17,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
+    "@pixi/sound": "^6.0.1",
     "@tweenjs/tween.js": "catalog:dep",
     "dayjs": "catalog:dep",
     "localforage": "catalog:dep",

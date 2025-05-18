@@ -29,7 +29,7 @@ features:
     details: 支持最新的 Pixi.js v8 和 Cubism 5 模型，去除冗余功能，优化性能
   - icon: 🚀
     title: 简洁易用
-    details: 提供更简单直观的 API 接口，降低使用门槛，支持模型、动作、表情、事件等全方位控制，满足各种交互需求
+    details: 提供更简单直观的 API 接口，降低使用门槛，支持模型、动作、表情、事件、语音等全方位控制，满足各种交互需求
   - icon: 📦
     title: 框架友好
     details: 支持原生，且适配现代前端框架（如 Vue、React），轻松集成

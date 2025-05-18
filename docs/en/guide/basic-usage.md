@@ -79,6 +79,74 @@ live2DSprite.width = 1400
 live2DSprite.height = 900
 ```
 
+## Character Speaking (Lip Sync)
+Currently, only WAV format is supported for lip-sync
+
+First, ensure the Live2D model has set up MouthMovement. If not, refer to the methods below.
+
+### Method 1:
+
+Enable lip sync in the Live2D model editor by setting MouthMovement.
+
+You can refer to the [official documentation](https://docs.live2d.com/en/cubism-sdk-tutorials/lipsync-cocos/) for this method.
+
+### Method 2:
+
+In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"` and add: `"Ids":"ParamMouthOpenY"`, as shown below:
+```json
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "xx.moc3",
+		"Textures": [
+			"xx.2048/texture_00.png"
+		],
+		"Physics": "xx.physics3.json",
+		"DisplayInfo": "xx.cdi3.json",
+		"Motions": {
+			"test": [],
+			"idle": []
+		},
+		"Expressions": []
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY"
+			]
+		}
+	],
+	"HitAreas": []
+}
+```
+
+### Playing Voice
+```js
+// Play voice
+live2DSprite.playVoice({
+  // Currently, only wav format is supported for lip-sync
+  voicePath: '/Resources/Huusya/voice/test.wav',
+})
+
+// Stop voice
+// live2DSprite.stopVoice()
+
+setTimeout(() => {
+  // Play voice
+  live2DSprite.playVoice({
+    voicePath: '/Resources/Huusya/voice/test.wav',
+    immediate: true // Whether to play immediately: defaults to true, will stop currently playing sound and immediately play a new one
+  })
+}, 10000)
+```
+
 ## Play Motions
 
 easy-live2d provides simple methods to play model motions:

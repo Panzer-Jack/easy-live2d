@@ -1,7 +1,7 @@
 {
   "name": "easy-live2d",
-  "version": "0.1.0",
-  "packageManager": "pnpm@10.10.0",
+  "version": "0.2.0",
+  "packageManager": "pnpm@10.11.0",
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
@@ -39,22 +39,26 @@
     "docs:dev": "pnpm -C docs docs:dev",
     "docs:build": "pnpm -C docs docs:build",
     "docs:preview": "pnpm -C docs docs:preview",
-    "dev": "vite",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "dev:playground": "pnpm -C packages/playground dev",
     "build:core": "pnpm -C packages/core build",
     "build": "pnpm build:core && tsup",
     "prepublishOnly": "pnpm build",
-    "publish": "npm publish"
+    "publish": "npm publish",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "dependencies": {
+    "@pixi/sound": "^6.0.1",
+    "pixi.js": "catalog:dep"
   },
   "devDependencies": {
-    "@easy-live2d/core": "workspace:*",
     "@antfu/eslint-config": "catalog:dev",
+    "@easy-live2d/core": "workspace:*",
+    "@esbuild-plugins/tsconfig-paths": "^0.1.0",
     "@types/node": "catalog:dev",
     "eslint": "^9.25.1",
     "jiti": "catalog:dev",
     "tsup": "catalog:dev",
-    "typescript": "catalog:dev",
-    "@esbuild-plugins/tsconfig-paths": "^0.1.0"
+    "typescript": "catalog:dev"
   }
 }
