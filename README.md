@@ -109,8 +109,18 @@ Native HTML
       //   ticker: Ticker.shared
       // })
 
+      // Create application
       const init = async () => {
-        // Create application
+        // You can also initialize directly like this
+        // const model2Json = await (await fetch(path)).json()
+        // const modelSetting = new CubismSetting({
+        //   prefixPath: '/Resources/Hiyori/',
+        //   modelJSON: model2Json,
+        // })
+        // live2DSprite.init({
+        //   modelSetting,
+        //   ticker: Ticker.shared,
+        // })
         const app = new Application();
         await app.init({
           view: document.getElementById('live2d'),
@@ -195,6 +205,16 @@ live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 // })
 
 onMounted(async () => {
+  // You can also initialize directly like this
+  // const model2Json = await (await fetch(path)).json()
+  // const modelSetting = new CubismSetting({
+  //   prefixPath: '/Resources/Hiyori/',
+  //   modelJSON: model2Json,
+  // })
+  // live2DSprite.init({
+  //   modelSetting,
+  //   ticker: Ticker.shared,
+  // })
   await app.init({
     view: canvasRef.value,
     backgroundAlpha: 0, // Set alpha to 0 for transparency if needed

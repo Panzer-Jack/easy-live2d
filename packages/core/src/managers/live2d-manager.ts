@@ -5,7 +5,7 @@ import { CubismMatrix44 } from '@Framework/math/cubismmatrix44'
 
 import { csmVector } from '@Framework/type/csmvector'
 import { Config, Priority } from '../utils/config'
-import { ModelManager } from './model-manager'
+import { ModelManager, TModelAssets } from './model-manager'
 import { ToolManager } from './tool-manager'
 import { eventManager, EventManager } from './event-manager'
 
@@ -115,7 +115,7 @@ export class Live2DManager {
     this.releaseAllModel()
     const instance = new ModelManager()
     instance.setSubdelegate(this._subdelegate)
-    await instance.loadAssets(this._modelPath)
+    await instance.loadAssets(this._modelAssets)
     this._models.pushBack(instance)
   }
 
@@ -154,7 +154,7 @@ export class Live2DManager {
    */
   public async initialize(subdelegate: ActionsManager) {
     this._subdelegate = subdelegate
-    this._modelPath = subdelegate.modelPath
+    this._modelAssets = subdelegate.modelAssets
     await this.changeScene(this._sceneIndex)
   }
 
@@ -167,7 +167,7 @@ export class Live2DManager {
   _models: csmVector<ModelManager> // 模型实例的容器
   private _sceneIndex: number // 显示场景的索引值
 
-  private _modelPath: string // 模型路径
+  private _modelAssets: TModelAssets
 
   // 动作播放开始的回调函数
   beganMotion = (self: ACubismMotion): void => {

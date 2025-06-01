@@ -110,8 +110,18 @@ yarn add easy-live2d
       //   ticker: Ticker.shared
       // })
 
+      // Create application
       const init = async () => {
-        // Create application
+        // 你同时又可以直接这样初始化
+        // const model2Json = await (await fetch(path)).json()
+        // const modelSetting = new CubismSetting({
+        //   prefixPath: '/Resources/Hiyori/',
+        //   modelJSON: model2Json,
+        // })
+        // live2DSprite.init({
+        //   modelSetting,
+        //   ticker: Ticker.shared,
+        // })
         const app = new Application();
         await app.init({
           view: document.getElementById('live2d'),
@@ -196,6 +206,17 @@ live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 // })
 
 onMounted(async () => {
+  // 你同时又可以直接这样初始化
+
+  // const model2Json = await (await fetch(path)).json()
+  // const modelSetting = new CubismSetting({
+  //   prefixPath: '/Resources/Hiyori/',
+  //   modelJSON: model2Json,
+  // })
+  // live2DSprite.init({
+  //   modelSetting,
+  //   ticker: Ticker.shared,
+  // })
   await app.init({
     view: canvasRef.value,
     backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0

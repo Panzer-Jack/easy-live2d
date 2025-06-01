@@ -4,6 +4,7 @@ import { TextureManager } from './texture-manager'
 import { ToolManager } from './tool-manager'
 import { WebGLManager } from './webgl-manager'
 import { Live2DSprite } from '../index'
+import { TModelAssets } from './model-manager'
 
 /**
  * 汇总有关Canvas操作的类
@@ -50,7 +51,7 @@ class ActionsManager {
   public async initialize(live2DSprite: Live2DSprite) {
     this._live2DSprite = live2DSprite
     this._canvas = live2DSprite.renderer.canvas
-    this.modelPath = live2DSprite.modelPath
+    this.modelAssets = live2DSprite.modelPath ?? live2DSprite.modelSetting
 
     if (!this._glManager.initialize(this._canvas)) {
       return false
@@ -332,7 +333,7 @@ class ActionsManager {
   private _needResize: boolean
 
   // 模型路径
-  public modelPath: string
+  public modelAssets: TModelAssets
 }
 
 // const actionsManager: ActionsManager = new ActionsManager()

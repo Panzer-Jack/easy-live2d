@@ -40,11 +40,27 @@ import { Ticker } from 'pixi.js';
 // Create Live2D sprite
 const live2dSprite = new Live2DSprite();
 
-// Initialize sprite and set model path
+// 1 Initialize sprite and set model path
 live2dSprite.init({
   modelPath: '/path/to/your/model/Model.model3.json',
   ticker: Ticker.shared
 });
+
+// 2 You can also initialize directly like this
+const modelSetting = new CubismSetting({
+  prefixPath: '/path/to/your/model/',
+  modelJSON: model2Json, // model3.json
+})
+live2DSprite.init({
+  modelSetting,
+  ticker: Ticker.shared,
+})
+
+// 3 or this
+const live2DSprite = new Live2DSprite({
+  modelPath: '/Resources/Huusya/Huusya.model3.json',
+  ticker: Ticker.shared
+})
 ```
 
 ## Add to Scene

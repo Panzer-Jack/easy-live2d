@@ -19,10 +19,13 @@ import type {
 import { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueuemanager'
 import { EventManager, eventManager } from './managers/event-manager'
 import { Live2DSpriteEvents } from './types/events'
+import { CubismSetting } from './utils/cubsmSetting'
+import { ICubismModelSetting } from '@Framework/icubismmodelsetting'
 
 
 interface Live2DSpriteInit {
-  modelPath: string
+  modelPath?: string
+  modelSetting?: ICubismModelSetting
   ticker?: Ticker
 }
 
@@ -33,6 +36,7 @@ interface Live2DSpriteInit {
  */
 class Live2DSprite extends Sprite {
   public modelPath: string
+  public modelSetting: ICubismModelSetting
   public renderer: Renderer
   public ticker: Ticker | null = null
   private _initialized = false;
@@ -88,8 +92,9 @@ class Live2DSprite extends Sprite {
    * 初始化
    */
   public init(initConfig: Live2DSpriteInit): boolean {
-    const { modelPath, ticker } = initConfig
+    const { modelPath, ticker, modelSetting } = initConfig
     this.modelPath = modelPath
+    this.modelSetting = modelSetting
     this.ticker = ticker
     return true
   }
@@ -460,6 +465,7 @@ class Live2DSprite extends Sprite {
 
 export {
   Live2DSprite,
+  CubismSetting,
   Config,
   ConfigType,
   LogLevel,
