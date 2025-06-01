@@ -40,11 +40,28 @@ import { Ticker } from 'pixi.js';
 // 创建 Live2D 精灵
 const live2dSprite = new Live2DSprite();
 
-// 初始化精灵并设置模型路径
+// 1 初始化精灵并设置模型路径
 live2dSprite.init({
   modelPath: '/path/to/your/model/Model.model3.json',
   ticker: Ticker.shared
 });
+
+// 2 也可以这样
+const modelSetting = new CubismSetting({
+  prefixPath: '/path/to/your/model/',
+  modelJSON: model2Json, // model3.json
+})
+live2DSprite.init({
+  modelSetting,
+  ticker: Ticker.shared,
+})
+
+// 3 或是这样
+const live2DSprite = new Live2DSprite({
+  modelPath: '/Resources/Huusya/Huusya.model3.json',
+  ticker: Ticker.shared
+})
+
 ```
 
 ## 添加到场景

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { Config, Live2DSprite, LogLevel, Priority } from '@easy-live2d/core'
+import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from '@easy-live2d/core'
 import { Application, Ticker } from 'pixi.js'
 import { initDevtools } from '@pixi/devtools'
 
@@ -15,15 +15,15 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
-live2DSprite.init({
-  modelPath: '/Resources/Huusya/Huusya.model3.json',
-  ticker: Ticker.shared
-});
+// live2DSprite.init({
+//   modelPath: '/Resources/Huusya/Huusya.model3.json',
+//   ticker: Ticker.shared
+// });
 
-// 监听点击事件
-live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('hit', hitAreaName, x, y);
-})
+// // 监听点击事件
+// live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
+//   console.log('hit', hitAreaName, x, y);
+// })
 
 // 你也可以直接这样初始化
 // const live2DSprite = new Live2DSprite({
@@ -32,6 +32,23 @@ live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 // })
 
 onMounted(async () => {
+  const path = '/Resources/Huusya/Huusya.model3.json'
+  const model2Json = await (await fetch(path)).json()
+  console.log('model2Json', JSON.parse(JSON.stringify(model2Json)))
+
+  const modelSetting = new CubismSetting({
+    prefixPath: '/Resources/Huusya/',
+    modelJSON: model2Json,
+  })
+
+  console.log('modelSetting', modelSetting)
+  
+  live2DSprite.init({
+    // modelPath: path,
+    modelSetting,
+    ticker: Ticker.shared,
+  })
+  
   await app.init({
     view: canvasRef.value,
     backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
@@ -44,9 +61,9 @@ onMounted(async () => {
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
     app.stage.addChild(live2DSprite);
 
-    // live2DSprite.setExpression({
-    //   expressionId: 'happy',
-    // })
+    live2DSprite.setExpression({
+      expressionId: 'happy',
+    })
 
     live2DSprite.startMotion({
       group: 'idle',

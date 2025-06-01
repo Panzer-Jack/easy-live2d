@@ -228,7 +228,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
     if (!this.isExistPoseFile()) {
       return '';
     }
-
+    
     return this._jsonValue.at(FrequestNode.FrequestNode_Pose).getRawString();
   }
 
@@ -571,7 +571,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
    */
   protected isExistModelFile(): boolean {
     const node: Value = this._jsonValue.at(FrequestNode.FrequestNode_Moc);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -581,7 +581,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
    */
   protected isExistTextureFiles(): boolean {
     const node: Value = this._jsonValue.at(FrequestNode.FrequestNode_Textures);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -591,7 +591,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
    */
   protected isExistHitAreas(): boolean {
     const node: Value = this._jsonValue.at(FrequestNode.FrequestNode_HitAreas);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -601,7 +601,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
    */
   protected isExistPhysicsFile(): boolean {
     const node: Value = this._jsonValue.at(FrequestNode.FrequestNode_Physics);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -610,8 +610,9 @@ export class CubismModelSettingJson extends ICubismModelSetting {
    * @return false キーが存在しない
    */
   protected isExistPoseFile(): boolean {
+    console.log('isExistPoseFile')
     const node: Value = this._jsonValue.at(FrequestNode.FrequestNode_Pose);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -623,7 +624,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
     const node: Value = this._jsonValue.at(
       FrequestNode.FrequestNode_Expressions
     );
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -633,7 +634,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
    */
   protected isExistMotionGroups(): boolean {
     const node: Value = this._jsonValue.at(FrequestNode.FrequestNode_Motions);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -646,7 +647,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
     const node: Value = this._jsonValue
       .at(FrequestNode.FrequestNode_Motions)
       .getValueByString(groupName);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -662,7 +663,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
       .getValueByString(groupName)
       .getValueByIndex(index)
       .getValueByString(this.soundPath);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -678,7 +679,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
       .getValueByString(groupName)
       .getValueByIndex(index)
       .getValueByString(this.fadeInTime);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -694,7 +695,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
       .getValueByString(groupName)
       .getValueByIndex(index)
       .getValueByString(this.fadeOutTime);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**
@@ -707,7 +708,7 @@ export class CubismModelSettingJson extends ICubismModelSetting {
       .getRoot()
       .getValueByString(this.fileReferences)
       .getValueByString(this.userData);
-    return !node.isNull() && !node.isError();
+    return !!node && !node.isNull() && !node.isError();
   }
 
   /**

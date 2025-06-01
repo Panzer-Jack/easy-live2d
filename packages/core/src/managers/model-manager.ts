@@ -7,6 +7,7 @@ import type {
   BeganMotionCallback,
   FinishedMotionCallback,
 } from '@Framework/motion/acubismmotion'
+import type { CubismSetting } from '../utils/cubsmSetting'
 import type { CubismMotion } from '@Framework/motion/cubismmotion'
 import type { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueuemanager'
 import type { csmRect } from '@Framework/type/csmrectf'
@@ -38,6 +39,7 @@ import { ToolManager } from './tool-manager'
 import { eventManager, EventManager } from './event-manager'
 import { sound } from '@pixi/sound'
 
+
 enum LoadStep {
   LoadAssets,
   LoadModel,
@@ -64,32 +66,40 @@ enum LoadStep {
   CompleteSetup,
 }
 
+export type TModelAssets = CubismSetting | string
+
 /**
  * 用户实际使用的模型实现类
  * 负责模型生成、功能组件生成、更新处理和渲染调用。
  */
 export class ModelManager extends CubismUserModel {
   /**
-   * @param modelPath 模型路径
+   * @param modelAssets 模型数据来源，可以是ICubismModelSetting实例或模型文件路径
    */
-  public async loadAssets(modelPath: string) {
-    this._modelHomeDir = modelPath.slice(0, modelPath.lastIndexOf('/')) + '/'
+  public async loadAssets(modelAssets: TModelAssets) {
+    let setting: ICubismModelSetting
     try {
-      const response = await fetch(modelPath)
-      const arrayBuffer = await response.arrayBuffer()
-
-      const setting: ICubismModelSetting = new CubismModelSettingJson(
-        arrayBuffer,
-        arrayBuffer.byteLength,
-      )
+      if (typeof modelAssets === 'string') {
+        this._modelHomeDir = modelAssets.slice(0, modelAssets.lastIndexOf('/')) + '/'
+        const response = await fetch(modelAssets)
+        const arrayBuffer = await response.arrayBuffer()
+        setting = new CubismModelSettingJson(
+          arrayBuffer,
+          arrayBuffer.byteLength,
+        )
+      } else {
+        // 如果是ICubismModelSetting实例
+        setting = modelAssets
+        this._modelHomeDir = modelAssets.prefixPath
+      }
       // 更新状态
       this._state = LoadStep.LoadModel
       // 保存结果
       await this.setupModel(setting)
     } catch (error) {
       // 在model3.json读取发生错误时无法进行绘制，因此不进行setup，直接捕获错误不做任何处理
-      new CubismLogError(
-        `Failed to load file ${modelPath}`,
+      CubismLogError(
+        `Failed to load file ${modelAssets}`,
         error,
       )
     }
@@ -176,14 +186,12 @@ export class ModelManager extends CubismUserModel {
       if (this._modelSetting.getPoseFileName() !== '') {
         const poseFileName = this._modelSetting.getPoseFileName()
         this._state = LoadStep.WaitLoadPose
-
         const response = await fetch(`${this._modelHomeDir}${poseFileName}`)
         let arrayBuffer: ArrayBuffer
-
         if (response.ok) {
           arrayBuffer = await response.arrayBuffer()
         } else if (response.status >= 400) {
-          new CubismLogError(
+          CubismLogError(
             `Failed to load file ${this._modelHomeDir}${poseFileName}`,
           )
           arrayBuffer = new ArrayBuffer(0)
@@ -566,7 +574,7 @@ export class ModelManager extends CubismUserModel {
    * 停止播放指定的声音
    */
   public stopVoice() {
-    if (sound.find('voice')) {
+    if (sound.exists('voice')) {
       sound.stop('voice')
       sound.remove('voice')
       this._wavFileHandler.releasePcmData()
