@@ -1,10 +1,22 @@
-# easy-live2d 
+<div align="center">
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="feuse-mcp" width="300px">
+</p>
 
-English | [中文](/README.zh.md)
+<h1>easy-live2d</h1>
 
 Making Live2D integration easier! A lightweight, developer-friendly Live2D Web SDK wrapper library based on Pixi.js.
 
 Make your Live2D as easy to control as a pixi sprite!
+
+<div align="center">
+    <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
+</div>
+</div>  
+
+
+English | [中文](/README.zh.md)
 
 You can directly experience the charm of easy-live2d in your browser using this cloud IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground)! 😋
 ---
