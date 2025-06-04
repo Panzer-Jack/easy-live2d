@@ -23,7 +23,7 @@ You can directly experience the charm of easy-live2d in your browser using this 
 
 ## 📖 Documentation
 
-👉 [easy-live2d Official Documentation](https://panzer-jack.github.io/easy-live2d)
+👉 [easy-live2d Official Documentation](https://panzer-jack.github.io/easy-live2d/en)
 
 ---
 
