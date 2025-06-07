@@ -77,8 +77,6 @@ class CubismSetting extends CubismModelSettingJson {
     if (this.getUserDataFile() !== "") {
       this.redirPath[EFilename.userData] = redirFn({ file: this.getUserDataFile() });
     }
-
-    console.log("Redirected paths:", this.redirPath);
   }
 }
 

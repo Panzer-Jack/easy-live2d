@@ -120,9 +120,9 @@ export class ModelManager extends CubismUserModel {
 
           try {
             let response: Response
-            const redirectPath = this._redirPath.Expressions[i]
-            if (redirectPath) {
-              response = await fetch(redirectPath)
+            const redirectPathExpressions = this._redirPath.Expressions
+            if (redirectPathExpressions.length > 0) {
+              response = await fetch(redirectPathExpressions[i])
             } else {
               response = await fetch(`${this._modelHomeDir}${expressionFileName}`)
             }
@@ -583,7 +583,7 @@ export class ModelManager extends CubismUserModel {
       this._wavFileHandler.update(deltaTimeSeconds)
       value = this._wavFileHandler.getRms()
       for (let i = 0; i < this._lipSyncIds.getSize(); ++i) {
-        this._model.addParameterValueById(this._lipSyncIds.at(i), value, 0.8)
+        this._model.addParameterValueById(this._lipSyncIds.at(i), value, 3)
       }
     }
 
@@ -658,9 +658,10 @@ export class ModelManager extends CubismUserModel {
     if (motion === null) {
 
       let response: Response
-      const redirectPath = this._redirPath.Motions[group][no]
-      if (redirectPath) {
-        response = await fetch(redirectPath)
+      const isRedir = this._redirPath.Motions.length > 0
+      if (isRedir) {
+        const redirectPathGroup = this._redirPath.Motions[group]
+        response = await fetch(redirectPathGroup[no])
       } else {
         response = await fetch(`${this._modelHomeDir}${motionFileName}`)
       }
@@ -829,9 +830,10 @@ export class ModelManager extends CubismUserModel {
       }
 
       let response: Response
-      const redirectPath = this._redirPath.Motions[group][i]
-      if (redirectPath) {
-        response = await fetch(redirectPath)
+      const isRedir = this._redirPath.Motions.length > 0
+      if (isRedir) {
+        const redirectPathGroup = this._redirPath.Motions[group]
+        response = await fetch(redirectPathGroup[i])
       } else {
         response = await fetch(`${this._modelHomeDir}${motionFileName}`)
       }
