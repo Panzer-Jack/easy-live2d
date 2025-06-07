@@ -15,7 +15,6 @@ Make your Live2D as easy to control as a pixi sprite!
 </div>
 </div>  
 
-
 English | [中文](/README.zh.md)
 
 You can directly experience the charm of easy-live2d in your browser using this cloud IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground)! 😋
@@ -31,26 +30,26 @@ You can directly experience the charm of easy-live2d in your browser using this 
 - (✅) Transfer Core capabilities to Sprite
 - (✅) Read model paths
 - (✅) Configuration file migration
-- (✅) Direct control of expressions and actions
-- (✅) Expose various event functions
-- (✅) Voice functionality
-- (✅ -) Mouth synchronization - Currently only supports wav format
-- WebGL rendering mounting issues (tentative)
+- (✅) Direct control of expressions and motions
+- (✅) Exposure of various event functions
+- (✅) Voice support
+- (✅ -) Voice lip-sync - Currently only supports wav format
+- WebGL rendering mounting issues (TBD)
 
 ## ✨ Features
 
-- ⚡️ Support for Pixi.js v8 and Cubism 5 (both latest versions)
-- 🌟 Ultra-lightweight, removing redundant features
+- ⚡️ Supports Pixi.js v8 and Cubism 5 (both latest versions)
+- 🌟 Ultra-lightweight, removes redundant features
 - 🚀 Simpler API interface
 - 🛠️ Compatible with official Live2D Web SDK
-- 📦 Adaptable to modern frontend frameworks (like Vue, React)
+- 📦 Adapts to modern frontend frameworks (like Vue, React)
 
 ---
 
-## ⛵️ Developers
+## ⛵️ For Developers
 
-Due to Live2D policy, you need to download [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) from the Live2D Cubism official website
-and place its Core directory in the /packages/cubism directory
+Due to Live2D policies, you need to download from Live2D Cubism official website: [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)
+and place its Core directory under /packages/cubism directory
 
 ---
 
@@ -68,10 +67,10 @@ yarn add easy-live2d
 
 ## 🛠️ Quick Start
 
-You can also refer to the code in the [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) cloud IDE
+You can also refer to the code in [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) cloud IDE
 
-Make sure to include Cubism Core in your index.html:
-Download it directly from the Live2D Cubism official website: [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)
+Please make sure to include Cubism Core in index.html:
+You can download it directly from Live2D Cubism official website: [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)
 
 Native HTML
 ```html
@@ -96,21 +95,21 @@ Native HTML
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
       import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority, LogLevel } from 'easy-live2d';
+      import { Live2DSprite, Config, Priority } from 'easy-live2d';
 
-      // Configure basic settings
-      Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
-      Config.MouseFollow = false; // Disable mouse following
+      // Set Config default configuration
+      Config.MotionGroupIdle = 'Idle' // Set default idle motion group
+      Config.MouseFollow = false // Disable mouse following
       Config.CubismLoggingLevel = LogLevel.LogLevel_Off // Set logging level
-      
+
       // Create Live2D sprite and initialize
-      const live2DSprite = new Live2DSprite();
+      const live2DSprite = new Live2DSprite()
       live2DSprite.init({
         modelPath: '/Resources/Huusya/Huusya.model3.json',
         ticker: Ticker.shared
       });
 
-      // Listen for click events
+      // Listen to click events
       live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
         console.log('hit', hitAreaName, x, y);
       })
@@ -129,6 +128,12 @@ Native HTML
         //   prefixPath: '/Resources/Hiyori/',
         //   modelJSON: model2Json,
         // })
+        // Change all default resource paths of the model, file is the filename
+        // For example: file is "expressions/angry.exp3.json", it will change the path to "/Resources/Huusya/expressions/angry.exp3.json"
+        // Highest priority
+        // modelSetting.redirectPath(({file}) => {
+        //   return `/Resources/Huusya/${file}`
+        // })
         // live2DSprite.init({
         //   modelSetting,
         //   ticker: Ticker.shared,
@@ -138,12 +143,12 @@ Native HTML
           view: document.getElementById('live2d'),
           backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
         });
-        // Live2D sprite size and position settings
+        // Live2D sprite size and coordinate settings
         live2DSprite.x = -300
         live2DSprite.y = -300
         live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
         live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        app.stage.addChild(live2dSprite);
+        app.stage.addChild(live2DSprite);
 
         // Set expression
         live2DSprite.setExpression({
@@ -152,7 +157,7 @@ Native HTML
 
         // Play voice
         live2DSprite.playVoice({
-          // Current mouth synchronization only supports wav format
+          // Current lip-sync only supports wav format
           voicePath: '/Resources/Huusya/voice/test.wav',
         })
 
@@ -163,7 +168,7 @@ Native HTML
           // Play voice
           live2DSprite.playVoice({
             voicePath: '/Resources/Huusya/voice/test.wav',
-            immediate: true // Whether to play immediately: default is true, will stop current playing voice and play new voice immediately
+            immediate: true // Whether to play immediately: default is true, will stop the currently playing sound and immediately play the new sound
           })
         }, 10000)
 
@@ -180,7 +185,7 @@ Native HTML
 </html>
 ```
 
-Vue3 Demo: (Note: make sure to include Cubism Core in your index.html entry file)
+Vue3 Demo: (Please make sure to include Cubism Core in the index.html entry file)
 
 ```vue
 <script setup lang="ts">
@@ -192,11 +197,10 @@ import { initDevtools } from '@pixi/devtools'
 const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
 
-// Set default Config configuration
+// Set Config default configuration
 Config.MotionGroupIdle = 'Idle' // Set default idle motion group
 Config.MouseFollow = false // Disable mouse following
 Config.CubismLoggingLevel = LogLevel.LogLevel_Off // Set logging level
-
 
 // Create Live2D sprite and initialize
 const live2DSprite = new Live2DSprite()
@@ -205,7 +209,7 @@ live2DSprite.init({
   ticker: Ticker.shared
 });
 
-// Listen for click events
+// Listen to click events
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
   console.log('hit', hitAreaName, x, y);
 })
@@ -218,22 +222,31 @@ live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 
 onMounted(async () => {
   // You can also initialize directly like this
+
   // const model2Json = await (await fetch(path)).json()
   // const modelSetting = new CubismSetting({
   //   prefixPath: '/Resources/Hiyori/',
   //   modelJSON: model2Json,
   // })
+  
+  // Change all default resource paths of the model, file is the filename
+  // For example: file is "expressions/angry.exp3.json", it will change the path to "/Resources/Huusya/expressions/angry.exp3.json"
+  // Highest priority
+  // modelSetting.redirectPath(({file}) => {
+  //   return `/Resources/Huusya/${file}`
+  // })
+
   // live2DSprite.init({
   //   modelSetting,
   //   ticker: Ticker.shared,
   // })
   await app.init({
     view: canvasRef.value,
-    backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
+    backgroundAlpha: 0, // If transparency is needed, set alpha to 0
   })
   if (canvasRef.value) {
 
-    // Live2D sprite size and position settings
+    // Live2D sprite size and coordinate settings
     live2DSprite.x = -300
     live2DSprite.y = -300
     live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
@@ -247,7 +260,7 @@ onMounted(async () => {
 
     // Play voice
     live2DSprite.playVoice({
-      // Current mouth synchronization only supports wav format
+      // Current lip-sync only supports wav format
       voicePath: '/Resources/Huusya/voice/test.wav',
     })
 
@@ -258,7 +271,7 @@ onMounted(async () => {
       // Play voice
       live2DSprite.playVoice({
         voicePath: '/Resources/Huusya/voice/test.wav',
-        immediate: true // Whether to play immediately: default is true, will stop current playing voice and play new voice immediately
+        immediate: true // Whether to play immediately: default is true, will stop the currently playing sound and immediately play the new sound
       })
     }, 10000)
 
@@ -311,12 +324,12 @@ onUnmounted(() => {
 
 Method 1:
 
-Enable lip-sync by setting MouthMovement in the Live2D model editor.
+Enable lip-sync in Live2D model editor, set MouthMovement
 
-You can refer to the [official documentation](https://docs.live2d.com/en/cubism-sdk-tutorials/lipsync/) for this method.
+You can refer to the [official documentation](https://docs.live2d.com/en/cubism-sdk-tutorials/lipsync-cocos/) for this method
 
 Method 2:
-In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"`, and add: `"Ids":"ParamMouthOpenY"`. See example below:
+In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"`, add: `"Ids":"ParamMouthOpenY"`, as shown below:
 ```json
 {
 	"Version": 3,
@@ -351,12 +364,11 @@ In the model's xx.model3.json file, find the "Groups" section with `"Name": "Lip
 }
 ```
 
-
 ## 🤝 Contributing
 
-PRs and Issues are welcome! Please read the [contribution guidelines](#) before participating in development.
+PRs and Issues are welcome! Please read the [Contributing Guide](#) before participating in development.
 
---- 
+---
 
 ## 📄 License
 

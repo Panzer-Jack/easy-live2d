@@ -51,6 +51,12 @@ const modelSetting = new CubismSetting({
   prefixPath: '/path/to/your/model/',
   modelJSON: model2Json, // model3.json
 })
+// 运用下面方法可以更改模型的所有默认资源路径，file为文件名
+// 例如：file "expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
+// 优先度最高
+// modelSetting.redirectPath(({file}) => {
+//   return `/Resources/Huusya/${file}`
+// })
 live2DSprite.init({
   modelSetting,
   ticker: Ticker.shared,

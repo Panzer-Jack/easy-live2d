@@ -51,6 +51,12 @@ const modelSetting = new CubismSetting({
   prefixPath: '/path/to/your/model/',
   modelJSON: model2Json, // model3.json
 })
+// Change all default resource paths of the model, file is the filename
+// For example: file is "expressions/angry.exp3.json", it will change the path to "/Resources/Huusya/expressions/angry.exp3.json"
+// Highest priority
+// modelSetting.redirectPath(({file}) => {
+//   return `/Resources/Huusya/${file}`
+// })
 live2DSprite.init({
   modelSetting,
   ticker: Ticker.shared,

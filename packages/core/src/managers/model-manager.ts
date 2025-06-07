@@ -7,7 +7,7 @@ import type {
   BeganMotionCallback,
   FinishedMotionCallback,
 } from '@Framework/motion/acubismmotion'
-import type { CubismSetting } from '../utils/cubsmSetting'
+import type { CubismSetting, IRedirectPath } from '../utils/cubsmSetting'
 import type { CubismMotion } from '@Framework/motion/cubismmotion'
 import type { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueuemanager'
 import type { csmRect } from '@Framework/type/csmrectf'
@@ -91,6 +91,7 @@ export class ModelManager extends CubismUserModel {
         // 如果是ICubismModelSetting实例
         setting = modelAssets
         this._modelHomeDir = modelAssets.prefixPath
+        this._redirPath = modelAssets.redirPath
       }
       // 更新状态
       this._state = LoadStep.LoadModel
@@ -118,7 +119,13 @@ export class ModelManager extends CubismUserModel {
           this._state = LoadStep.WaitLoadExpression
 
           try {
-            const response = await fetch(`${this._modelHomeDir}${expressionFileName}`)
+            let response: Response
+            const redirectPath = this._redirPath.Expressions[i]
+            if (redirectPath) {
+              response = await fetch(redirectPath)
+            } else {
+              response = await fetch(`${this._modelHomeDir}${expressionFileName}`)
+            }
 
             let arrayBuffer: ArrayBuffer
             if (response.ok) {
@@ -163,7 +170,14 @@ export class ModelManager extends CubismUserModel {
         const physicsFileName = this._modelSetting.getPhysicsFileName()
         this._state = LoadStep.WaitLoadPhysics
 
-        const response = await fetch(`${this._modelHomeDir}${physicsFileName}`)
+        let response: Response
+        const redirectPath = this._redirPath.Physics
+        if (redirectPath) {
+          response = await fetch(redirectPath)
+        } else {
+          response = await fetch(`${this._modelHomeDir}${physicsFileName}`)
+        }
+
         let arrayBuffer: ArrayBuffer
         if (response.ok) {
           arrayBuffer = await response.arrayBuffer()
@@ -186,7 +200,14 @@ export class ModelManager extends CubismUserModel {
       if (this._modelSetting.getPoseFileName() !== '') {
         const poseFileName = this._modelSetting.getPoseFileName()
         this._state = LoadStep.WaitLoadPose
-        const response = await fetch(`${this._modelHomeDir}${poseFileName}`)
+
+        let response: Response
+        const redirectPath = this._redirPath.Pose
+        if (redirectPath) {
+          response = await fetch(redirectPath)
+        } else {
+          response = await fetch(`${this._modelHomeDir}${poseFileName}`)
+        }
         let arrayBuffer: ArrayBuffer
         if (response.ok) {
           arrayBuffer = await response.arrayBuffer()
@@ -249,7 +270,15 @@ export class ModelManager extends CubismUserModel {
     const loadUserData = async () => {
       if (this._modelSetting.getUserDataFile() !== '') {
         const userDataFile = this._modelSetting.getUserDataFile()
-        const response = await fetch(`${this._modelHomeDir}${userDataFile}`)
+
+        let response: Response
+        const redirectPath = this._redirPath.UserData
+        if (redirectPath) {
+          response = await fetch(redirectPath)
+        } else {
+          response = await fetch(`${this._modelHomeDir}${userDataFile}`)
+        }
+
         this._state = LoadStep.WaitLoadUserData
 
         let arrayBuffer: ArrayBuffer
@@ -316,11 +345,17 @@ export class ModelManager extends CubismUserModel {
       const group: string[] = []
 
       const motionGroupCount: number = this._modelSetting.getMotionGroupCount()
+      const isRedir = this._redirPath.Motions.length > 0
 
       // 计算动作总数
       for (let i = 0; i < motionGroupCount; i++) {
         group[i] = this._modelSetting.getMotionGroupName(i)
         this._allMotionCount += this._modelSetting.getMotionCount(group[i])
+
+        if (isRedir) {
+          // 如果有重定向路径，则使用重定向路径加载
+          group[i] = this._redirPath.Motions[group[i]]
+        }
       }
 
       // 加载动作
@@ -379,7 +414,14 @@ export class ModelManager extends CubismUserModel {
       const modelFileName = this._modelSetting.getModelFileName()
       this._state = LoadStep.WaitLoadModel
 
-      const response = await fetch(`${this._modelHomeDir}${modelFileName}`)
+      let response: Response
+      const redirectPath = this._redirPath.Moc
+      if (redirectPath) {
+        response = await fetch(redirectPath)
+      } else {
+        response = await fetch(`${this._modelHomeDir}${modelFileName}`)
+      }
+
 
       let arrayBuffer: ArrayBuffer
       if (response.ok) {
@@ -409,6 +451,7 @@ export class ModelManager extends CubismUserModel {
     if (this._state === LoadStep.LoadTexture) {
       // 用于纹理加载
       const textureCount: number = this._modelSetting.getTextureCount()
+      const isRedir = this._redirPath.Textures.length > 0
 
       for (
         let modelTextureNumber = 0;
@@ -424,7 +467,7 @@ export class ModelManager extends CubismUserModel {
         // 在WebGL的纹理单元上加载纹理
         let texturePath
           = this._modelSetting.getTextureFileName(modelTextureNumber)
-        texturePath = this._modelHomeDir + texturePath
+        texturePath = isRedir ? this._redirPath.Textures[modelTextureNumber] : this._modelHomeDir + texturePath
 
         // 加载完成时调用的回调函数
         const onLoad = (textureInfo: TextureInfo): void => {
@@ -589,13 +632,13 @@ export class ModelManager extends CubismUserModel {
    * @param onFinishedMotionHandler 动作播放结束时调用的回调函数
    * @return 返回开始的动作标识号。用于判断单个动作是否结束的isFinished()函数的参数。无法开始时返回[-1]
    */
-  public startMotion(
+  public async startMotion(
     group: string,
     no: number,
     priority: Priority,
     onFinishedMotionHandler?: FinishedMotionCallback,
     onBeganMotionHandler?: BeganMotionCallback,
-  ): CubismMotionQueueEntryHandle {
+  ): Promise<CubismMotionQueueEntryHandle> {
     if (priority === Priority.Force) {
       this._motionManager.setReservePriority(priority)
     } else if (!this._motionManager.reserveMotion(priority)) {
@@ -613,36 +656,40 @@ export class ModelManager extends CubismUserModel {
     let autoDelete = false
 
     if (motion === null) {
-      fetch(`${this._modelHomeDir}${motionFileName}`)
-        .then((response) => {
-          if (response.ok) {
-            return response.arrayBuffer()
-          } else if (response.status >= 400) {
-            new CubismLogError(
-              `Failed to load file ${this._modelHomeDir}${motionFileName}`,
-            )
-            return new ArrayBuffer(0)
-          }
-        })
-        .then((arrayBuffer) => {
-          motion = this.loadMotion(
-            arrayBuffer,
-            arrayBuffer.byteLength,
-            null,
-            onFinishedMotionHandler,
-            onBeganMotionHandler,
-            this._modelSetting,
-            group,
-            no,
-          )
 
-          if (motion === null) {
-            return
-          }
+      let response: Response
+      const redirectPath = this._redirPath.Motions[group][no]
+      if (redirectPath) {
+        response = await fetch(redirectPath)
+      } else {
+        response = await fetch(`${this._modelHomeDir}${motionFileName}`)
+      }
 
-          motion.setEffectIds(this._eyeBlinkIds, this._lipSyncIds)
-          autoDelete = true // 结束时从内存中删除
-        })
+      let arrayBuffer: ArrayBuffer
+      if (response.ok) {
+        arrayBuffer = await response.arrayBuffer()
+      } else if (response.status >= 400) {
+        new CubismLogError(
+          `Failed to load file ${this._modelHomeDir}${motionFileName}`,
+        )
+        arrayBuffer = new ArrayBuffer(0)
+      }
+
+      motion = this.loadMotion(
+        arrayBuffer,
+        arrayBuffer.byteLength,
+        null,
+        onFinishedMotionHandler,
+        onBeganMotionHandler,
+        this._modelSetting,
+        group,
+        no,
+      )
+      if (motion !== null) {
+        motion.setEffectIds(this._eyeBlinkIds, this._lipSyncIds)
+        autoDelete = true // 结束时从内存中删除
+      }
+
     } else {
       motion.setBeganMotionHandler(onBeganMotionHandler)
       motion.setFinishedMotionHandler(onFinishedMotionHandler)
@@ -781,7 +828,14 @@ export class ModelManager extends CubismUserModel {
         ToolManager.printMessage(`[APP]加载动作: ${motionFileName} => [${name}]`)
       }
 
-      const response = await fetch(`${this._modelHomeDir}${motionFileName}`)
+      let response: Response
+      const redirectPath = this._redirPath.Motions[group][i]
+      if (redirectPath) {
+        response = await fetch(redirectPath)
+      } else {
+        response = await fetch(`${this._modelHomeDir}${motionFileName}`)
+      }
+
       let arrayBuffer: ArrayBuffer
 
       if (response.ok) {
@@ -894,9 +948,15 @@ export class ModelManager extends CubismUserModel {
     if (this._modelSetting.getModelFileName() !== '') {
       const modelFileName = this._modelSetting.getModelFileName()
 
-      const response = await fetch(`${this._modelHomeDir}${modelFileName}`)
-      const arrayBuffer = await response.arrayBuffer()
+      let response: Response
+      const redirectPath = this._redirPath.Moc
+      if (redirectPath) {
+        response = await fetch(redirectPath)
+      } else {
+        response = await fetch(`${this._modelHomeDir}${modelFileName}`)
+      }
 
+      const arrayBuffer = await response.arrayBuffer()
       this._consistency = CubismMoc.hasMocConsistency(arrayBuffer)
 
       if (!this._consistency) {
@@ -924,7 +984,16 @@ export class ModelManager extends CubismUserModel {
     sound.disableAutoPause = true
 
     this._modelSetting = null
-    this._modelHomeDir = null
+    this._modelHomeDir = ''
+    this._redirPath = {
+      Moc: '',
+      Textures: [],
+      Motions: [],
+      Expressions: [],
+      Physics: '',
+      Pose: '',
+      UserData: '',
+    }
     this._userTimeSeconds = 0.0
 
     this._eyeBlinkIds = new csmVector<CubismIdHandle>()
@@ -972,6 +1041,7 @@ export class ModelManager extends CubismUserModel {
   private _subdelegate: ActionsManager
   private _eventManager: EventManager // 事件管理器
 
+  _redirPath: IRedirectPath // 重定向路径信息
   _modelSetting: ICubismModelSetting // 模型设置信息
   _modelHomeDir: string // 存放模型设置的目录
   _userTimeSeconds: number // 增量时间的累计值[秒]
