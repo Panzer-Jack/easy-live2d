@@ -15,15 +15,15 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
-// live2DSprite.init({
-//   modelPath: '/Resources/Huusya/Huusya.model3.json',
-//   ticker: Ticker.shared
-// });
+live2DSprite.init({
+  modelPath: '/Resources/Huusya/Huusya.model3.json',
+  ticker: Ticker.shared
+});
 
 // // 监听点击事件
-// live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-//   console.log('hit', hitAreaName, x, y);
-// })
+live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
+  console.log('hit', hitAreaName, x, y);
+})
 
 // 你也可以直接这样初始化
 // const live2DSprite = new Live2DSprite({
@@ -32,28 +32,28 @@ const live2DSprite = new Live2DSprite()
 // })
 
 onMounted(async () => {
-  const path = '/Resources/Huusya/Huusya.model3.json'
-  const model2Json = await (await fetch(path)).json()
-  console.log('model2Json', JSON.parse(JSON.stringify(model2Json)))
+  // const path = '/Resources/Huusya/Huusya.model3.json'
+  // const model2Json = await (await fetch(path)).json()
+  // console.log('model2Json', JSON.parse(JSON.stringify(model2Json)))
 
-  const modelSetting = new CubismSetting({
-    modelJSON: model2Json,
-  })
+  // const modelSetting = new CubismSetting({
+  //   modelJSON: model2Json,
+  // })
 
-  // 更改模型的所有默认资源路径，file为文件名
-  // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
-  // 优先度最高
-  modelSetting.redirectPath(({file}) => {
-    return `/Resources/Huusya/${file}`
-  })
+  // // 更改模型的所有默认资源路径，file为文件名
+  // // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
+  // // 优先度最高
+  // modelSetting.redirectPath(({file}) => {
+  //   return `/Resources/Huusya/${file}`
+  // })
 
-  console.log('modelSetting', modelSetting)
+  // console.log('modelSetting', modelSetting)
   
-  live2DSprite.init({
-    // modelPath: path,
-    modelSetting,
-    ticker: Ticker.shared,
-  })
+  // live2DSprite.init({
+  //   // modelPath: path,
+  //   modelSetting,
+  //   ticker: Ticker.shared,
+  // })
   
   await app.init({
     view: canvasRef.value,

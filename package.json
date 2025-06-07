@@ -1,6 +1,6 @@
 {
   "name": "easy-live2d",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "packageManager": "pnpm@10.11.0",
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
   "engines": {
