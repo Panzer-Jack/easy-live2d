@@ -129,6 +129,12 @@ yarn add easy-live2d
         //   prefixPath: '/Resources/Hiyori/',
         //   modelJSON: model2Json,
         // })
+        // 更改模型的所有默认资源路径，file为文件名
+        // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
+        // 优先度最高
+        // modelSetting.redirectPath(({file}) => {
+        //   return `/Resources/Huusya/${file}`
+        // })
         // live2DSprite.init({
         //   modelSetting,
         //   ticker: Ticker.shared,
@@ -224,6 +230,14 @@ onMounted(async () => {
   //   prefixPath: '/Resources/Hiyori/',
   //   modelJSON: model2Json,
   // })
+  
+  // 更改模型的所有默认资源路径，file为文件名
+  // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
+  // 优先度最高
+  // modelSetting.redirectPath(({file}) => {
+  //   return `/Resources/Huusya/${file}`
+  // })
+
   // live2DSprite.init({
   //   modelSetting,
   //   ticker: Ticker.shared,
