@@ -55,6 +55,9 @@ class Live2DSprite extends Sprite {
     if (initConfig) {
       this.init(initConfig)
     }
+    this.onRender = (renderer: Renderer) => {
+      this.render(renderer)
+    }
   }
 
   public onLive2D<K extends keyof Live2DSpriteEvents>(
@@ -67,7 +70,7 @@ class Live2DSprite extends Sprite {
     );
   }
 
-  override _onRender: (renderer: Renderer) => void = async (renderer: Renderer) => {
+  private render: (renderer: Renderer) => void = async (renderer: Renderer) => {
     this.renderer = renderer
     if (this._initialized === false) {
       console.log('easy-live2dCore initializing')
@@ -82,6 +85,8 @@ class Live2DSprite extends Sprite {
       })
     }
   }
+
+  // override async 
 
   override destroy(options?: DestroyOptions): void {
     this.release()
@@ -139,7 +144,6 @@ class Live2DSprite extends Sprite {
   }: {
     expressionId: string
   }) {
-    console.log('setExpression', expressionId, this._initialized)
     if (this._initialized === false) {
       this._preQueue.add(() => this.setExpression({ expressionId }))
       return null
@@ -216,7 +220,6 @@ class Live2DSprite extends Sprite {
     onFinishedMotionHandler?: FinishedMotionCallback,
     onBeganMotionHandler?: BeganMotionCallback,
   }): CubismMotionQueueEntryHandle {
-    console.log('startRandomMotion', group, priority, this._initialized)
     if (this._initialized === false) {
       this._preQueue.add(() => this.startRandomMotion({
         group,
@@ -263,7 +266,7 @@ class Live2DSprite extends Sprite {
   }
 
   /**
-   * 初始化Subdelegate
+   * 初始化ActionManager
    */
   private async initActionsManager() {
     this._actionsManager.prepareCapacity(1)
