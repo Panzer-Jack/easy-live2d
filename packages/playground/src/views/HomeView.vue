@@ -8,17 +8,17 @@ const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
 
 // 设置 Config 默认配置
-Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
+Config.MotionGroupIdle = 'idle' // 设置默认的空闲动作组
 Config.MouseFollow = false // 禁用鼠标跟随
 Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 
 
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
-live2DSprite.init({
-  modelPath: '/Resources/Huusya/Huusya.model3.json',
-  ticker: Ticker.shared
-});
+// live2DSprite.init({
+//   modelPath: '/Resources/Huusya/Huusya.model3.json',
+//   ticker: Ticker.shared
+// });
 
 // // 监听点击事件
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
@@ -32,28 +32,30 @@ live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 // })
 
 onMounted(async () => {
-  // const path = '/Resources/Huusya/Huusya.model3.json'
-  // const model2Json = await (await fetch(path)).json()
+  const path = '/Resources/Huusya/Huusya.model3.json'
+  const model2Json = await (await fetch(path)).json()
   // console.log('model2Json', JSON.parse(JSON.stringify(model2Json)))
 
-  // const modelSetting = new CubismSetting({
-  //   modelJSON: model2Json,
-  // })
+  const modelSetting = new CubismSetting({
+    modelJSON: model2Json,
+    // prefixPath: '/Resources/Huusya/', // 模型资源的前缀路径
+  })
 
   // // 更改模型的所有默认资源路径，file为文件名
   // // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
   // // 优先度最高
-  // modelSetting.redirectPath(({file}) => {
-  //   return `/Resources/Huusya/${file}`
-  // })
+  modelSetting.redirectPath(({file}) => {
+    console.log('file', file)
+    return `/Resources/Huusya/${file}`
+  })
 
   // console.log('modelSetting', modelSetting)
   
-  // live2DSprite.init({
-  //   // modelPath: path,
-  //   modelSetting,
-  //   ticker: Ticker.shared,
-  // })
+  live2DSprite.init({
+    // modelPath: path,
+    modelSetting,
+    ticker: Ticker.shared,
+  })
   
   await app.init({
     view: canvasRef.value,
@@ -67,21 +69,21 @@ onMounted(async () => {
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
     app.stage.addChild(live2DSprite);
 
-    live2DSprite.setExpression({
-      expressionId: 'happy',
-    })
+    // live2DSprite.setExpression({
+    //   expressionId: 'happy',
+    // })
 
-    live2DSprite.startMotion({
-      group: 'idle',
-      no: 0,
-      priority: 3,
-    })
+    // live2DSprite.startMotion({
+    //   group: 'idle',
+    //   no: 0,
+    //   priority: 3,
+    // })
 
-    // 播放声音
-    live2DSprite.playVoice({
-      // 当前音嘴同步 仅支持wav格式
-      voicePath: '/Resources/Huusya/voice/test.wav',
-    })
+    // // 播放声音
+    // live2DSprite.playVoice({
+    //   // 当前音嘴同步 仅支持wav格式
+    //   voicePath: '/Resources/Huusya/voice/test.wav',
+    // })
 
     // 停止声音
     // live2DSprite.stopVoice()
@@ -103,6 +105,19 @@ onUnmounted(() => {
   live2DSprite.destroy()
 })
 
+const handleClick = () => {
+  console.log('click')
+  live2DSprite.startMotion({
+      group: 'test',
+      no: 0,
+      priority: 3,
+  })
+  if(canvasRef.value) {
+    live2DSprite.width = Math.random() * canvasRef.value.clientWidth * window.devicePixelRatio
+    live2DSprite.height = Math.random() * canvasRef.value.clientHeight * window.devicePixelRatio
+  }
+}
+
 </script>
 
 <template>
@@ -112,6 +127,7 @@ onUnmounted(() => {
     ref="canvasRef"
     id="live2d"
   />
+  <div @click="handleClick" style="position: absolute; display: inline-block; height: 200px; width: 200px; background: blue;">Button</div>
 </template>
 
 <style>

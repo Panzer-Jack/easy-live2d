@@ -1,7 +1,7 @@
 {
   "name": "easy-live2d",
   "version": "0.3.2",
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.12.1",
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
@@ -42,10 +42,11 @@
     "dev:playground": "pnpm -C packages/playground dev",
     "build:core": "pnpm -C packages/core build",
     "build": "pnpm build:core && tsup",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "pnpm build && pnpm release-it",
     "publish": "npm publish",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "release": "release-it"
   },
   "dependencies": {
     "@pixi/sound": "^6.0.1"
@@ -57,6 +58,7 @@
     "@types/node": "catalog:dev",
     "eslint": "^9.25.1",
     "jiti": "catalog:dev",
+    "release-it": "^19.0.3",
     "tsup": "catalog:dev",
     "typescript": "catalog:dev"
   }
