@@ -18,7 +18,7 @@ interface IRedirectPath {
   [EFilename.physics]: string;
   [EFilename.pose]: string;
   [EFilename.expressions]: string[];
-  [EFilename.motions]: any[];
+  [EFilename.motions]: { [groupName: string]: string[] };
   [EFilename.userData]: string;
 }
 
@@ -31,7 +31,7 @@ class CubismSetting extends CubismModelSettingJson {
     [EFilename.physics]: "",
     [EFilename.pose]: "",
     [EFilename.expressions]: [],
-    [EFilename.motions]: [],
+    [EFilename.motions]: {},
     [EFilename.userData]: ""
   }
 

@@ -345,19 +345,12 @@ export class ModelManager extends CubismUserModel {
       const group: string[] = []
 
       const motionGroupCount: number = this._modelSetting.getMotionGroupCount()
-      const isRedir = this._redirPath.Motions.length > 0
 
       // 计算动作总数
       for (let i = 0; i < motionGroupCount; i++) {
         group[i] = this._modelSetting.getMotionGroupName(i)
         this._allMotionCount += this._modelSetting.getMotionCount(group[i])
-
-        if (isRedir) {
-          // 如果有重定向路径，则使用重定向路径加载
-          group[i] = this._redirPath.Motions[group[i]]
-        }
       }
-
       // 加载动作
       const workers = []
       for (let i = 0; i < motionGroupCount; i++) {
@@ -366,7 +359,6 @@ export class ModelManager extends CubismUserModel {
 
       // 等待加载动作完成
       await Promise.all([...workers])
-
 
       // 如果没有动作
       if (motionGroupCount === 0) {
@@ -658,7 +650,7 @@ export class ModelManager extends CubismUserModel {
     if (motion === null) {
 
       let response: Response
-      const isRedir = this._redirPath.Motions.length > 0
+      const isRedir = Object.entries(this._redirPath.Motions).length > 0
       if (isRedir) {
         const redirectPathGroup = this._redirPath.Motions[group]
         response = await fetch(redirectPathGroup[no])
@@ -828,9 +820,8 @@ export class ModelManager extends CubismUserModel {
       if (this._debugMode) {
         ToolManager.printMessage(`[APP]加载动作: ${motionFileName} => [${name}]`)
       }
-
       let response: Response
-      const isRedir = this._redirPath.Motions.length > 0
+      const isRedir = Object.entries(this._redirPath.Motions).length > 0
       if (isRedir) {
         const redirectPathGroup = this._redirPath.Motions[group]
         response = await fetch(redirectPathGroup[i])
@@ -990,7 +981,7 @@ export class ModelManager extends CubismUserModel {
     this._redirPath = {
       Moc: '',
       Textures: [],
-      Motions: [],
+      Motions: {},
       Expressions: [],
       Physics: '',
       Pose: '',
