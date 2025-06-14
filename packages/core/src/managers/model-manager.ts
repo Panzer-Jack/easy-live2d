@@ -795,7 +795,6 @@ export class ModelManager extends CubismUserModel {
         const drawId: CubismIdHandle = this._modelSetting.getHitAreaId(i)
         const res = this.isHit(drawId, x, y)
         if (res) {
-          console.log(hitAreaName, x, y)
           this._eventManager.emit('hit', { hitAreaName, x, y })
         }
         return res
