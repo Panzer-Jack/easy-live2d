@@ -20,12 +20,11 @@ import { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueu
 import { EventManager, eventManager } from './managers/event-manager'
 import { Live2DSpriteEvents } from './types/events'
 import { CubismSetting } from './utils/cubsmSetting'
-import { ICubismModelSetting } from '@Framework/icubismmodelsetting'
 
 
 interface Live2DSpriteInit {
   modelPath?: string
-  modelSetting?: ICubismModelSetting
+  modelSetting?: CubismSetting
   ticker?: Ticker
 }
 
@@ -36,7 +35,7 @@ interface Live2DSpriteInit {
  */
 class Live2DSprite extends Sprite {
   public modelPath: string
-  public modelSetting: ICubismModelSetting
+  public modelSetting: CubismSetting
   public renderer: Renderer
   public ticker: Ticker | null = null
   private _initialized = false;
@@ -72,17 +71,29 @@ class Live2DSprite extends Sprite {
 
   private render: (renderer: Renderer) => void = async (renderer: Renderer) => {
     this.renderer = renderer
-    if (this._initialized === false) {
-      console.log('easy-live2dCore initializing')
-      this._initialized = true;
-      this.initCubism()
-      await this.initActionsManager()
-      this.initEventListener()
-      this.ticker.add(this._boundUpdate)
-      // 预加载表情动作
-      this._preQueue.forEach((func) => {
-        func()
-      })
+
+    if (this._initialized === true)
+      return
+
+    console.log('easy-live2dCore initializing')
+    this._initialized = true;
+    this.initCubism()
+    await this.initActionsManager()
+    this.initEventListener()
+
+    // 确保渲染器状态正确
+    renderer.resetState()
+
+    this.ticker.add(this._boundUpdate)
+    // 预加载表情动作
+    this._preQueue.forEach((func) => {
+      func()
+    })
+
+
+    // 在每次渲染前重置渲染器状态
+    if (this._model && renderer) {
+      renderer.resetState()
     }
   }
 
@@ -255,6 +266,9 @@ class Live2DSprite extends Sprite {
    * 执行处理。
    */
   private update(): void {
+    if (!this.renderer) {
+      return
+    }
     // 更新时间
     ToolManager.updateTime();
 
@@ -275,6 +289,32 @@ class Live2DSprite extends Sprite {
     await actionManager.initialize(this)
     this._actionsManager.pushBack(actionManager)
     this._model = this._actionsManager.at(0).live2dManager._models.at(0)
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault()
+      console.warn('WebGL context lost, stopping rendering')
+      this.ticker?.remove(this._boundUpdate)
+    }
+
+    const handleContextRestored = () => {
+      console.log('WebGL context restored, reinitializing')
+      this._initialized = false
+      // 重新初始化
+      if (this.renderer) {
+        this.render(this.renderer)
+      }
+    }
+
+    if (this.renderer && this.renderer.canvas) {
+      this.renderer.canvas.addEventListener('webglcontextlost', handleContextLost)
+      this.renderer.canvas.addEventListener('webglcontextrestored', handleContextRestored)
+    } else if (this.renderer && this.renderer.view && (this.renderer.view as any).canvas) {
+      const canvas = (this.renderer.view as any).canvas
+      if (canvas && canvas.addEventListener) {
+        canvas.addEventListener('webglcontextlost', handleContextLost)
+        canvas.addEventListener('webglcontextrestored', handleContextRestored)
+      }
+    }
 
     if (this._actionsManager.at(0).isContextLost()) {
       new CubismLogError(
@@ -352,10 +392,15 @@ class Live2DSprite extends Sprite {
     this.releaseEventListener()
     this.releaseActionsManager()
 
+    if (this.renderer) {
+      this.renderer.resetState()
+    }
+
     // 释放Cubism SDK
     CubismFramework.dispose()
 
     this._cubismOption = null
+    this._initialized = false
   }
 
   /**
@@ -372,7 +417,7 @@ class Live2DSprite extends Sprite {
   }
 
   /**
-   * 释放Subdelegate 
+   * 释放ActionsManager
    */
   private releaseActionsManager(): void {
     for (
