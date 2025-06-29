@@ -30,7 +30,7 @@ catalogs:
     'prettier': ^3.4.2
     'jiti': ^2.4.2
 catalog:
-  '@unocss/eslint-plugin': 66.1.0-beta.12
+  '@unocss/eslint-plugin': 66.3.2
   '@vitejs/plugin-vue': ^5.2.3
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.7.0
