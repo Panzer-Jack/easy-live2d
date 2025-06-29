@@ -26,15 +26,8 @@ You can directly experience the charm of easy-live2d in your browser using this 
 
 ---
 
-## TODO
-- (✅) Transfer Core capabilities to Sprite
-- (✅) Read model paths
-- (✅) Configuration file migration
-- (✅) Direct control of expressions and motions
-- (✅) Exposure of various event functions
-- (✅) Voice support
-- (✅ -) Voice lip-sync - Currently only supports wav format
-- WebGL rendering mounting issues (TBD)
+## 📒 TODO
+- [easy-live2d roadmap](https://github.com/Panzer-Jack/easy-live2d/discussions/10)
 
 ## ✨ Features
 
