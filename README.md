@@ -6,6 +6,14 @@
 
 English | [中文](/README.zh.md)
 
+You can directly experience the charm of easy-live2d in your browser using this cloud IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground)! 😋
+
+---
+
+## 📖 Documentation
+
+👉 [easy-live2d Official Documentation](https://panzer-jack.github.io/easy-live2d/en)
+
 ## Overview
 
 `easy-live2d` wraps Live2D models as Pixi.js `Sprite` objects, providing a compact API for model loading, hit detection, dragging, motions, expressions, voice playback, and lip sync.
