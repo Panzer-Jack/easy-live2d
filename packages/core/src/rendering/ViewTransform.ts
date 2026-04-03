@@ -20,7 +20,6 @@ export class ViewTransform {
 
   initialize(viewport: Viewport): void {
     const { width, height, x, y } = viewport
-    console.log('[ViewTransform] initialize viewport:', { width, height, x, y })
     const ratio = width / height
     const left = -ratio
     const right = ratio
@@ -48,7 +47,6 @@ export class ViewTransform {
       Config.ViewLogicalMaxBottom,
       Config.ViewLogicalMaxTop,
     )
-    console.log('[ViewTransform] after init viewMatrix:', Array.from(this._viewMatrix.getArray()))
   }
 
   transformViewX(deviceX: number): number {

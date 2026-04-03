@@ -1,185 +1,139 @@
 # Getting Started
 
-This page will guide you on how to quickly get started with easy-live2d, integrating a Live2D model into your web application in just a few minutes.
+## Before You Start
 
-## Recommended Configuration
+1. Install `easy-live2d` and `pixi.js` (see [Installation](/en/guide/installation))
+2. Load `live2dcubismcore.js` in your entry HTML
+3. Have an accessible `model3.json` model file ready
 
-- Node.js >= 18
-- Pixi.js >= 8
-- Cubism 5 models
-
-## Installation
-
-Install easy-live2d using your preferred package manager:
-
-::: code-group
-
-```bash [npm]
-npm install easy-live2d
-```
-
-```bash [yarn]
-yarn add easy-live2d
-```
-
-```bash [pnpm]
-pnpm add easy-live2d
-```
-
-:::
-
-## Basic Usage
-
-Here's a simple example showing how to load and display a Live2D model in a web page:
+## Minimal Example
 
 ```html
 <!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>easy-live2d Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easy-live2d example</title>
     <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-      canvas {
-        width: 100vw;
-        height: 100vh;
-      }
+      html, body { margin: 0; width: 100%; height: 100%; }
+      #live2d { display: block; width: 100vw; height: 100vh; }
     </style>
   </head>
   <body>
     <canvas id="live2d"></canvas>
-    <!-- Important!! Always include Cubism Core in your index.html -->
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
       import { Application, Ticker } from 'pixi.js'
-      import { Live2DSprite, Config, Priority } from 'easy-live2d'
+      import { Config, Live2DSprite, Priority } from 'easy-live2d'
 
-      // Configure basic settings
-      Config.MotionGroupIdle = 'Idle' // Set default idle motion group
-      Config.MouseFollow = false // Disable mouse following
-      // Create Live2D sprite
-      const live2dSprite = new Live2DSprite()
-      live2dSprite.init({
+      // Global config (set before creating instances)
+      Config.MotionGroupIdle = 'Idle'
+      Config.MouseFollow = true
+
+      const canvas = document.getElementById('live2d')
+      const app = new Application()
+
+      await app.init({
+        canvas,
+        backgroundAlpha: 0,
+        autoDensity: true,
+        resolution: Math.max(window.devicePixelRatio || 1, 1),
+      })
+
+      const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
         ticker: Ticker.shared,
       })
 
-      const init = async () => {
-        // Create application
-        const app = new Application()
-        await app.init({
-          view: document.getElementById('live2d'),
-          backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
+      sprite.width = canvas.clientWidth
+      app.stage.addChild(sprite)
+
+      // Play a motion after the model is ready
+      sprite.onLive2D('ready', async () => {
+        console.log('model ready')
+
+        await sprite.startMotion({
+          group: 'TapBody',
+          no: 0,
+          priority: Priority.Normal,
         })
-        // Live2D sprite size
-        live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-        live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        // Add to stage
-        app.stage.addChild(live2dSprite)
-        console.log('easy-live2d initialized successfully!')
-      }
-      init()
+      })
     </script>
   </body>
 </html>
 ```
 
-## Integration with Vue
+## What This Code Does
 
-Here's an example of integrating easy-live2d in a Vue 3 project:
-(Please note that you must import Cubism Core in your index.html entry file)
+- `Config` sets global behavior before the sprite is created.
+- `Live2DSprite` uses `modelPath` to point to the model entry file.
+- Pixi `Application` owns the canvas and render loop.
+- `sprite.width` sets the display width; internally it calculates the scale ratio from the model's original canvas size.
+- The `ready` event fires after model assets, textures, and interaction setup are all complete — the safe point to operate on the model.
+
+## Vue 3 Example
 
 ```vue
-<script setup>
-import { Config, Live2DSprite, Priority } from 'easy-live2d'
+<script setup lang="ts">
+import { Config, Live2DSprite } from 'easy-live2d'
 import { Application, Ticker } from 'pixi.js'
 import { onMounted, onUnmounted, ref } from 'vue'
 
-const canvasRef = ref(null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 const app = new Application()
-const live2DSprite = new Live2DSprite()
 
-// Configure basic settings
-Config.MotionGroupIdle = 'Idle' // Set default idle motion group
-Config.MouseFollow = false // Disable mouse following
+Config.MotionGroupIdle = 'Idle'
+Config.MouseFollow = false
 
-// Initialize Live2D sprite
-live2DSprite.init({
-  modelPath: '/public/path/to/your/model/Model.model3.json',
-  ticker: Ticker.shared
-})
-
-// Add click event listener
-live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('Clicked area:', hitAreaName, 'at', x, y)
+const sprite = new Live2DSprite({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  ticker: Ticker.shared,
+  draggable: true,
 })
 
 onMounted(async () => {
-  if (canvasRef.value) {
-    await app.init({
-      view: canvasRef.value,
-      backgroundAlpha: 0, // Transparent background
-    })
+  if (!canvasRef.value)
+    return
 
-    // Adjust size and add to stage
-    live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-    live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-    app.stage.addChild(live2DSprite)
+  await app.init({
+    canvas: canvasRef.value,
+    backgroundAlpha: 0,
+    autoDensity: true,
+    resolution: Math.max(window.devicePixelRatio || 1, 1),
+  })
 
-    // play voice
-    live2DSprite.playVoice({
-    // only support wav
-      voicePath: '/Resources/Huusya/voice/test.wav',
-    })
+  sprite.width = canvasRef.value.clientWidth
+  app.stage.addChild(sprite)
 
-    // stop voice
-    // live2DSprite.stopVoice()
-
-    setTimeout(() => {
-      // play voice
-      live2DSprite.playVoice({
-        voicePath: '/Resources/Huusya/voice/test.wav',
-        immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
-      })
-    }, 10000)
-
-    // Set expression
-    live2DSprite.setExpression({
-      expressionId: 'normal'
-    })
-  }
+  sprite.onLive2D('ready', () => {
+    console.log('model ready')
+  })
 })
 
 onUnmounted(() => {
-  // Release resources
-  live2DSprite.destroy()
+  sprite.destroy()
 })
 </script>
 
 <template>
-  <canvas
-    id="live2d"
-    ref="canvasRef"
-  />
+  <canvas ref="canvasRef" class="live2d-canvas" />
 </template>
 
 <style scoped>
-#live2d {
-  position: absolute;
-  top: 0;
-  right: 0;
+.live2d-canvas {
   width: 100%;
   height: 100%;
+  display: block;
 }
 </style>
 ```
 
-## Next Steps
+::: tip
+You still need `live2dcubismcore.js` in your entry HTML. `Live2DSprite` depends on browser APIs — do not initialize during SSR.
+:::
 
-- Check out [Installation and Configuration](/en/guide/installation) for more detailed installation information
-- Read [Basic Usage](/en/guide/basic-usage) to learn more basic features
-- Refer to the [API Documentation](/en/api/) for complete interface descriptions
-- Explore [Examples](/en/examples/basic) to learn more advanced usage
+## Next
+
+- [Basic Usage](/en/guide/basic-usage) — Motions, expressions, dragging, voice
+- [API Reference](/en/api/) — Full public API
