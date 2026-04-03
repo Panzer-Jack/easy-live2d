@@ -1,147 +1,124 @@
 # 安装配置
 
-本页将指导你如何安装和配置 easy-live2d。
-
 ## 安装
 
-easy-live2d 可以通过多种包管理器进行安装：
-
 ::: code-group
+
+```bash [pnpm]
+pnpm add easy-live2d pixi.js
+```
+
 ```bash [npm]
-npm install easy-live2d
+npm install easy-live2d pixi.js
 ```
 
 ```bash [yarn]
-yarn add easy-live2d
+yarn add easy-live2d pixi.js
 ```
 
-```bash [pnpm]
-pnpm add easy-live2d
-```
 :::
 
-## 依赖项
+业务代码统一从 `easy-live2d` 导入。`@easy-live2d/core` 是 monorepo 内部包，仅在仓库开发时使用。
 
-easy-live2d 需要以下依赖：
+## 前置条件
 
-- [Pixi.js](https://pixijs.com/) v8.0.0+
-- [Live2D Cubism SDK for Web](https://www.live2d.com/zh-CHS/sdk/download/web/)
+### 1. 引入官方 Cubism Core
 
-## 环境配置
+库本身不包含 Live2D Core。你需要按 Live2D 官方许可自行下载，并在页面入口引入：
 
-### 基本设置
-
-在使用 easy-live2d 之前，你需要确保已经正确配置了 Pixi.js 和 Live2D Cubism SDK。
-
-1. **引入 Live2D Cubism Core**
-
-   确保在你的 HTML 文件中引入了 Live2D Cubism Core：
-
-   ```html
-   <script src="/Core/live2dcubismcore.js"></script>
-   ```
-
-   或者使用 CDN：
-
-   ```html
-   <script src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"></script>
-   ```
-
-2. **设置 Canvas**
-
-   添加一个 canvas 元素作为渲染目标：
-
-   ```html
-   <canvas id="live2d"></canvas>
-   ```
-
-### 样式设置
-
-为了正确显示 Live2D 模型，建议添加以下 CSS 样式：
-
-```css
-html, body {
-  overflow: hidden;
-  margin: 0;
-}
-
-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
+```html
+<script src="/Core/live2dcubismcore.js"></script>
 ```
 
-### 模型文件结构
+### 2. 浏览器环境
 
-建议按照官方推荐的结构组织你的 Live2D 模型文件：
+依赖以下浏览器 API：
 
-```
-public/
-  Resources/
-    ModelName/
-      ModelName.model3.json
-      *.moc3
-      *.physics3.json
-      textures/
-        *.png
-      motions/
-        *.motion3.json
-      expressions/
-        *.exp3.json
-```
+- `document` / `fetch` / `Image`
+- `ResizeObserver`
+- `AudioContext`
+- `WebGL`
 
-## 验证安装
+不适合 SSR，需在客户端挂载后初始化 `Live2DSprite`。
 
-安装完成后，你可以使用以下简单代码验证 easy-live2d 是否正确安装和配置：
+### 3. Pixi.js 作为宿主
 
-```js
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite } from 'easy-live2d';
+你需要自己创建 Pixi `Application` 并把 `Live2DSprite` 加入 `stage`。`easy-live2d` 不会创建 canvas，也不接管应用生命周期。
 
-const init = async () => {
-  // 创建应用
-  const app = new Application();
-  await app.init({
-    view: document.getElementById('live2d'),
-    backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
-  });
+## 模型资源
 
-  // 创建 Live2D 精灵
-  const live2dSprite = new Live2DSprite();
-  live2dSprite.init({
-    modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-    ticker: Ticker.shared
-  });
-    // Live2D精灵大小
-  live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-  live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+### 方式一：`modelPath`
 
-  // 添加到舞台
-  app.stage.addChild(live2dSprite);
-
-  console.log('easy-live2d 初始化成功!');
-}
-
-init()
-
+```ts
+const sprite = new Live2DSprite({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+})
 ```
 
-如果你能看到模型正确加载并显示，说明安装和配置已成功。
+库会以 `model3.json` 所在目录为基路径，自动加载 moc、纹理、动作、表情、物理、姿态等资源。
 
-## 常见问题
+### 方式二：`CubismSetting`
 
-### 模型无法加载
+```ts
+const modelJSON = await fetch('/Resources/Hiyori/Hiyori.model3.json').then(r => r.json())
 
-- 检查路径是否正确
-- 确认 Live2D Cubism Core 已正确加载
-- 检查浏览器控制台是否有错误信息
+const setting = new CubismSetting({
+  modelJSON,
+  prefixPath: '/Resources/Hiyori/',
+})
+```
 
-### WebGL 兼容性问题
+适用于：
 
-easy-live2d 依赖于 WebGL。如果遇到渲染问题，请确保：
+- `model3.json` 需要鉴权后获取
+- 模型资源部署在 CDN
+- 资源 URL 需要按规则重写
 
-- 使用支持 WebGL 的现代浏览器
-- 显卡驱动已更新
+## 最小可运行页面
 
-如果还有其他问题，请查阅 [API 文档](/api/) 或提交 [GitHub Issues](https://github.com/Panzer-Jack/easy-live2d/issues)。
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easy-live2d</title>
+    <style>
+      html, body { margin: 0; width: 100%; height: 100%; }
+      #live2d { display: block; width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <canvas id="live2d"></canvas>
+    <script src="/Core/live2dcubismcore.js"></script>
+    <script type="module">
+      import { Application, Ticker } from 'pixi.js'
+      import { Live2DSprite } from 'easy-live2d'
+
+      const canvas = document.getElementById('live2d')
+      const app = new Application()
+
+      await app.init({
+        canvas,
+        backgroundAlpha: 0,
+        autoDensity: true,
+        resolution: Math.max(window.devicePixelRatio || 1, 1),
+      })
+
+      const sprite = new Live2DSprite({
+        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+        ticker: Ticker.shared,
+      })
+
+      sprite.width = canvas.clientWidth
+      app.stage.addChild(sprite)
+    </script>
+  </body>
+</html>
+```
+
+## 下一步
+
+- [快速开始](/guide/getting-started) — 跑通最小示例
+- [基本用法](/guide/basic-usage) — 动作、表情、拖拽、语音
+- [API 参考](/api/) — 完整公开 API

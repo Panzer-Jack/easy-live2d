@@ -1,88 +1,103 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from '@easy-live2d/core'
+import { Config, CubismSetting, Live2DSprite, LogLevel } from '@easy-live2d/core'
 import { Application, Ticker } from 'pixi.js'
-import { initDevtools } from '@pixi/devtools'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
 
 // 设置 Config 默认配置
-Config.MotionGroupIdle = 'idle' // 设置默认的空闲动作组
-Config.MouseFollow = false // 禁用鼠标跟随
+Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
+// Config.MouseFollow = false // 禁用鼠标跟随
 Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
-
 
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
-// live2DSprite.init({
-//   modelPath: '/Resources/Huusya/Huusya.model3.json',
-//   ticker: Ticker.shared
-// });
+live2DSprite.init({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  ticker: Ticker.shared,
+  draggable: true,
+})
 
-// // 监听点击事件
+const live2DSprit2 = new Live2DSprite()
+live2DSprit2.init({
+  modelPath: '/Resources/Cub3/ING.model3.json',
+  ticker: Ticker.shared,
+  draggable: true,
+})
+
+// 监听点击事件
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('hit', hitAreaName, x, y);
+  console.log('hit', hitAreaName, x, y)
+})
+
+live2DSprite.onLive2D('dragMove', ({ x, y }) => {
+  console.log('dragMove', x, y)
 })
 
 // 你也可以直接这样初始化
 // const live2DSprite = new Live2DSprite({
-//   modelPath: '/Resources/Huusya/Huusya.model3.json',
+//   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
 //   ticker: Ticker.shared
 // })
 
 onMounted(async () => {
-  const path = '/Resources/Huusya/Huusya.model3.json'
-  const model2Json = await (await fetch(path)).json()
-  // console.log('model2Json', JSON.parse(JSON.stringify(model2Json)))
+  const resolution = Math.max(window.devicePixelRatio || 1, 1)
 
+  // 你同时又可以直接这样初始化
+  const model2Json = await (await fetch('/Resources/Hiyori/Hiyori.model3.json')).json()
   const modelSetting = new CubismSetting({
+    prefixPath: '/Resources/Hiyori/',
     modelJSON: model2Json,
-    // prefixPath: '/Resources/Huusya/', // 模型资源的前缀路径
   })
-
-  // // 更改模型的所有默认资源路径，file为文件名
-  // // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
-  // // 优先度最高
-  modelSetting.redirectPath(({file}) => {
-    console.log('file', file)
-    return `/Resources/Huusya/${file}`
-  })
-
-  // console.log('modelSetting', modelSetting)
-  
   live2DSprite.init({
-    // modelPath: path,
     modelSetting,
     ticker: Ticker.shared,
   })
-  
+
+  live2DSprite.x = 20
+  live2DSprite.y = -100
+
   await app.init({
-    view: canvasRef.value,
-    backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
+    canvas: canvasRef.value,
+    backgroundAlpha: 0,
+    autoDensity: true,
+    resizeTo: window, // 自动跟随窗口大小
+    resolution,
   })
+
   if (canvasRef.value) {
+    live2DSprite.width = canvasRef.value.clientWidth
+    live2DSprite.height = canvasRef.value.clientHeight
 
-    // live2DSprite.x = -300
-    // live2DSprite.y = -300
-    live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-    live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-    app.stage.addChild(live2DSprite);
+    live2DSprit2.width = canvasRef.value.clientWidth
+    live2DSprit2.height = canvasRef.value.clientHeight
 
-    // live2DSprite.setExpression({
-    //   expressionId: 'happy',
-    // })
+    app.stage.addChild(live2DSprite)
+    app.stage.addChild(live2DSprit2)
 
-    // live2DSprite.startMotion({
-    //   group: 'idle',
-    //   no: 0,
-    //   priority: 3,
-    // })
+    // 模型加载完成后，打印原始尺寸信息
+    live2DSprite.onLive2D('ready', () => {
+      const size = live2DSprite.getModelCanvasSize()
+      if (size) {
+        console.log('模型原始尺寸:', size.width, 'x', size.height)
+      }
+    })
+
+    live2DSprite.setExpression({
+      expressionId: 'normal',
+    })
 
     // // 播放声音
     // live2DSprite.playVoice({
     //   // 当前音嘴同步 仅支持wav格式
-    //   voicePath: '/Resources/Huusya/voice/test.wav',
+    //   voicePath: '/Resources/Hiyori/sounds/test3.wav',
+    // })
+
+    // 播放网络声音
+    // live2DSprite.playVoice({
+    //   // 当前音嘴同步 仅支持wav格式
+    //   voicePath: 'https://cdn.pixabay.com/audio/2025/05/17/audio_3882df0036.mp3',
     // })
 
     // 停止声音
@@ -91,59 +106,55 @@ onMounted(async () => {
     setTimeout(() => {
       // 播放声音
       live2DSprite.playVoice({
-        voicePath: '/Resources/Huusya/voice/test.wav',
-        immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+        voicePath: '/Resources/Hiyori/sounds/test.wav',
+        immediate: true, // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
       })
     }, 10000)
-  }
 
-  initDevtools({ app: app })
+    live2DSprite.startMotion({
+      group: 'TapBody',
+      no: 0,
+      priority: 3,
+    })
+  }
 })
 
 onUnmounted(() => {
   // 释放实例
   live2DSprite.destroy()
 })
-
-const handleClick = () => {
-  console.log('click')
-  live2DSprite.startMotion({
-      group: 'test',
-      no: 0,
-      priority: 3,
-  })
-  if(canvasRef.value) {
-    live2DSprite.width = Math.random() * canvasRef.value.clientWidth * window.devicePixelRatio
-    live2DSprite.height = Math.random() * canvasRef.value.clientHeight * window.devicePixelRatio
-  }
-}
-
 </script>
 
 <template>
-  <div class="test">
+  <div class="container">
+    <canvas
+      id="live2d"
+      ref="canvasRef"
+    />
+    <div class="pink" />
   </div>
-  <canvas
-    ref="canvasRef"
-    id="live2d"
-  />
-  <div @click="handleClick" style="position: absolute; display: inline-block; height: 200px; width: 200px; background: blue;">Button</div>
 </template>
 
-<style>
-#live2d {
-  position: absolute;
-  top: 0%;
-  right: 0%;
-  width: 100%;
-  height: 100%;
+<style scoped>
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
 }
 
-.test {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  height: 70%;
+.pink {
+  width: 100vw;
+  height: 100vh;
   background-color: pink;
+}
+
+#live2d {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  z-index: 1;
 }
 </style>

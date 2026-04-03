@@ -1,146 +1,124 @@
-# Installation and Configuration
+# Installation
 
-This page will guide you on how to install and configure easy-live2d.
-
-## Installation
-
-easy-live2d can be installed through various package managers:
+## Install
 
 ::: code-group
+
+```bash [pnpm]
+pnpm add easy-live2d pixi.js
+```
+
 ```bash [npm]
-npm install easy-live2d
+npm install easy-live2d pixi.js
 ```
 
 ```bash [yarn]
-yarn add easy-live2d
+yarn add easy-live2d pixi.js
 ```
 
-```bash [pnpm]
-pnpm add easy-live2d
-```
 :::
 
-## Dependencies
+Application code should import from `easy-live2d`. `@easy-live2d/core` is the internal monorepo package, used only during repository development.
 
-easy-live2d requires the following dependencies:
+## Prerequisites
 
-- [Pixi.js](https://pixijs.com/) v8.0.0+
-- [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)
+### 1. Load the Official Cubism Core
 
-## Environment Configuration
+The library does not include Live2D Core. You need to download and host `live2dcubismcore.js` yourself per Live2D licensing:
 
-### Basic Setup
-
-Before using easy-live2d, you need to make sure that Pixi.js and Live2D Cubism SDK are properly configured.
-
-1. **Import Live2D Cubism Core**
-
-   Make sure to include Live2D Cubism Core in your HTML file:
-
-   ```html
-   <script src="/Core/live2dcubismcore.js"></script>
-   ```
-
-   Or use a CDN:
-
-   ```html
-   <script src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"></script>
-   ```
-
-2. **Set up Canvas**
-
-   Add a canvas element as the rendering target:
-
-   ```html
-   <canvas id="live2d"></canvas>
-   ```
-
-### Style Settings
-
-To properly display Live2D models, it is recommended to add the following CSS styles:
-
-```css
-html, body {
-  overflow: hidden;
-  margin: 0;
-}
-
-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
+```html
+<script src="/Core/live2dcubismcore.js"></script>
 ```
 
-### Model File Structure
+### 2. Browser Environment
 
-It is recommended to organize your Live2D model files according to the officially recommended structure:
+Depends on these browser APIs:
 
-```
-public/
-  Resources/
-    ModelName/
-      ModelName.model3.json
-      *.moc3
-      *.physics3.json
-      textures/
-        *.png
-      motions/
-        *.motion3.json
-      expressions/
-        *.exp3.json
-```
+- `document` / `fetch` / `Image`
+- `ResizeObserver`
+- `AudioContext`
+- `WebGL`
 
-## Verify Installation
+Not suitable for SSR. Initialize `Live2DSprite` after client mount.
 
-After installation, you can use the following simple code to verify that easy-live2d is properly installed and configured:
+### 3. Pixi.js as Host
 
-```js
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite } from 'easy-live2d';
+You create the Pixi `Application` and add `Live2DSprite` to the stage. `easy-live2d` does not create the canvas or own the app lifecycle.
 
-const init = async () => {
-  // Create application
-  const app = new Application();
-  await app.init({
-    view: document.getElementById('live2d'),
-    backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-  });
+## Model Assets
 
-  // Create Live2D sprite
-  const live2dSprite = new Live2DSprite();
-  live2dSprite.init({
-    modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-    ticker: Ticker.shared
-  });
-  // Live2D sprite size
-  live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-  live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+### Option 1: `modelPath`
 
-  // Add to stage
-  app.stage.addChild(live2dSprite);
-
-  console.log('easy-live2d initialized successfully!');
-}
-
-init()
+```ts
+const sprite = new Live2DSprite({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+})
 ```
 
-If you can see the model load and display correctly, the installation and configuration have been successful.
+The library uses the `model3.json` directory as the base path to load moc, textures, motions, expressions, physics, pose, and user data.
 
-## Common Issues
+### Option 2: `CubismSetting`
 
-### Model Cannot Load
+```ts
+const modelJSON = await fetch('/Resources/Hiyori/Hiyori.model3.json').then(r => r.json())
 
-- Check if the path is correct
-- Confirm that Live2D Cubism Core has been properly loaded
-- Check the browser console for error messages
+const setting = new CubismSetting({
+  modelJSON,
+  prefixPath: '/Resources/Hiyori/',
+})
+```
 
-### WebGL Compatibility Issues
+Best for:
 
-easy-live2d relies on WebGL. If you encounter rendering issues, please make sure:
+- `model3.json` requires authentication
+- Assets are on a CDN
+- Asset URLs need rule-based rewriting
 
-- You are using a modern browser that supports WebGL
-- Your graphics card drivers are updated
+## Smallest Runnable Page
 
-If you have any other issues, please consult the [API documentation](/en/api/) or submit an [GitHub Issue](https://github.com/Panzer-Jack/easy-live2d/issues).
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easy-live2d</title>
+    <style>
+      html, body { margin: 0; width: 100%; height: 100%; }
+      #live2d { display: block; width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <canvas id="live2d"></canvas>
+    <script src="/Core/live2dcubismcore.js"></script>
+    <script type="module">
+      import { Application, Ticker } from 'pixi.js'
+      import { Live2DSprite } from 'easy-live2d'
+
+      const canvas = document.getElementById('live2d')
+      const app = new Application()
+
+      await app.init({
+        canvas,
+        backgroundAlpha: 0,
+        autoDensity: true,
+        resolution: Math.max(window.devicePixelRatio || 1, 1),
+      })
+
+      const sprite = new Live2DSprite({
+        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+        ticker: Ticker.shared,
+      })
+
+      sprite.width = canvas.clientWidth
+      app.stage.addChild(sprite)
+    </script>
+  </body>
+</html>
+```
+
+## Next
+
+- [Getting Started](/en/guide/getting-started) — Run the minimal example
+- [Basic Usage](/en/guide/basic-usage) — Motions, expressions, dragging, voice
+- [API Reference](/en/api/) — Full public API

@@ -1,26 +1,23 @@
 {
   "name": "easy-live2d",
-  "version": "0.4.0-0",
+  "type": "module",
+  "version": "0.4.0-1",
   "packageManager": "pnpm@10.12.4",
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
-  "engines": {
-    "node": "^18.0.0 || >=20.0.0"
-  },
   "author": {
     "name": "Panzer_Jack",
     "email": "panzer_jack@panzer-jack.cn",
     "url": "https://www.panzer-jack.cn"
   },
+  "license": "MPL-2.0",
+  "homepage": "https://panzer-jack.github.io/easy-live2d/",
+  "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "keywords": [
     "easy-live2d",
     "easy-live2d",
     "Live2D Web SDK",
     "live2d"
   ],
-  "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,12 +25,15 @@
       "require": "./dist/index.cjs"
     }
   },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "license": "MPL-2.0",
-  "homepage": "https://panzer-jack.github.io/easy-live2d/",
-  "repository": "https://github.com/Panzer-Jack/easy-live2d",
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "docs:dev": "pnpm -C docs docs:dev",
@@ -49,12 +49,13 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@pixi/sound": "^6.0.1"
+    "@pixi/sound": "^6.0.1",
+    "eslint-plugin-format": "^2.0.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "catalog:dev",
     "@easy-live2d/core": "workspace:*",
     "@esbuild-plugins/tsconfig-paths": "^0.1.0",
+    "@panzerjack/eslint-config": "catalog:dev",
     "@types/node": "catalog:dev",
     "eslint": "^9.25.1",
     "jiti": "catalog:dev",

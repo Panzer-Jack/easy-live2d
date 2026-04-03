@@ -1,378 +1,147 @@
 <div align="center">
-<p align="center">
-    <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="feuse-mcp" width="300px">
-</p>
-
-<h1>easy-live2d</h1>
-
-让 Live2D 集成更简单！一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库。
-
-让你的 Live2D 和操控 pixi sprite 一样简单！
-
-<div align="center">
-    <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
+  <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="easy-live2d" width="260">
+  <h1>easy-live2d</h1>
+  <p>面向 Pixi.js 的 Live2D Sprite 封装。</p>
 </div>
-</div>  
 
 中文 | [English](/README.md)
 
-你能够直接用这个 云IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 在你的浏览器上直接体验到 easy-live2d 的魅力！😋
----
+## 概述
 
-## 📖 文档
+`easy-live2d` 将 Live2D 模型封装为 Pixi.js `Sprite` 对象，提供精简的 API 覆盖模型加载、命中检测、拖拽、动作播放、表情切换、语音播放与口型同步。
 
-👉 [easy-live2d 官方文档](https://panzer-jack.github.io/easy-live2d)
+公开导出：
 
----
+- `Live2DSprite` — 核心类，继承自 Pixi `Sprite`
+- `Config` — 全局运行配置
+- `CubismSetting` — 手动模型配置，支持路径重定向
+- `Priority` — 动作优先级枚举
+- `LogLevel` — Cubism 日志级别枚举
 
-## TODO
-- （✅）将Core能力转移成Sprite
-- （✅）读取模型路径
-- （✅）配置文件迁移
-- （✅）可以直接控制表情、动作
-- （✅）各种事件函数暴露
-- （✅）语音
-- （✅ -）语音口型同步 - 当前仅支持wav格式
-- webgl渲染挂载问题 （暂定）
-
-## ✨ 特性
-
-- ⚡️ 支持 Pixi.js v8 和 Cubism 5 （ 均为当前最新版本 ）
-- 🌟 极致轻量，去除冗余功能
-- 🚀 更简单的 API 接口
-- 🛠️ 兼容官方 Live2D Web SDK
-- 📦 适配现代前端框架（如 Vue、React）
-
----
-
-## ⛵️ 开发者
-
-由于Live2D政策 你需要自行去Live2d Cubism 官网下载: [Live2D Cubism SDK for Web](https://www.live2d.com/zh-CHS/sdk/download/web/)
-并将其 Core目录 放入 /packages/cubism 目录下
-
----
-
-
-## 📦 安装
+## 安装
 
 ```bash
-pnpm add easy-live2d
-# 或者
-npm install easy-live2d
+pnpm add easy-live2d pixi.js
 # 或
-yarn add easy-live2d
+npm install easy-live2d pixi.js
+# 或
+yarn add easy-live2d pixi.js
 ```
 
----
+## 前置条件
 
-## 🛠️ 快速上手
+1. 在页面入口引入官方 `live2dcubismcore.js`
+2. 浏览器环境（不支持 SSR）
+3. 可访问的 Live2D `model3.json` 模型文件
 
-具体也可以参考 [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 云IDE 中的代码 
+```html
+<script src="/Core/live2dcubismcore.js"></script>
+```
 
-一定请在 index.html 中引入 Cubism Core：
-你直接去Live2d Cubism 官网下载: [Live2D Cubism SDK for Web](https://www.live2d.com/zh-CHS/sdk/download/web/)
+## 快速开始
 
-原生HTML
 ```html
 <!doctype html>
-<html lang="">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>easy-live2d</title>
     <style>
-      html,
-      body {
-        overflow: hidden;
-        margin: 0;
-      }
+      html, body { margin: 0; width: 100%; height: 100%; }
+      #live2d { display: block; width: 100vw; height: 100vh; }
     </style>
   </head>
-
   <body>
-    <div id="app"></div>
+    <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority } from 'easy-live2d';
+      import { Application, Ticker } from 'pixi.js'
+      import { Config, Live2DSprite, Priority } from 'easy-live2d'
 
-      // 设置 Config 默认配置
-      Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
-      Config.MouseFollow = false // 禁用鼠标跟随
-      Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
+      Config.MotionGroupIdle = 'Idle'
+      Config.MouseFollow = true
 
-      // 创建Live2D精灵 并初始化
-      const live2DSprite = new Live2DSprite()
-      live2DSprite.init({
-        modelPath: '/Resources/Huusya/Huusya.model3.json',
-        ticker: Ticker.shared
-      });
+      const canvas = document.getElementById('live2d')
+      const app = new Application()
 
-      // 监听点击事件
-      live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-        console.log('hit', hitAreaName, x, y);
+      await app.init({
+        canvas,
+        backgroundAlpha: 0,
+        autoDensity: true,
+        resolution: Math.max(window.devicePixelRatio || 1, 1),
       })
 
-      // 你也可以直接这样初始化
-      // const live2DSprite = new Live2DSprite({
-      //   modelPath: '/Resources/Huusya/Huusya.model3.json',
-      //   ticker: Ticker.shared
-      // })
+      const sprite = new Live2DSprite({
+        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+        ticker: Ticker.shared,
+      })
 
-      // Create application
-      const init = async () => {
-        // 你同时又可以直接这样初始化
-        // const model2Json = await (await fetch(path)).json()
-        // const modelSetting = new CubismSetting({
-        //   prefixPath: '/Resources/Hiyori/',
-        //   modelJSON: model2Json,
-        // })
-        // 更改模型的所有默认资源路径，file为文件名
-        // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
-        // 优先度最高
-        // modelSetting.redirectPath(({file}) => {
-        //   return `/Resources/Huusya/${file}`
-        // })
-        // live2DSprite.init({
-        //   modelSetting,
-        //   ticker: Ticker.shared,
-        // })
-        const app = new Application();
-        await app.init({
-          view: document.getElementById('live2d'),
-          backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-        });
-        // Live2D精灵大小坐标设置
-        live2DSprite.x = -300
-        live2DSprite.y = -300
-        live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-        live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        app.stage.addChild(live2DSprite);
+      sprite.width = canvas.clientWidth
+      app.stage.addChild(sprite)
 
-        // 设置表情
-        live2DSprite.setExpression({
-          expressionId: 'normal',
-        })
-
-        // 播放声音
-        live2DSprite.playVoice({
-          // 当前音嘴同步 仅支持wav格式
-          voicePath: '/Resources/Huusya/voice/test.wav',
-        })
-
-        // 停止声音
-        // live2DSprite.stopVoice()
-
-        setTimeout(() => {
-          // 播放声音
-          live2DSprite.playVoice({
-            voicePath: '/Resources/Huusya/voice/test.wav',
-            immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
-          })
-        }, 10000)
-
-        // 设置动作
-        live2DSprite.startMotion({
-          group: 'test',
+      sprite.onLive2D('ready', async () => {
+        await sprite.startMotion({
+          group: 'TapBody',
           no: 0,
-          priority: 3,
+          priority: Priority.Normal,
         })
-      }
-      init()
+      })
     </script>
   </body>
 </html>
 ```
 
-Vue3 演示：（请注意一定要在index.html入口引入Cubism Core哦）
+## 功能一览
 
-```vue
-<script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { Config, Live2DSprite, LogLevel, Priority } from 'easy-live2d'
-import { Application, Ticker } from 'pixi.js'
-import { initDevtools } from '@pixi/devtools'
+```ts
+import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from 'easy-live2d'
 
-const canvasRef = ref<HTMLCanvasElement>()
-const app = new Application()
+Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
-// 设置 Config 默认配置
-Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
-Config.MouseFollow = false // 禁用鼠标跟随
-Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
-
-
-// 创建Live2D精灵 并初始化
-const live2DSprite = new Live2DSprite()
-live2DSprite.init({
+const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared
-});
-
-// 监听点击事件
-live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('hit', hitAreaName, x, y);
+  draggable: true,
 })
 
-// 你也可以直接这样初始化
-// const live2DSprite = new Live2DSprite({
-//   modelPath: '/Resources/Huusya/Huusya.model3.json',
-//   ticker: Ticker.shared
-// })
-
-onMounted(async () => {
-  // 你同时又可以直接这样初始化
-
-  // const model2Json = await (await fetch(path)).json()
-  // const modelSetting = new CubismSetting({
-  //   prefixPath: '/Resources/Hiyori/',
-  //   modelJSON: model2Json,
-  // })
-  
-  // 更改模型的所有默认资源路径，file为文件名
-  // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
-  // 优先度最高
-  // modelSetting.redirectPath(({file}) => {
-  //   return `/Resources/Huusya/${file}`
-  // })
-
-  // live2DSprite.init({
-  //   modelSetting,
-  //   ticker: Ticker.shared,
-  // })
-  await app.init({
-    view: canvasRef.value,
-    backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
-  })
-  if (canvasRef.value) {
-
-    // Live2D精灵大小坐标设置
-    live2DSprite.x = -300
-    live2DSprite.y = -300
-    live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-    live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-    app.stage.addChild(live2DSprite);
-
-    // 设置表情
-    live2DSprite.setExpression({
-      expressionId: 'normal',
-    })
-
-    // 播放声音
-    live2DSprite.playVoice({
-      // 当前音嘴同步 仅支持wav格式
-      voicePath: '/Resources/Huusya/voice/test.wav',
-    })
-
-        // 停止声音
-    // live2DSprite.stopVoice()
-
-    setTimeout(() => {
-      // 播放声音
-      live2DSprite.playVoice({
-        voicePath: '/Resources/Huusya/voice/test.wav',
-        immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
-      })
-    }, 10000)
-
-    // 设置动作
-    live2DSprite.startMotion({
-      group: 'test',
-      no: 0,
-      priority: 3,
-    })
-  }
+// 命中检测
+sprite.onLive2D('hit', ({ hitAreaName }) => {
+  console.log(hitAreaName)
 })
 
-onUnmounted(() => {
-  // 释放实例
-  live2DSprite.destroy()
+// 拖拽事件
+sprite.onLive2D('dragMove', ({ x, y }) => {
+  console.log(x, y)
 })
 
-</script>
+// 动作播放
+await sprite.startMotion({
+  group: 'TapBody',
+  no: 0,
+  priority: Priority.Force,
+})
 
-<template>
-  <div class="test">
-  </div>
-  <canvas
-    ref="canvasRef"
-    id="live2d"
-  />
-</template>
+// 表情切换
+sprite.setExpression({ expressionId: 'smile' })
 
-<style>
-#live2d {
-  position: absolute;
-  top: 0%;
-  right: 0%;
-  width: 100%;
-  height: 100%;
-}
-
-.test {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  height: 70%;
-  background-color: pink;
-}
-</style>
-
+// 语音播放（带口型同步）
+await sprite.playVoice({
+  voicePath: '/Resources/Hiyori/sounds/test.mp3',
+})
 ```
 
-## 语音口型同步
+语音解码基于 Web Audio `decodeAudioData()`，支持浏览器可解码的音频格式（wav、mp3、ogg 等）。口型同步需要模型配置 `LipSync` 参数映射。
 
-方法1:
+## 文档
 
-在Live2D模型编辑器 中开启口型同步 设置 MouthMovement
+- 中文：https://panzer-jack.github.io/easy-live2d
+- English：https://panzer-jack.github.io/easy-live2d/en
 
-这里方法可以参看[官方文档](https://docs.live2d.com/zh-CHS/cubism-sdk-tutorials/lipsync-cocos/)
+## 在线演示
 
-方法2:
-在模型的 xx.model3.json 中 找到 “Groups” 中 那个 `"Name": "LipSync"` 的部分，添加：`"Ids":"ParamMouthOpenY"`, 参考如下
-```json
-{
-	"Version": 3,
-	"FileReferences": {
-		"Moc": "xx.moc3",
-		"Textures": [
-			"xx.2048/texture_00.png"
-		],
-		"Physics": "xx.physics3.json",
-		"DisplayInfo": "xx.cdi3.json",
-		"Motions": {
-			"test": [],
-			"idle": []
-		},
-		"Expressions": []
-	},
-	"Groups": [
-		{
-			"Target": "Parameter",
-			"Name": "EyeBlink",
-			"Ids": []
-		},
-		{
-			"Target": "Parameter",
-			"Name": "LipSync",
-			"Ids": [
-				"ParamMouthOpenY"
-			]
-		}
-	],
-	"HitAreas": []
-}
-```
+- [StackBlitz Playground](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground?file=src/App.vue)
 
+## 许可证
 
-## 🤝 贡献
-
-欢迎 PR 和 Issue！请阅读 [贡献指南](#) 后参与开发。
-
----
-
-## 📄 License
-
-[MIT](./LICENSE)
+- 仓库代码：`MPL-2.0`
+- Live2D Cubism Core 与模型资源遵循各自官方许可

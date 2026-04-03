@@ -1,5 +1,16 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "paths": {
+      "@easy-live2d/core": [
+        "../core/dist/index.d.ts"
+      ],
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
   "include": [
     "env.d.ts",
     "src/**/*",
@@ -7,13 +18,5 @@
   ],
   "exclude": [
     "src/**/__tests__/*"
-  ],
-  "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  }
+  ]
 }

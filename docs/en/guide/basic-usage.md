@@ -1,320 +1,279 @@
 # Basic Usage
 
-This page introduces how to use the basic features of easy-live2d, helping you quickly master the core usage of the library.
+## Create an Instance
 
-## Include Cubism Core in HTML:
+### Option 1: Pass `modelPath`
 
-Make sure to include Cubism Core in your index.html:
+```ts
+import { Live2DSprite } from 'easy-live2d'
+import { Ticker } from 'pixi.js'
 
-You can download it directly from the Live2D Cubism official website: [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)
-
-```html
-<!doctype html>
-<html lang="">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-  </head>
-
-  <body>
-    <div id="app"></div>
-    <!-- Critical! -->
-    <script src="/Core/live2dcubismcore.js"></script>
-    <script type="module">
-
-    </script>
-  </body>
-</html>
+const sprite = new Live2DSprite({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  ticker: Ticker.shared,
+})
 ```
 
-## Create a Live2D Sprite
+### Option 2: Create First, Then `init()`
 
-The first step to using easy-live2d is to create a Live2DSprite instance and initialize it:
+```ts
+const sprite = new Live2DSprite()
 
-```js
-import { Live2DSprite } from 'easy-live2d';
-import { Ticker } from 'pixi.js';
-
-// Create Live2D sprite
-const live2dSprite = new Live2DSprite();
-
-// 1 Initialize sprite and set model path
-live2dSprite.init({
-  modelPath: '/path/to/your/model/Model.model3.json',
-  ticker: Ticker.shared
-});
-
-// 2 You can also initialize directly like this
-const modelSetting = new CubismSetting({
-  prefixPath: '/path/to/your/model/',
-  modelJSON: model2Json, // model3.json
+sprite.init({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  ticker: Ticker.shared,
+  draggable: true,
 })
-// Change all default resource paths of the model, file is the filename
-// For example: file is "expressions/angry.exp3.json", it will change the path to "/Resources/Huusya/expressions/angry.exp3.json"
-// Highest priority
-// modelSetting.redirectPath(({file}) => {
-//   return `/Resources/Huusya/${file}`
-// })
-live2DSprite.init({
+```
+
+### Option 3: Use `CubismSetting`
+
+```ts
+import { CubismSetting, Live2DSprite } from 'easy-live2d'
+import { Ticker } from 'pixi.js'
+
+const modelJSON = await fetch('/Resources/Hiyori/Hiyori.model3.json').then(r => r.json())
+
+const modelSetting = new CubismSetting({
+  modelJSON,
+  prefixPath: '/Resources/Hiyori/',
+})
+
+// Optional: rewrite asset paths (takes precedence over prefixPath)
+modelSetting.redirectPath(({ file }) => {
+  return `https://cdn.example.com/live2d/hiyori/${file}`
+})
+
+const sprite = new Live2DSprite({
   modelSetting,
   ticker: Ticker.shared,
 })
+```
 
-// 3 or this
-const live2DSprite = new Live2DSprite({
-  modelPath: '/Resources/Huusya/Huusya.model3.json',
-  ticker: Ticker.shared
+You must provide at least `modelPath` or `modelSetting`. If both are present, `modelPath` takes precedence.
+
+## Add to a Pixi Scene
+
+```ts
+import { Application } from 'pixi.js'
+
+const canvas = document.getElementById('live2d') as HTMLCanvasElement
+const app = new Application()
+
+await app.init({
+  canvas,
+  backgroundAlpha: 0,
+  autoDensity: true,
+  resolution: Math.max(window.devicePixelRatio || 1, 1),
+})
+
+sprite.width = canvas.clientWidth
+app.stage.addChild(sprite)
+```
+
+`Live2DSprite` extends Pixi `Sprite`, so all standard properties work:
+
+```ts
+sprite.x = 40
+sprite.y = -80
+sprite.anchor.set(0.5)
+sprite.scale.set(0.8)
+```
+
+## Wait for Model Ready
+
+The `ready` event fires after internal initialization completes:
+
+```ts
+sprite.onLive2D('ready', () => {
+  console.log('model ready')
+  console.log(sprite.getModelCanvasSize())
 })
 ```
 
-## Add to Scene
+Operations that depend on model state — getting the original canvas size, playing the first motion, etc. — should go in the `ready` callback.
 
-After creation, you need to add the Live2D sprite to a Pixi.js stage:
+::: tip
+Calling `startMotion()`, `setExpression()`, `playVoice()`, etc. before `ready` is safe — requests are automatically queued and executed after initialization.
+:::
 
-```js
-import { Application } from 'pixi.js';
+## Hit Areas
 
-// Create Pixi application
-const app = new Application();
-const init = async () => {
-  await app.init({
-    view: document.getElementById('canvas'),
-    backgroundAlpha: 0  // Transparent background
-  });
-  // Add sprite to stage
-  app.stage.addChild(live2dSprite);
-}
-init()
+```ts
+import { Priority } from 'easy-live2d'
+
+sprite.onLive2D('hit', async ({ hitAreaName, x, y }) => {
+  console.log('hit area:', hitAreaName, x, y)
+
+  if (hitAreaName === 'Head') {
+    await sprite.startMotion({
+      group: 'TapBody',
+      no: 0,
+      priority: Priority.Force,
+    })
+  }
+})
 ```
 
-## Set Position and Size
+- `hitAreaName` comes from the model's `HitAreas` config.
+- `x`, `y` are transformed model-view coordinates, not DOM pixel coordinates.
 
-You can set the position and size of the Live2D sprite just like you would with a regular Pixi.js sprite:
+## Drag the Model
 
-```js
-// Set position and size
-live2dSprite.x = 400;
-live2dSprite.y = 300;
-live2DSprite.width = 1400
-live2DSprite.height = 900
-```
-
-## Character Speaking (Lip Sync)
-Currently, only WAV format is supported for lip-sync
-
-First, ensure the Live2D model has set up MouthMovement. If not, refer to the methods below.
-
-### Method 1:
-
-Enable lip sync in the Live2D model editor by setting MouthMovement.
-
-You can refer to the [official documentation](https://docs.live2d.com/en/cubism-sdk-tutorials/lipsync-cocos/) for this method.
-
-### Method 2:
-
-In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"` and add: `"Ids":"ParamMouthOpenY"`, as shown below:
-```json
-{
-	"Version": 3,
-	"FileReferences": {
-		"Moc": "xx.moc3",
-		"Textures": [
-			"xx.2048/texture_00.png"
-		],
-		"Physics": "xx.physics3.json",
-		"DisplayInfo": "xx.cdi3.json",
-		"Motions": {
-			"test": [],
-			"idle": []
-		},
-		"Expressions": []
-	},
-	"Groups": [
-		{
-			"Target": "Parameter",
-			"Name": "EyeBlink",
-			"Ids": []
-		},
-		{
-			"Target": "Parameter",
-			"Name": "LipSync",
-			"Ids": [
-				"ParamMouthOpenY"
-			]
-		}
-	],
-	"HitAreas": []
-}
-```
-
-### Playing Voice
-```js
-// Play voice
-live2DSprite.playVoice({
-  // Currently, only wav format is supported for lip-sync
-  voicePath: '/Resources/Huusya/voice/test.wav',
+```ts
+const sprite = new Live2DSprite({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  draggable: true,
 })
 
-// Stop voice
-// live2DSprite.stopVoice()
+sprite.onLive2D('dragStart', ({ x, y }) => {
+  console.log('drag start', x, y)
+})
 
-setTimeout(() => {
-  // Play voice
-  live2DSprite.playVoice({
-    voicePath: '/Resources/Huusya/voice/test.wav',
-    immediate: true // Whether to play immediately: defaults to true, will stop currently playing sound and immediately play a new one
-  })
-}, 10000)
+sprite.onLive2D('dragMove', ({ x, y, deltaX, deltaY }) => {
+  console.log('dragging', x, y, deltaX, deltaY)
+})
+
+sprite.onLive2D('dragEnd', ({ x, y }) => {
+  console.log('drag end', x, y)
+})
 ```
+
+- Drag events only fire when `draggable: true`.
+- `x`, `y` in drag events are the sprite position, not pointer coordinates.
 
 ## Play Motions
 
-easy-live2d provides simple methods to play model motions:
-
-```js
-import { Priority } from 'easy-live2d';
+```ts
+import { Priority } from 'easy-live2d'
 
 // Play a specific motion
-live2dSprite.startMotion({
-  group: 'Tap',    // Motion group name
-  no: 0,           // Motion index
-  priority: Priority.Force  // Motion priority
-});
+await sprite.startMotion({
+  group: 'TapBody',
+  no: 0,
+  priority: Priority.Normal,
+})
 
-// Priority explanation:
-// Priority.None = 0: No priority, won't interrupt other motions
-// Priority.Idle = 1: Idle priority, lowest level
-// Priority.Normal = 2: Normal priority
-// Priority.Force = 3: Force priority, will interrupt any other motions
+// Play a random motion from the group
+await sprite.startRandomMotion({
+  group: 'TapBody',
+  priority: Priority.Normal,
+})
 ```
 
-## Set Expressions
+`Priority` values:
 
-Switching model expressions is also very simple:
+| Value | Description |
+| --- | --- |
+| `Priority.None` | No preemption |
+| `Priority.Idle` | Idle motion |
+| `Priority.Normal` | Normal motion |
+| `Priority.Force` | Force-interrupt the current motion |
 
-```js
-// Set a specific expression
-live2dSprite.setExpression({ 
-  expressionId: 'smile' 
-});
+After a motion finishes, the runtime falls back to the idle group specified by `Config.MotionGroupIdle`.
 
-// Randomly select an expression
-live2dSprite.setRandomExpression();
+## Change Expressions
+
+```ts
+sprite.setExpression({ expressionId: 'smile' })
+
+sprite.setRandomExpression()
 ```
 
-## Listen for Events
+A warning is logged if the `expressionId` does not exist.
 
-easy-live2d provides an event system that can respond to interactions on the model:
+## Voice and Lip Sync
 
-```js
-// Listen for click events
-live2dSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log(`Clicked on the model's ${hitAreaName} area, coordinates: (${x}, ${y})`);
-  
-  // You can trigger different actions based on the clicked area
-  if (hitAreaName === 'Head') {
-    live2dSprite.startMotion({
-      group: 'Tap',
-      no: 0,
-      priority: Priority.Force
-    });
-  }
-});
+```ts
+// Play voice
+await sprite.playVoice({
+  voicePath: '/Resources/Hiyori/sounds/test.wav',
+})
+
+// immediate: true stops current voice before playing
+await sprite.playVoice({
+  voicePath: '/Resources/Hiyori/sounds/test.mp3',
+  immediate: true,
+})
+
+// Stop voice
+sprite.stopVoice()
 ```
 
-## Configuration Options
+- Voice decoding uses Web Audio `decodeAudioData` — supports any browser-decodable audio format (wav, mp3, ogg, etc.).
+- Lip sync requires `LipSync` parameter mapping in the model.
 
-You can set global configurations through the Config object:
+## Size Control
 
-```js
-import { Config, LogLevel } from 'easy-live2d';
+```ts
+// Set width and height directly
+sprite.width = 420
+sprite.height = 760
 
-// Set log level
-Config.CubismLoggingLevel = LogLevel.LogLevel_Warning;
+// Set via setSize
+sprite.setSize(420, 760)
 
-// Enable/disable mouse following
-Config.MouseFollow = true;
+// Get current size
+const size = sprite.getSize()
 
-// Set default idle motion group
-Config.MotionGroupIdle = 'Idle';
-
-// Enable/disable eye blinking effect
-Config.EyeBlinkEnabled = true;
-
-// Enable/disable breathing effect
-Config.BreathingEnabled = true;
+// Get original model canvas size
+const canvasSize = sprite.getModelCanvasSize()
+// => { width, height, pixelsPerUnit } | null
 ```
 
-## Resource Release
+`width` / `height` can be set before the model loads — they are applied automatically after initialization.
 
-When the Live2D sprite is no longer needed, you should release the resources it occupies:
+## Global Config
 
-```js
-// Destroy resources
-live2dSprite.destroy();
+```ts
+import { Config, LogLevel } from 'easy-live2d'
+
+Config.MotionGroupIdle = 'Idle'
+Config.MouseFollow = true
+Config.DebugTouchLogEnable = false
+Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 ```
 
-In frameworks like Vue or React, this operation should be performed when the component is unmounted.
+Common fields:
 
-## Complete Example
-```html
-<!doctype html>
-<html lang="">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-    <style>
-      html,
-      body {
-        overflow: hidden;
-        margin: 0;
-      }
-    </style>
-  </head>
+| Field | Default | Description |
+| --- | --- | --- |
+| `MotionGroupIdle` | `'Idle'` | Idle motion group to fall back to |
+| `MouseFollow` | `true` | Model follows mouse movement |
+| `DebugLogEnable` | `true` | Enable Cubism logging |
+| `DebugTouchLogEnable` | `false` | Log touch coordinates |
+| `CubismLoggingLevel` | `LogLevel_Verbose` | Cubism Framework log level |
+| `MOCConsistencyValidationEnable` | `true` | Enable moc consistency validation |
 
-  <body>
-    <div id="app"></div>
-    <script src="/Core/live2dcubismcore.js"></script>
-    <script type="module">
-      import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority } from 'easy-live2d';
+Use `Config.resetConfig()` to restore all defaults.
 
-      // Configure basic settings
-      Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
-      Config.MouseFollow = false; // Disable mouse following
-      // Create Live2D sprite
-      const live2dSprite = new Live2DSprite();
-      live2dSprite.init({
-        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared
-      });
+## Release Resources
 
-      const init = async () => {
-        // Create application
-        const app = new Application();
-        await app.init({
-          view: document.getElementById('live2d'),
-          backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-        });
-        // Live2D sprite size
-        live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-        live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        // Add to stage
-        app.stage.addChild(live2dSprite);
-        console.log('easy-live2d initialized successfully!');
-      }
-      init()
-    </script>
-  </body>
-</html>
+```ts
+sprite.destroy()
 ```
 
-## Next Steps
-- Explore more [Model Loading](/en/guide/model-loading) options
-- Learn advanced usage of [Motion Control](/en/guide/motion-control)
-- Understand the details of [Expression Control](/en/guide/expression-control)
-- Master the complete functionality of the [Event System](/en/guide/events)
+Cleans up pointer listeners, `ResizeObserver`, WebGL texture cache, Live2D context, and Cubism lifecycle. Call this on component unmount in Vue, React, etc.
+
+## Multiple Instances
+
+Each `Live2DSprite` holds its own context and event bus, supporting multiple instances in the same Pixi scene:
+
+```ts
+const spriteA = new Live2DSprite({
+  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  ticker: Ticker.shared,
+})
+
+const spriteB = new Live2DSprite({
+  modelPath: '/Resources/Mark/Mark.model3.json',
+  ticker: Ticker.shared,
+})
+
+spriteA.width = 300
+spriteB.width = 300
+spriteB.x = 400
+
+app.stage.addChild(spriteA)
+app.stage.addChild(spriteB)
+```

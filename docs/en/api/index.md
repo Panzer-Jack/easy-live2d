@@ -1,86 +1,340 @@
 # API Reference
 
-This section provides a complete API reference documentation for easy-live2d, helping you understand all the functionality and usage of the library.
-
-## Core Class
-
-The core of easy-live2d is the `Live2DSprite` class, which inherits from Pixi.js's `Sprite` class, allowing you to handle Live2D models just like regular Pixi sprites.
+## Export Overview
 
 ```ts
-class Live2DSprite extends Sprite {
-  // Properties and methods
-}
+export { Live2DSprite } from './Live2DSprite'
+export { Config, ConfigType, LogLevel, Priority } from './utils/config'
+export { CubismSetting } from './utils/cubismSetting'
 ```
 
-## Main Components
+Application code imports from the root package:
 
-### Live2DSprite
+```ts
+import {
+  Config,
+  CubismSetting,
+  Live2DSprite,
+  LogLevel,
+  Priority,
+  type ConfigType,
+} from 'easy-live2d'
+```
 
-`Live2DSprite` is the main entry class for easy-live2d, providing functions for model loading, rendering, event handling, and more. For details, see [Live2DSprite API](/en/api/live2d-sprite).
+---
 
-### Configuration System
+## Live2DSprite
 
-The `Config` object provides global configuration options for setting default behaviors. For details, see [Configuration Options](/en/api/config).
+Extends Pixi `Sprite`. The core facade class of the library.
 
-### Event System
+### Constructor
 
-An extension of the Pixi.js event system, providing Live2D-specific event types and handling mechanisms. For details, see [Event Types](/en/api/events).
+```ts
+new Live2DSprite(initConfig?: Live2DSpriteInit)
+```
 
-### Managers
+### init
 
-The manager system is responsible for managing and coordinating resources such as models, motions, and expressions. For details, see [Managers](/en/api/managers).
+```ts
+sprite.init(config: Live2DSpriteInit): boolean
+```
 
-## Type Definitions
-
-easy-live2d is written in TypeScript and provides complete type definitions, which helps to get good type support and code hints during development. The main type definitions include:
-
-### Live2DSpriteInit
-
-Configuration options for initializing Live2DSprite.
+`Live2DSpriteInit`:
 
 ```ts
 interface Live2DSpriteInit {
-  modelPath: string;      // Model path
-  ticker?: Ticker;        // Pixi.js Ticker instance
+  modelPath?: string
+  modelSetting?: CubismSetting
+  ticker?: Ticker
+  draggable?: boolean
 }
 ```
 
-### Event Types
+| Field | Type | Description |
+| --- | --- | --- |
+| `modelPath` | `string` | Path to the model `.model3.json` |
+| `modelSetting` | `CubismSetting` | Manually constructed model setting |
+| `ticker` | `Ticker` | Pixi Ticker reference |
+| `draggable` | `boolean` | Enable dragging. Default `false` |
+
+- At least one of `modelPath` or `modelSetting` is required.
+- If both are present, `modelPath` takes precedence.
+- Model loading is triggered on Pixi's first render, not at construction time.
+
+### Public Properties
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `modelPath` | `string \| null` | Model path |
+| `modelSetting` | `CubismSetting \| null` | Model setting object |
+| `ticker` | `Ticker \| null` | Ticker reference |
+| `renderer` | `Renderer` | Pixi renderer, available after first render |
+| `draggable` | `boolean` | Whether dragging is enabled |
+| `width` | `number` | Logical model width (read/write) |
+| `height` | `number` | Logical model height (read/write) |
+
+Inherited Pixi `Sprite` properties also work: `x`, `y`, `anchor`, `scale`, `rotation`, `visible`, etc.
+
+### Events
 
 ```ts
-// Live2D specific event type definitions
-interface Live2DSpriteEvents {
-  // Click event, returns the name of the clicked area and coordinates
-  hit: [{ hitAreaName: string; x: number; y: number }];
+sprite.onLive2D(eventName, callback)
+```
+
+| Event | Callback Args | Description |
+| --- | --- | --- |
+| `ready` | `()` | Model, textures, and interaction initialized |
+| `hit` | `({ hitAreaName, x, y })` | Click hit a model hit area |
+| `dragStart` | `({ x, y, deltaX, deltaY })` | Drag started |
+| `dragMove` | `({ x, y, deltaX, deltaY })` | Dragging |
+| `dragEnd` | `({ x, y, deltaX, deltaY })` | Drag ended |
+
+- `hit` `x`, `y` are model-view coordinates.
+- `drag*` `x`, `y` are sprite position.
+
+### Motion Control
+
+#### startMotion
+
+```ts
+sprite.startMotion(params: MotionParams): Promise<CubismMotionQueueEntryHandle>
+```
+
+```ts
+interface MotionParams {
+  group: string
+  no: number
+  priority: number
+  onStarted?: (motion: any) => void
+  onFinished?: (motion: any) => void
 }
 ```
 
-### Priority Enum
+Plays a specific motion by group and index. Calls before `ready` are automatically queued.
 
-Used to set the priority of motions and expressions.
+#### startRandomMotion
+
+```ts
+sprite.startRandomMotion(params: Omit<MotionParams, 'no'>): Promise<CubismMotionQueueEntryHandle>
+```
+
+Plays a random motion from the specified group.
+
+#### releaseMotions
+
+```ts
+sprite.releaseMotions(): void
+```
+
+Releases cached motion data.
+
+### Expression Control
+
+#### setExpression
+
+```ts
+sprite.setExpression(params: { expressionId: string }): void
+```
+
+Sets the specified expression. Logs a warning if `expressionId` does not exist.
+
+#### setRandomExpression
+
+```ts
+sprite.setRandomExpression(): void
+```
+
+Switches to a random expression.
+
+#### releaseExpressions
+
+```ts
+sprite.releaseExpressions(): void
+```
+
+Releases cached expression data.
+
+### Voice Control
+
+#### playVoice
+
+```ts
+sprite.playVoice(params: VoiceParams): Promise<void>
+```
+
+```ts
+interface VoiceParams {
+  voicePath: string
+  immediate?: boolean
+}
+```
+
+- `voicePath`: Audio resource path. Supports browser-decodable formats.
+- `immediate`: Default `true`. Stops current voice before playing the new one.
+- Lip sync requires `LipSync` parameter mapping in the model.
+
+#### stopVoice
+
+```ts
+sprite.stopVoice(): void
+```
+
+Stops current voice playback.
+
+### Size and Lifecycle
+
+#### getModelCanvasSize
+
+```ts
+sprite.getModelCanvasSize(): { width: number, height: number, pixelsPerUnit: number } | null
+```
+
+Returns the model's original canvas size. Returns `null` if the model is not ready.
+
+#### getSize
+
+```ts
+sprite.getSize(out?: Size): Size
+```
+
+Returns the current display size.
+
+#### setSize
+
+```ts
+sprite.setSize(value: number | { width: number, height?: number }, height?: number): void
+```
+
+Sets the display size.
+
+#### onResize
+
+```ts
+sprite.onResize(): void
+```
+
+Manually triggers view recalculation. Usually not needed — the internal `ResizeObserver` handles this.
+
+#### destroy
+
+```ts
+sprite.destroy(options?: DestroyOptions): void
+```
+
+Cleans up all resources: pointer events, ResizeObserver, WebGL textures, Live2D context, Cubism lifecycle.
+
+---
+
+## Config
+
+Global configuration singleton. Set before creating `Live2DSprite` instances.
+
+```ts
+import { Config, LogLevel } from 'easy-live2d'
+
+Config.MotionGroupIdle = 'Idle'
+Config.MouseFollow = true
+Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
+```
+
+### Fields
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ViewScale` | `number` | `1.0` | Initial view scale |
+| `ViewMaxScale` | `number` | `2.0` | Maximum scale |
+| `ViewMinScale` | `number` | `0.8` | Minimum scale |
+| `ViewLogicalLeft` | `number` | `-1.0` | Logical view left bound |
+| `ViewLogicalRight` | `number` | `1.0` | Logical view right bound |
+| `ViewLogicalBottom` | `number` | `-1.0` | Logical view bottom bound |
+| `ViewLogicalTop` | `number` | `1.0` | Logical view top bound |
+| `ViewLogicalMaxLeft` | `number` | `-2.0` | Max movement left bound |
+| `ViewLogicalMaxRight` | `number` | `2.0` | Max movement right bound |
+| `ViewLogicalMaxBottom` | `number` | `-2.0` | Max movement bottom bound |
+| `ViewLogicalMaxTop` | `number` | `2.0` | Max movement top bound |
+| `MotionGroupIdle` | `string` | `'Idle'` | Idle motion group to fall back to |
+| `MOCConsistencyValidationEnable` | `boolean` | `true` | moc consistency validation |
+| `DebugLogEnable` | `boolean` | `true` | Enable Cubism logging |
+| `DebugTouchLogEnable` | `boolean` | `false` | Log touch coordinates |
+| `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism log level |
+| `MouseFollow` | `boolean` | `true` | Model follows mouse |
+
+### resetConfig
+
+```ts
+Config.resetConfig(): void
+```
+
+Restores all fields to defaults.
+
+---
+
+## ConfigType
+
+TypeScript type definition for the `Config` object. Type-only, no runtime value.
+
+---
+
+## Priority
+
+Motion priority enum.
 
 ```ts
 enum Priority {
-  None = 0,
-  Idle = 1,
-  Normal = 2,
-  Force = 3
+  None = 0,   // No preemption
+  Idle = 1,   // Idle motion
+  Normal = 2, // Normal motion
+  Force = 3,  // Force-interrupt current motion
 }
 ```
 
-### Log Level Enum
+---
 
-Controls the log output level.
+## LogLevel
+
+Log level enum re-exported from Cubism Framework. Used with `Config.CubismLoggingLevel`.
+
+| Member | Description |
+| --- | --- |
+| `LogLevel.LogLevel_Verbose` | Verbose logging |
+| `LogLevel.LogLevel_Debug` | Debug logging |
+| `LogLevel.LogLevel_Info` | Info logging |
+| `LogLevel.LogLevel_Warning` | Warning logging |
+| `LogLevel.LogLevel_Error` | Error logging |
+| `LogLevel.LogLevel_Off` | Logging disabled |
+
+---
+
+## CubismSetting
+
+Model configuration wrapper. Use when receiving `model3.json` at runtime and controlling asset paths.
+
+### Constructor
 
 ```ts
-enum LogLevel {
-  LogLevel_Verbose = 0,
-  LogLevel_Debug = 1,
-  LogLevel_Info = 2,
-  LogLevel_Warning = 3,
-  LogLevel_Error = 4,
-  LogLevel_Off = 5
-}
+new CubismSetting({ modelJSON: any, prefixPath?: string })
 ```
 
-In the following pages, we will introduce the various components and features of easy-live2d in detail. (To be completed)
+| Field | Description |
+| --- | --- |
+| `modelJSON` | Parsed `model3.json` object |
+| `prefixPath` | Shared prefix for relative asset paths |
+
+### redirectPath
+
+```ts
+setting.redirectPath(redirFn: ({ file: string }) => string): void
+```
+
+Rewrites paths for moc, textures, physics, pose, expressions, motions, and user data. Takes precedence over `prefixPath`.
+
+```ts
+const setting = new CubismSetting({
+  modelJSON,
+  prefixPath: '/Resources/Hiyori/',
+})
+
+setting.redirectPath(({ file }) => {
+  return `https://cdn.example.com/live2d/hiyori/${file}`
+})
+```

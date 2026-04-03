@@ -1,42 +1,47 @@
 # 什么是 easy-live2d
 
-easy-live2d 是一个基于 Pixi.js 的轻量、开发者友好的 Live2D Web SDK 封装库，旨在简化 Live2D 模型在网页应用中的集成和使用。
+`easy-live2d` 是一个围绕 `Live2DSprite` 封装的 Live2D Web 库，将常见的 Live2D 接入流程压缩为简洁的用户 API。
 
-让你的 Live2D 和操控 pixi sprite 一样简单！
+面向业务侧需要关心的公开入口：
 
-你能够直接用这个 云IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 在你的浏览器上直接体验到 easy-live2d 的魅力！😋
+- `Live2DSprite`：加载模型、加入 Pixi 舞台、响应点击和拖拽、播放动作和表情、控制语音。
+- `Config`：全局运行配置，如鼠标跟随、idle 动作组、日志级别、视图边界。
+- `CubismSetting`：手动提供 `model3.json` 内容或重写资源 URL 时使用。
 
-## 项目背景
+## 解决什么问题
 
-在 Web 前端开发中，添加 Live2D 模型通常需要使用官方的 Live2D Cubism SDK，但官方 SDK 的使用相对复杂，且与现代前端框架的集成不够友好。easy-live2d 项目致力于解决这些问题，提供一种更简单、更友好的方式来使用 Live2D 模型。
+直接使用官方 Cubism Web SDK，你需要自己组织模型资源、初始化渲染上下文、做坐标换算、管理命中检测、处理动作与表情，再和 Pixi.js 拼接起来。`easy-live2d` 的核心价值：
 
-## 核心特性
+- 把模型包装成一个 Pixi `Sprite`，融入已有的 Pixi 渲染流程。
+- 用少量 API 覆盖常见交互需求。
+- 保留对模型路径、资源重写和全局行为的控制权。
 
-- **基于 Pixi.js**：充分利用 Pixi.js 强大的 WebGL 渲染能力和易用的 API
-- **轻量级设计**：去除冗余功能，专注于核心功能实现
-- **简化的 API**：提供更直观、更简洁的 API 接口，降低使用门槛
-- **兼容性**：支持最新的 Cubism 5 SDK 和 Pixi.js v8
-- **扩展性**：提供丰富的事件系统和可自定义的配置选项
-- **框架友好**：易于与 Vue、React 等现代前端框架集成
+## 使用模型
 
-## 与官方 SDK 的区别
+1. 你创建 Pixi `Application` 和 `canvas`。
+2. 在页面入口引入官方 `live2dcubismcore.js`。
+3. 创建 `Live2DSprite`，传入 `modelPath` 或 `modelSetting`。
+4. 加入 `app.stage`，通过 `onLive2D('ready')` 监听模型就绪。
 
-easy-live2d 不是对官方 Live2D Cubism SDK 的替代，而是在其基础上进行封装和优化，使其更适合网页开发者使用。与官方 SDK 相比，easy-live2d 具有以下优势：
-
-- 简化了复杂的 API，降低了学习成本
-- 更好地集成了 Pixi.js 生态系统，使 Live2D 模型可以像普通 Pixi 精灵一样使用
-- 提供了更直观的事件处理机制
-- 针对 Web 场景进行了性能优化
+它更像一个"以 Pixi 为宿主的 Live2D 组件"，而非接管整个渲染生命周期的独立框架。
 
 ## 适用场景
 
-easy-live2d 适用于以下场景：
+- 在 Pixi.js 项目中快速接入 Live2D 角色。
+- 需要命中区域点击、拖拽、动作切换、表情切换、语音播放等基础交互。
+- 在 Vue、React 等 CSR 前端项目里复用同一套渲染封装。
 
-- 网页应用中需要添加 Live2D 模型作为虚拟助手或角色
-- 游戏开发中需要集成 Live2D 模型作为角色或 UI 元素
-- 交互式内容中需要生动的角色表现
-- 需要在 Vue、React 等现代框架中快速集成 Live2D 功能
+## 运行前提
+
+- 浏览器环境（依赖 `document`、`fetch`、`Image`、`ResizeObserver`、`AudioContext`）。
+- Pixi.js + WebGL。
+- Live2D 官方 Core 脚本。
+
+不适合在 SSR 阶段执行，需在客户端生命周期中初始化。
 
 ## 许可说明
 
-easy-live2d 是基于 MIT 许可的开源项目，但请注意，使用 easy-live2d 时，您仍需遵守 Live2D Cubism SDK 的相关许可要求。详细信息请参见[许可声明](/license)。
+- 本仓库代码许可证：`MPL-2.0`。
+- Live2D Cubism Core 和模型资源遵循各自的官方许可与分发要求。
+
+下一步：[安装配置](/guide/installation) → [快速开始](/guide/getting-started)。
