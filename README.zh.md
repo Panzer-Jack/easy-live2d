@@ -6,6 +6,14 @@
 
 中文 | [English](/README.md)
 
+你能够直接用这个 云IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 在你的浏览器上直接体验到 easy-live2d 的魅力！😋
+
+---
+
+## 📖 文档
+
+👉 [easy-live2d 官方文档](https://panzer-jack.github.io/easy-live2d)
+
 ## 概述
 
 `easy-live2d` 将 Live2D 模型封装为 Pixi.js `Sprite` 对象，提供精简的 API 覆盖模型加载、命中检测、拖拽、动作播放、表情切换、语音播放与口型同步。
