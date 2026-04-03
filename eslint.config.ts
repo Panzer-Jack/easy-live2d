@@ -1,21 +1,22 @@
-import antfu from '@antfu/eslint-config'
+import panzerjack from '@panzerjack/eslint-config'
 
-export default antfu({
-  unocss: true,
-  formatters: true,
+export default panzerjack({
+  vue: true,
+  typescript: true,
   pnpm: true,
-  // 添加自定义风格规则
-  stylistic: {
-    indent: 2, // 设置缩进为2个空格
-    quotes: 'single', // 设置使用单引号
-    semi: false, // 设置使用分号
-  },
-}, {
-  ignores: ['node_modules', '**/node_modules/**', 'dist', '**/dist/**'],
+  formatters: true,
+  ignores: [
+    'node_modules',
+    '**/node_modules/**',
+    'dist',
+    '**/dist/**',
+    'docs/.vitepress/**',
+    'src/services/figma/**',
+    'CLAUDE.md',
+    './packages/cubism/**',
+  ],
   rules: {
-    'ts/no-explicit-any': 'off',
-    'no-console': 'off',
-    'brace-style': ['error', '1tbs'],
-    'style/brace-style': ['error', '1tbs'],
+    'pnpm/json-enforce-catalog': 'off',
+    'ts/consistent-type-definitions': 'off',
   },
 })

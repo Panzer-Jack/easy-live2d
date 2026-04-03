@@ -40,8 +40,8 @@ Configuration options for initializing Live2DSprite.
 
 ```ts
 interface Live2DSpriteInit {
-  modelPath: string;      // Model path
-  ticker?: Ticker;        // Pixi.js Ticker instance
+  modelPath: string // Model path
+  ticker?: Ticker // Pixi.js Ticker instance
 }
 ```
 
@@ -51,7 +51,7 @@ interface Live2DSpriteInit {
 // Live2D specific event type definitions
 interface Live2DSpriteEvents {
   // Click event, returns the name of the clicked area and coordinates
-  hit: [{ hitAreaName: string; x: number; y: number }];
+  hit: [{ hitAreaName: string, x: number, y: number }]
 }
 ```
 

@@ -7,6 +7,7 @@
 easy-live2d 可以通过多种包管理器进行安装：
 
 ::: code-group
+
 ```bash [npm]
 npm install easy-live2d
 ```
@@ -18,6 +19,7 @@ yarn add easy-live2d
 ```bash [pnpm]
 pnpm add easy-live2d
 ```
+
 :::
 
 ## 依赖项
@@ -60,7 +62,8 @@ easy-live2d 需要以下依赖：
 为了正确显示 Live2D 模型，建议添加以下 CSS 样式：
 
 ```css
-html, body {
+html,
+body {
   overflow: hidden;
   margin: 0;
 }
@@ -96,35 +99,34 @@ public/
 安装完成后，你可以使用以下简单代码验证 easy-live2d 是否正确安装和配置：
 
 ```js
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite } from 'easy-live2d';
+import { Live2DSprite } from 'easy-live2d'
+import { Application, Ticker } from 'pixi.js'
 
 const init = async () => {
   // 创建应用
-  const app = new Application();
+  const app = new Application()
   await app.init({
     view: document.getElementById('live2d'),
     backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
-  });
+  })
 
   // 创建 Live2D 精灵
-  const live2dSprite = new Live2DSprite();
+  const live2dSprite = new Live2DSprite()
   live2dSprite.init({
     modelPath: '/Resources/Hiyori/Hiyori.model3.json',
     ticker: Ticker.shared
-  });
-    // Live2D精灵大小
+  })
+  // Live2D精灵大小
   live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
   live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
 
   // 添加到舞台
-  app.stage.addChild(live2dSprite);
+  app.stage.addChild(live2dSprite)
 
-  console.log('easy-live2d 初始化成功!');
+  console.log('easy-live2d 初始化成功!')
 }
 
 init()
-
 ```
 
 如果你能看到模型正确加载并显示，说明安装和配置已成功。

@@ -1,15 +1,16 @@
 {
-    "compilerOptions": {
-        "target": "esnext",
-        "baseUrl": ".",
-        "moduleResolution": "Node",
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        "outDir": "dist"
-    },
-    "splitting": true,
-    "sourcemap": true,
-    "include": [
-        "src"
-    ]
+  "compilerOptions": {
+    "target": "esnext",
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist"
+  },
+  "splitting": true,
+  "sourcemap": true,
+  "include": [
+    "src"
+  ]
 }

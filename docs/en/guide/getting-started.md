@@ -13,6 +13,7 @@ This page will guide you on how to quickly get started with easy-live2d, integra
 Install easy-live2d using your preferred package manager:
 
 ::: code-group
+
 ```bash [npm]
 npm install easy-live2d
 ```
@@ -24,6 +25,7 @@ yarn add easy-live2d
 ```bash [pnpm]
 pnpm add easy-live2d
 ```
+
 :::
 
 ## Basic Usage
@@ -31,57 +33,57 @@ pnpm add easy-live2d
 Here's a simple example showing how to load and display a Live2D model in a web page:
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>easy-live2d Example</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-    canvas {
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="live2d"></canvas>
-  <!-- Important!! Always include Cubism Core in your index.html -->
-  <script src="/Core/live2dcubismcore.js"></script>
-  <script type="module">
-    import { Application, Ticker } from 'pixi.js';
-    import { Live2DSprite, Config, Priority } from 'easy-live2d';
+  <head>
+    <meta charset="UTF-8" />
+    <title>easy-live2d Example</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="live2d"></canvas>
+    <!-- Important!! Always include Cubism Core in your index.html -->
+    <script src="/Core/live2dcubismcore.js"></script>
+    <script type="module">
+      import { Application, Ticker } from 'pixi.js'
+      import { Live2DSprite, Config, Priority } from 'easy-live2d'
 
-    // Configure basic settings
-    Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
-    Config.MouseFollow = false; // Disable mouse following
-    // Create Live2D sprite
-    const live2dSprite = new Live2DSprite();
-    live2dSprite.init({
-      modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-      ticker: Ticker.shared
-    });
+      // Configure basic settings
+      Config.MotionGroupIdle = 'Idle' // Set default idle motion group
+      Config.MouseFollow = false // Disable mouse following
+      // Create Live2D sprite
+      const live2dSprite = new Live2DSprite()
+      live2dSprite.init({
+        modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+        ticker: Ticker.shared,
+      })
 
-    const init = async () => {
-      // Create application
-      const app = new Application();
-      await app.init({
-        view: document.getElementById('live2d'),
-        backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-      });
-      // Live2D sprite size
-      live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
-      live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-      // Add to stage
-      app.stage.addChild(live2dSprite);
-      console.log('easy-live2d initialized successfully!');
-    }
-    init()
-  </script>
-</body>
+      const init = async () => {
+        // Create application
+        const app = new Application()
+        await app.init({
+          view: document.getElementById('live2d'),
+          backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
+        })
+        // Live2D sprite size
+        live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+        live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+        // Add to stage
+        app.stage.addChild(live2dSprite)
+        console.log('easy-live2d initialized successfully!')
+      }
+      init()
+    </script>
+  </body>
 </html>
 ```
 
@@ -91,45 +93,41 @@ Here's an example of integrating easy-live2d in a Vue 3 project:
 (Please note that you must import Cubism Core in your index.html entry file)
 
 ```vue
-<template>
-  <canvas ref="canvasRef" id="live2d" />
-</template>
-
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { Config, Live2DSprite, Priority } from 'easy-live2d'
 import { Application, Ticker } from 'pixi.js'
-import { Live2DSprite, Config, Priority } from 'easy-live2d'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-const canvasRef = ref(null);
-const app = new Application();
-const live2DSprite = new Live2DSprite();
+const canvasRef = ref(null)
+const app = new Application()
+const live2DSprite = new Live2DSprite()
 
 // Configure basic settings
-Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
-Config.MouseFollow = false; // Disable mouse following
+Config.MotionGroupIdle = 'Idle' // Set default idle motion group
+Config.MouseFollow = false // Disable mouse following
 
 // Initialize Live2D sprite
 live2DSprite.init({
   modelPath: '/public/path/to/your/model/Model.model3.json',
   ticker: Ticker.shared
-});
+})
 
 // Add click event listener
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('Clicked area:', hitAreaName, 'at', x, y);
-});
+  console.log('Clicked area:', hitAreaName, 'at', x, y)
+})
 
 onMounted(async () => {
   if (canvasRef.value) {
     await app.init({
       view: canvasRef.value,
       backgroundAlpha: 0, // Transparent background
-    });
-    
+    })
+
     // Adjust size and add to stage
-    live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio;
-    live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio;
-    app.stage.addChild(live2DSprite);
+    live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
+    live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
+    app.stage.addChild(live2DSprite)
 
     // play voice
     live2DSprite.playVoice({
@@ -147,19 +145,26 @@ onMounted(async () => {
         immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
       })
     }, 10000)
-    
+
     // Set expression
     live2DSprite.setExpression({
       expressionId: 'normal'
-    });
+    })
   }
-});
+})
 
 onUnmounted(() => {
   // Release resources
-  live2DSprite.destroy();
-});
+  live2DSprite.destroy()
+})
 </script>
+
+<template>
+  <canvas
+    id="live2d"
+    ref="canvasRef"
+  />
+</template>
 
 <style scoped>
 #live2d {

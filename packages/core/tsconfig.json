@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "baseUrl": ".",
-    "moduleResolution": "Node",
+    "rootDir": "..",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "paths": {
       "@Framework/*": ["../cubism/Framework/src/*"]
     },
@@ -14,6 +15,7 @@
   "sourcemap": true,
   "include": [
     "src/**/*.ts",
+    "../cubism/Framework/src/**/*.ts",
     "../cubism/Core/*.ts"
   ]
 }

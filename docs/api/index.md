@@ -40,8 +40,8 @@ easy-live2d 使用 TypeScript 编写，提供了完整的类型定义，有助�
 
 ```ts
 interface Live2DSpriteInit {
-  modelPath: string;      // 模型路径
-  ticker?: Ticker;        // Pixi.js Ticker 实例
+  modelPath: string // 模型路径
+  ticker?: Ticker // Pixi.js Ticker 实例
 }
 ```
 
@@ -51,7 +51,7 @@ interface Live2DSpriteInit {
 // Live2D 特有事件类型定义
 interface Live2DSpriteEvents {
   // 点击事件，返回点击区域名称和坐标
-  hit: [{ hitAreaName: string; x: number; y: number }];
+  hit: [{ hitAreaName: string, x: number, y: number }]
 }
 ```
 
@@ -82,6 +82,5 @@ enum LogLevel {
   LogLevel_Off = 5
 }
 ```
-
 
 在接下来的各个页面中，我们将详细介绍 easy-live2d 的各个组件和功能。（待完成）

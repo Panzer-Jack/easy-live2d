@@ -13,12 +13,11 @@
     <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
 </div>
-</div>  
+</div>
 
 中文 | [English](/README.md)
 
-你能够直接用这个 云IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 在你的浏览器上直接体验到 easy-live2d 的魅力！😋
----
+## 你能够直接用这个 云IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 在你的浏览器上直接体验到 easy-live2d 的魅力！😋
 
 ## 📖 文档
 
@@ -27,6 +26,7 @@
 ---
 
 ## TODO
+
 - （✅）将Core能力转移成Sprite
 - （✅）读取模型路径
 - （✅）配置文件迁移
@@ -53,7 +53,6 @@
 
 ---
 
-
 ## 📦 安装
 
 ```bash
@@ -68,12 +67,13 @@ yarn add easy-live2d
 
 ## 🛠️ 快速上手
 
-具体也可以参考 [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 云IDE 中的代码 
+具体也可以参考 [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground) 云IDE 中的代码
 
 一定请在 index.html 中引入 Cubism Core：
 你直接去Live2d Cubism 官网下载: [Live2D Cubism SDK for Web](https://www.live2d.com/zh-CHS/sdk/download/web/)
 
 原生HTML
+
 ```html
 <!doctype html>
 <html lang="">
@@ -95,8 +95,8 @@ yarn add easy-live2d
     <div id="app"></div>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority } from 'easy-live2d';
+      import { Application, Ticker } from 'pixi.js'
+      import { Live2DSprite, Config, Priority } from 'easy-live2d'
 
       // 设置 Config 默认配置
       Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
@@ -107,12 +107,12 @@ yarn add easy-live2d
       const live2DSprite = new Live2DSprite()
       live2DSprite.init({
         modelPath: '/Resources/Huusya/Huusya.model3.json',
-        ticker: Ticker.shared
-      });
+        ticker: Ticker.shared,
+      })
 
       // 监听点击事件
       live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-        console.log('hit', hitAreaName, x, y);
+        console.log('hit', hitAreaName, x, y)
       })
 
       // 你也可以直接这样初始化
@@ -139,17 +139,17 @@ yarn add easy-live2d
         //   modelSetting,
         //   ticker: Ticker.shared,
         // })
-        const app = new Application();
+        const app = new Application()
         await app.init({
           view: document.getElementById('live2d'),
           backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-        });
+        })
         // Live2D精灵大小坐标设置
         live2DSprite.x = -300
         live2DSprite.y = -300
         live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
         live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        app.stage.addChild(live2DSprite);
+        app.stage.addChild(live2DSprite)
 
         // 设置表情
         live2DSprite.setExpression({
@@ -169,7 +169,7 @@ yarn add easy-live2d
           // 播放声音
           live2DSprite.playVoice({
             voicePath: '/Resources/Huusya/voice/test.wav',
-            immediate: true // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
+            immediate: true, // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
           })
         }, 10000)
 
@@ -190,10 +190,10 @@ Vue3 演示：（请注意一定要在index.html入口引入Cubism Core哦）
 
 ```vue
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { initDevtools } from '@pixi/devtools'
 import { Config, Live2DSprite, LogLevel, Priority } from 'easy-live2d'
 import { Application, Ticker } from 'pixi.js'
-import { initDevtools } from '@pixi/devtools'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
@@ -203,17 +203,16 @@ Config.MotionGroupIdle = 'Idle' // 设置默认的空闲动作组
 Config.MouseFollow = false // 禁用鼠标跟随
 Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 
-
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
 live2DSprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
   ticker: Ticker.shared
-});
+})
 
 // 监听点击事件
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('hit', hitAreaName, x, y);
+  console.log('hit', hitAreaName, x, y)
 })
 
 // 你也可以直接这样初始化
@@ -230,7 +229,7 @@ onMounted(async () => {
   //   prefixPath: '/Resources/Hiyori/',
   //   modelJSON: model2Json,
   // })
-  
+
   // 更改模型的所有默认资源路径，file为文件名
   // 例如：file为"expressions/angry.exp3.json"，则会将路径更改为"/Resources/Huusya/expressions/angry.exp3.json"
   // 优先度最高
@@ -247,13 +246,12 @@ onMounted(async () => {
     backgroundAlpha: 0, // 如果需要透明，可以设置alpha为0
   })
   if (canvasRef.value) {
-
     // Live2D精灵大小坐标设置
     live2DSprite.x = -300
     live2DSprite.y = -300
     live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-    app.stage.addChild(live2DSprite);
+    app.stage.addChild(live2DSprite)
 
     // 设置表情
     live2DSprite.setExpression({
@@ -266,7 +264,7 @@ onMounted(async () => {
       voicePath: '/Resources/Huusya/voice/test.wav',
     })
 
-        // 停止声音
+    // 停止声音
     // live2DSprite.stopVoice()
 
     setTimeout(() => {
@@ -290,15 +288,13 @@ onUnmounted(() => {
   // 释放实例
   live2DSprite.destroy()
 })
-
 </script>
 
 <template>
-  <div class="test">
-  </div>
+  <div class="test" />
   <canvas
-    ref="canvasRef"
     id="live2d"
+    ref="canvasRef"
   />
 </template>
 
@@ -319,7 +315,6 @@ onUnmounted(() => {
   background-color: pink;
 }
 </style>
-
 ```
 
 ## 语音口型同步
@@ -332,40 +327,40 @@ onUnmounted(() => {
 
 方法2:
 在模型的 xx.model3.json 中 找到 “Groups” 中 那个 `"Name": "LipSync"` 的部分，添加：`"Ids":"ParamMouthOpenY"`, 参考如下
+
 ```json
 {
-	"Version": 3,
-	"FileReferences": {
-		"Moc": "xx.moc3",
-		"Textures": [
-			"xx.2048/texture_00.png"
-		],
-		"Physics": "xx.physics3.json",
-		"DisplayInfo": "xx.cdi3.json",
-		"Motions": {
-			"test": [],
-			"idle": []
-		},
-		"Expressions": []
-	},
-	"Groups": [
-		{
-			"Target": "Parameter",
-			"Name": "EyeBlink",
-			"Ids": []
-		},
-		{
-			"Target": "Parameter",
-			"Name": "LipSync",
-			"Ids": [
-				"ParamMouthOpenY"
-			]
-		}
-	],
-	"HitAreas": []
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "xx.moc3",
+    "Textures": [
+      "xx.2048/texture_00.png"
+    ],
+    "Physics": "xx.physics3.json",
+    "DisplayInfo": "xx.cdi3.json",
+    "Motions": {
+      "test": [],
+      "idle": []
+    },
+    "Expressions": []
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": []
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "ParamMouthOpenY"
+      ]
+    }
+  ],
+  "HitAreas": []
 }
 ```
-
 
 ## 🤝 贡献
 

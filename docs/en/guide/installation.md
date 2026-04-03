@@ -7,6 +7,7 @@ This page will guide you on how to install and configure easy-live2d.
 easy-live2d can be installed through various package managers:
 
 ::: code-group
+
 ```bash [npm]
 npm install easy-live2d
 ```
@@ -18,6 +19,7 @@ yarn add easy-live2d
 ```bash [pnpm]
 pnpm add easy-live2d
 ```
+
 :::
 
 ## Dependencies
@@ -60,7 +62,8 @@ Before using easy-live2d, you need to make sure that Pixi.js and Live2D Cubism S
 To properly display Live2D models, it is recommended to add the following CSS styles:
 
 ```css
-html, body {
+html,
+body {
   overflow: hidden;
   margin: 0;
 }
@@ -96,31 +99,31 @@ public/
 After installation, you can use the following simple code to verify that easy-live2d is properly installed and configured:
 
 ```js
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite } from 'easy-live2d';
+import { Live2DSprite } from 'easy-live2d'
+import { Application, Ticker } from 'pixi.js'
 
 const init = async () => {
   // Create application
-  const app = new Application();
+  const app = new Application()
   await app.init({
     view: document.getElementById('live2d'),
     backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-  });
+  })
 
   // Create Live2D sprite
-  const live2dSprite = new Live2DSprite();
+  const live2dSprite = new Live2DSprite()
   live2dSprite.init({
     modelPath: '/Resources/Hiyori/Hiyori.model3.json',
     ticker: Ticker.shared
-  });
+  })
   // Live2D sprite size
   live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
   live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
 
   // Add to stage
-  app.stage.addChild(live2dSprite);
+  app.stage.addChild(live2dSprite)
 
-  console.log('easy-live2d initialized successfully!');
+  console.log('easy-live2d initialized successfully!')
 }
 
 init()

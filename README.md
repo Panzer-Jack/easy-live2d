@@ -13,12 +13,11 @@ Make your Live2D as easy to control as a pixi sprite!
     <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
 </div>
-</div>  
+</div>
 
 English | [中文](/README.zh.md)
 
-You can directly experience the charm of easy-live2d in your browser using this cloud IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground)! 😋
----
+## You can directly experience the charm of easy-live2d in your browser using this cloud IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground)! 😋
 
 ## 📖 Documentation
 
@@ -27,6 +26,7 @@ You can directly experience the charm of easy-live2d in your browser using this 
 ---
 
 ## 📒 TODO
+
 - [easy-live2d roadmap](https://github.com/Panzer-Jack/easy-live2d/discussions/10)
 
 ## ✨ Features
@@ -66,6 +66,7 @@ Please make sure to include Cubism Core in index.html:
 You can download it directly from Live2D Cubism official website: [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)
 
 Native HTML
+
 ```html
 <!doctype html>
 <html lang="">
@@ -87,8 +88,8 @@ Native HTML
     <div id="app"></div>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority } from 'easy-live2d';
+      import { Application, Ticker } from 'pixi.js'
+      import { Live2DSprite, Config, Priority } from 'easy-live2d'
 
       // Set Config default configuration
       Config.MotionGroupIdle = 'Idle' // Set default idle motion group
@@ -99,12 +100,12 @@ Native HTML
       const live2DSprite = new Live2DSprite()
       live2DSprite.init({
         modelPath: '/Resources/Huusya/Huusya.model3.json',
-        ticker: Ticker.shared
-      });
+        ticker: Ticker.shared,
+      })
 
       // Listen to click events
       live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-        console.log('hit', hitAreaName, x, y);
+        console.log('hit', hitAreaName, x, y)
       })
 
       // You can also initialize directly like this
@@ -131,17 +132,17 @@ Native HTML
         //   modelSetting,
         //   ticker: Ticker.shared,
         // })
-        const app = new Application();
+        const app = new Application()
         await app.init({
           view: document.getElementById('live2d'),
           backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-        });
+        })
         // Live2D sprite size and coordinate settings
         live2DSprite.x = -300
         live2DSprite.y = -300
         live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
         live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-        app.stage.addChild(live2DSprite);
+        app.stage.addChild(live2DSprite)
 
         // Set expression
         live2DSprite.setExpression({
@@ -161,7 +162,7 @@ Native HTML
           // Play voice
           live2DSprite.playVoice({
             voicePath: '/Resources/Huusya/voice/test.wav',
-            immediate: true // Whether to play immediately: default is true, will stop the currently playing sound and immediately play the new sound
+            immediate: true, // Whether to play immediately: default is true, will stop the currently playing sound and immediately play the new sound
           })
         }, 10000)
 
@@ -182,10 +183,10 @@ Vue3 Demo: (Please make sure to include Cubism Core in the index.html entry file
 
 ```vue
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { initDevtools } from '@pixi/devtools'
 import { Config, Live2DSprite, LogLevel, Priority } from 'easy-live2d'
 import { Application, Ticker } from 'pixi.js'
-import { initDevtools } from '@pixi/devtools'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement>()
 const app = new Application()
@@ -200,11 +201,11 @@ const live2DSprite = new Live2DSprite()
 live2DSprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
   ticker: Ticker.shared
-});
+})
 
 // Listen to click events
 live2DSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log('hit', hitAreaName, x, y);
+  console.log('hit', hitAreaName, x, y)
 })
 
 // You can also initialize directly like this
@@ -221,7 +222,7 @@ onMounted(async () => {
   //   prefixPath: '/Resources/Hiyori/',
   //   modelJSON: model2Json,
   // })
-  
+
   // Change all default resource paths of the model, file is the filename
   // For example: file is "expressions/angry.exp3.json", it will change the path to "/Resources/Huusya/expressions/angry.exp3.json"
   // Highest priority
@@ -238,13 +239,12 @@ onMounted(async () => {
     backgroundAlpha: 0, // If transparency is needed, set alpha to 0
   })
   if (canvasRef.value) {
-
     // Live2D sprite size and coordinate settings
     live2DSprite.x = -300
     live2DSprite.y = -300
     live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
     live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
-    app.stage.addChild(live2DSprite);
+    app.stage.addChild(live2DSprite)
 
     // Set expression
     live2DSprite.setExpression({
@@ -281,15 +281,13 @@ onUnmounted(() => {
   // Release instance
   live2DSprite.destroy()
 })
-
 </script>
 
 <template>
-  <div class="test">
-  </div>
+  <div class="test" />
   <canvas
-    ref="canvasRef"
     id="live2d"
+    ref="canvasRef"
   />
 </template>
 
@@ -310,7 +308,6 @@ onUnmounted(() => {
   background-color: pink;
 }
 </style>
-
 ```
 
 ## Voice Lip-Sync
@@ -323,37 +320,38 @@ You can refer to the [official documentation](https://docs.live2d.com/en/cubism-
 
 Method 2:
 In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"`, add: `"Ids":"ParamMouthOpenY"`, as shown below:
+
 ```json
 {
-	"Version": 3,
-	"FileReferences": {
-		"Moc": "xx.moc3",
-		"Textures": [
-			"xx.2048/texture_00.png"
-		],
-		"Physics": "xx.physics3.json",
-		"DisplayInfo": "xx.cdi3.json",
-		"Motions": {
-			"test": [],
-			"idle": []
-		},
-		"Expressions": []
-	},
-	"Groups": [
-		{
-			"Target": "Parameter",
-			"Name": "EyeBlink",
-			"Ids": []
-		},
-		{
-			"Target": "Parameter",
-			"Name": "LipSync",
-			"Ids": [
-				"ParamMouthOpenY"
-			]
-		}
-	],
-	"HitAreas": []
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "xx.moc3",
+    "Textures": [
+      "xx.2048/texture_00.png"
+    ],
+    "Physics": "xx.physics3.json",
+    "DisplayInfo": "xx.cdi3.json",
+    "Motions": {
+      "test": [],
+      "idle": []
+    },
+    "Expressions": []
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": []
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "ParamMouthOpenY"
+      ]
+    }
+  ],
+  "HitAreas": []
 }
 ```
 

@@ -22,9 +22,7 @@ You can download it directly from the Live2D Cubism official website: [Live2D Cu
     <div id="app"></div>
     <!-- Critical! -->
     <script src="/Core/live2dcubismcore.js"></script>
-    <script type="module">
-
-    </script>
+    <script type="module"></script>
   </body>
 </html>
 ```
@@ -34,17 +32,17 @@ You can download it directly from the Live2D Cubism official website: [Live2D Cu
 The first step to using easy-live2d is to create a Live2DSprite instance and initialize it:
 
 ```js
-import { Live2DSprite } from 'easy-live2d';
-import { Ticker } from 'pixi.js';
+import { Live2DSprite } from 'easy-live2d'
+import { Ticker } from 'pixi.js'
 
 // Create Live2D sprite
-const live2dSprite = new Live2DSprite();
+const live2dSprite = new Live2DSprite()
 
 // 1 Initialize sprite and set model path
 live2dSprite.init({
   modelPath: '/path/to/your/model/Model.model3.json',
   ticker: Ticker.shared
-});
+})
 
 // 2 You can also initialize directly like this
 const modelSetting = new CubismSetting({
@@ -63,7 +61,7 @@ live2DSprite.init({
 })
 
 // 3 or this
-const live2DSprite = new Live2DSprite({
+const live2dSpriteWithPath = new Live2DSprite({
   modelPath: '/Resources/Huusya/Huusya.model3.json',
   ticker: Ticker.shared
 })
@@ -74,17 +72,17 @@ const live2DSprite = new Live2DSprite({
 After creation, you need to add the Live2D sprite to a Pixi.js stage:
 
 ```js
-import { Application } from 'pixi.js';
+import { Application } from 'pixi.js'
 
 // Create Pixi application
-const app = new Application();
+const app = new Application()
 const init = async () => {
   await app.init({
     view: document.getElementById('canvas'),
-    backgroundAlpha: 0  // Transparent background
-  });
+    backgroundAlpha: 0 // Transparent background
+  })
   // Add sprite to stage
-  app.stage.addChild(live2dSprite);
+  app.stage.addChild(live2dSprite)
 }
 init()
 ```
@@ -95,13 +93,14 @@ You can set the position and size of the Live2D sprite just like you would with 
 
 ```js
 // Set position and size
-live2dSprite.x = 400;
-live2dSprite.y = 300;
+live2dSprite.x = 400
+live2dSprite.y = 300
 live2DSprite.width = 1400
 live2DSprite.height = 900
 ```
 
 ## Character Speaking (Lip Sync)
+
 Currently, only WAV format is supported for lip-sync
 
 First, ensure the Live2D model has set up MouthMovement. If not, refer to the methods below.
@@ -115,41 +114,43 @@ You can refer to the [official documentation](https://docs.live2d.com/en/cubism-
 ### Method 2:
 
 In the model's xx.model3.json file, find the "Groups" section with `"Name": "LipSync"` and add: `"Ids":"ParamMouthOpenY"`, as shown below:
+
 ```json
 {
-	"Version": 3,
-	"FileReferences": {
-		"Moc": "xx.moc3",
-		"Textures": [
-			"xx.2048/texture_00.png"
-		],
-		"Physics": "xx.physics3.json",
-		"DisplayInfo": "xx.cdi3.json",
-		"Motions": {
-			"test": [],
-			"idle": []
-		},
-		"Expressions": []
-	},
-	"Groups": [
-		{
-			"Target": "Parameter",
-			"Name": "EyeBlink",
-			"Ids": []
-		},
-		{
-			"Target": "Parameter",
-			"Name": "LipSync",
-			"Ids": [
-				"ParamMouthOpenY"
-			]
-		}
-	],
-	"HitAreas": []
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "xx.moc3",
+    "Textures": [
+      "xx.2048/texture_00.png"
+    ],
+    "Physics": "xx.physics3.json",
+    "DisplayInfo": "xx.cdi3.json",
+    "Motions": {
+      "test": [],
+      "idle": []
+    },
+    "Expressions": []
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": []
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "ParamMouthOpenY"
+      ]
+    }
+  ],
+  "HitAreas": []
 }
 ```
 
 ### Playing Voice
+
 ```js
 // Play voice
 live2DSprite.playVoice({
@@ -174,14 +175,14 @@ setTimeout(() => {
 easy-live2d provides simple methods to play model motions:
 
 ```js
-import { Priority } from 'easy-live2d';
+import { Priority } from 'easy-live2d'
 
 // Play a specific motion
 live2dSprite.startMotion({
-  group: 'Tap',    // Motion group name
-  no: 0,           // Motion index
-  priority: Priority.Force  // Motion priority
-});
+  group: 'Tap', // Motion group name
+  no: 0, // Motion index
+  priority: Priority.Force // Motion priority
+})
 
 // Priority explanation:
 // Priority.None = 0: No priority, won't interrupt other motions
@@ -196,12 +197,12 @@ Switching model expressions is also very simple:
 
 ```js
 // Set a specific expression
-live2dSprite.setExpression({ 
-  expressionId: 'smile' 
-});
+live2dSprite.setExpression({
+  expressionId: 'smile'
+})
 
 // Randomly select an expression
-live2dSprite.setRandomExpression();
+live2dSprite.setRandomExpression()
 ```
 
 ## Listen for Events
@@ -211,17 +212,17 @@ easy-live2d provides an event system that can respond to interactions on the mod
 ```js
 // Listen for click events
 live2dSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
-  console.log(`Clicked on the model's ${hitAreaName} area, coordinates: (${x}, ${y})`);
-  
+  console.log(`Clicked on the model's ${hitAreaName} area, coordinates: (${x}, ${y})`)
+
   // You can trigger different actions based on the clicked area
   if (hitAreaName === 'Head') {
     live2dSprite.startMotion({
       group: 'Tap',
       no: 0,
       priority: Priority.Force
-    });
+    })
   }
-});
+})
 ```
 
 ## Configuration Options
@@ -229,22 +230,22 @@ live2dSprite.onLive2D('hit', ({ hitAreaName, x, y }) => {
 You can set global configurations through the Config object:
 
 ```js
-import { Config, LogLevel } from 'easy-live2d';
+import { Config, LogLevel } from 'easy-live2d'
 
 // Set log level
-Config.CubismLoggingLevel = LogLevel.LogLevel_Warning;
+Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
 // Enable/disable mouse following
-Config.MouseFollow = true;
+Config.MouseFollow = true
 
 // Set default idle motion group
-Config.MotionGroupIdle = 'Idle';
+Config.MotionGroupIdle = 'Idle'
 
 // Enable/disable eye blinking effect
-Config.EyeBlinkEnabled = true;
+Config.EyeBlinkEnabled = true
 
 // Enable/disable breathing effect
-Config.BreathingEnabled = true;
+Config.BreathingEnabled = true
 ```
 
 ## Resource Release
@@ -253,12 +254,13 @@ When the Live2D sprite is no longer needed, you should release the resources it 
 
 ```js
 // Destroy resources
-live2dSprite.destroy();
+live2dSprite.destroy()
 ```
 
 In frameworks like Vue or React, this operation should be performed when the component is unmounted.
 
 ## Complete Example
+
 ```html
 <!doctype html>
 <html lang="">
@@ -280,32 +282,32 @@ In frameworks like Vue or React, this operation should be performed when the com
     <div id="app"></div>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js';
-      import { Live2DSprite, Config, Priority } from 'easy-live2d';
+      import { Application, Ticker } from 'pixi.js'
+      import { Live2DSprite, Config, Priority } from 'easy-live2d'
 
       // Configure basic settings
-      Config.MotionGroupIdle = 'Idle'; // Set default idle motion group
-      Config.MouseFollow = false; // Disable mouse following
+      Config.MotionGroupIdle = 'Idle' // Set default idle motion group
+      Config.MouseFollow = false // Disable mouse following
       // Create Live2D sprite
-      const live2dSprite = new Live2DSprite();
+      const live2dSprite = new Live2DSprite()
       live2dSprite.init({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared
-      });
+        ticker: Ticker.shared,
+      })
 
       const init = async () => {
         // Create application
-        const app = new Application();
+        const app = new Application()
         await app.init({
           view: document.getElementById('live2d'),
           backgroundAlpha: 0, // Set alpha to 0 for transparency if needed
-        });
+        })
         // Live2D sprite size
         live2DSprite.width = canvasRef.value.clientWidth * window.devicePixelRatio
         live2DSprite.height = canvasRef.value.clientHeight * window.devicePixelRatio
         // Add to stage
-        app.stage.addChild(live2dSprite);
-        console.log('easy-live2d initialized successfully!');
+        app.stage.addChild(live2dSprite)
+        console.log('easy-live2d initialized successfully!')
       }
       init()
     </script>
@@ -314,6 +316,7 @@ In frameworks like Vue or React, this operation should be performed when the com
 ```
 
 ## Next Steps
+
 - Explore more [Model Loading](/en/guide/model-loading) options
 - Learn advanced usage of [Motion Control](/en/guide/motion-control)
 - Understand the details of [Expression Control](/en/guide/expression-control)
