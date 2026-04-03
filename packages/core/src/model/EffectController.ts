@@ -121,7 +121,7 @@ export class EffectController {
     if (immediate)
       this.stopVoice()
     sound.add('voice', voicePath)
-    this._soundLoader.start(voicePath)
+    await this._soundLoader.start(voicePath)
     await sound.play('voice')
   }
 
@@ -129,7 +129,7 @@ export class EffectController {
     if (sound.exists('voice')) {
       sound.stop('voice')
       sound.remove('voice')
-      this._soundLoader.releasePcmData()
     }
+    this._soundLoader.releasePcmData()
   }
 }

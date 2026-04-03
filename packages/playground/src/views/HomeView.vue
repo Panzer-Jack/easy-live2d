@@ -21,7 +21,7 @@ live2DSprite.init({
 
 const live2DSprit2 = new Live2DSprite()
 live2DSprit2.init({
-  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
+  modelPath: '/Resources/Cub3/ING.model3.json',
   ticker: Ticker.shared,
   draggable: true,
 })
@@ -88,11 +88,17 @@ onMounted(async () => {
       expressionId: 'normal',
     })
 
-    // 播放声音
-    live2DSprite.playVoice({
-      // 当前音嘴同步 仅支持wav格式
-      voicePath: '/Resources/Hiyori/sounds/test3.wav',
-    })
+    // // 播放声音
+    // live2DSprite.playVoice({
+    //   // 当前音嘴同步 仅支持wav格式
+    //   voicePath: '/Resources/Hiyori/sounds/test3.wav',
+    // })
+
+    // 播放网络声音
+    // live2DSprite.playVoice({
+    //   // 当前音嘴同步 仅支持wav格式
+    //   voicePath: 'https://cdn.pixabay.com/audio/2025/05/17/audio_3882df0036.mp3',
+    // })
 
     // 停止声音
     // live2DSprite.stopVoice()

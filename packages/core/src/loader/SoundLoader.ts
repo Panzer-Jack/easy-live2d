@@ -1,6 +1,6 @@
 /**
- * WAV 音频加载器
- * 负责 WAV 文件解析、PCM 数据提取和 RMS 计算（用于唇形同步）
+ * 音频加载器
+ * 负责通用音频解码、PCM 数据提取和 RMS 计算（用于唇形同步）
  * 从原 SoundManager 拆分
  */
 export class SoundLoader {
@@ -8,12 +8,14 @@ export class SoundLoader {
   private _sampleOffset = 0
   private _userTimeSeconds = 0
   private _lastRms = 0
-  private _wavFileInfo = new WavFileInfo()
+  private _audioFileInfo = new AudioFileInfo()
+  private _loadVersion = 0
+  private static _audioContext: AudioContext | null = null
 
   update(deltaTimeSeconds: number): boolean {
     if (
       this._pcmData === null
-      || this._sampleOffset >= this._wavFileInfo.samplesPerChannel
+      || this._sampleOffset >= this._audioFileInfo.samplesPerChannel
     ) {
       this._lastRms = 0.0
       return false
@@ -21,21 +23,26 @@ export class SoundLoader {
 
     this._userTimeSeconds += deltaTimeSeconds
     let goalOffset = Math.floor(
-      this._userTimeSeconds * this._wavFileInfo.samplingRate,
+      this._userTimeSeconds * this._audioFileInfo.samplingRate,
     )
-    if (goalOffset > this._wavFileInfo.samplesPerChannel) {
-      goalOffset = this._wavFileInfo.samplesPerChannel
+    if (goalOffset > this._audioFileInfo.samplesPerChannel) {
+      goalOffset = this._audioFileInfo.samplesPerChannel
+    }
+
+    if (goalOffset <= this._sampleOffset) {
+      this._lastRms = 0.0
+      return true
     }
 
     let rms = 0.0
-    for (let ch = 0; ch < this._wavFileInfo.numberOfChannels; ch++) {
+    for (let ch = 0; ch < this._audioFileInfo.numberOfChannels; ch++) {
       for (let s = this._sampleOffset; s < goalOffset; s++) {
         const pcm = this._pcmData[ch][s]
         rms += pcm * pcm
       }
     }
     rms = Math.sqrt(
-      rms / (this._wavFileInfo.numberOfChannels * (goalOffset - this._sampleOffset)),
+      rms / (this._audioFileInfo.numberOfChannels * (goalOffset - this._sampleOffset)),
     )
 
     this._lastRms = rms
@@ -43,160 +50,88 @@ export class SoundLoader {
     return true
   }
 
-  start(filePath: string): void {
-    this._sampleOffset = 0
-    this._userTimeSeconds = 0.0
-    this._lastRms = 0.0
-    this.loadWavFile(filePath)
-  }
-
   getRms(): number {
     return this._lastRms
   }
 
-  async loadWavFile(filePath: string): Promise<boolean> {
-    if (this._pcmData != null) {
-      this.releasePcmData()
-    }
-
-    const response = await fetch(filePath)
-    const arrayBuffer = await response.arrayBuffer()
-    const reader = new ByteReader(arrayBuffer)
-
-    if (!reader.getCheckSignature('RIFF'))
-      return false
-    reader.get32LittleEndian()
-    if (!reader.getCheckSignature('WAVE'))
-      return false
-    if (!reader.getCheckSignature('fmt '))
-      return false
-
-    const fmtChunkSize = reader.get32LittleEndian()
-    if (fmtChunkSize < 16)
-      return false
-
-    const formatTag = reader.get16LittleEndian()
-    this._wavFileInfo.numberOfChannels = reader.get16LittleEndian()
-    this._wavFileInfo.samplingRate = reader.get32LittleEndian()
-    reader.get32LittleEndian() // avgBytesPerSec
-    reader.get16LittleEndian() // blockAlign
-    this._wavFileInfo.bitsPerSample = reader.get16LittleEndian()
-
-    if (fmtChunkSize > 16)
-      reader.skip(fmtChunkSize - 16)
-    if (formatTag !== 1)
-      return false // PCM only
-
-    // 查找 data chunk
-    while (!reader.getCheckSignature('data')) {
-      const skipSize = reader.get32LittleEndian()
-      reader.skip(skipSize)
-      if (reader.isEof())
-        return false
-    }
-
-    const dataChunkSize = reader.get32LittleEndian()
-    this._wavFileInfo.samplesPerChannel
-      = (dataChunkSize * 8) / (this._wavFileInfo.bitsPerSample * this._wavFileInfo.numberOfChannels)
-
-    this._pcmData = Array.from(
-      { length: this._wavFileInfo.numberOfChannels },
-      () => new Float32Array(this._wavFileInfo.samplesPerChannel),
-    )
-
-    const bps = this._wavFileInfo.bitsPerSample
-    for (let s = 0; s < this._wavFileInfo.samplesPerChannel; s++) {
-      for (let ch = 0; ch < this._wavFileInfo.numberOfChannels; ch++) {
-        this._pcmData[ch][s] = this.getPcmSample(reader, bps)
-      }
-    }
-
-    return true
+  async start(filePath: string): Promise<boolean> {
+    const loadVersion = ++this._loadVersion
+    this.resetState()
+    return this.loadAudioFile(filePath, loadVersion)
   }
 
-  private getPcmSample(reader: ByteReader, bitsPerSample: number): number {
-    switch (bitsPerSample) {
-      case 8: return (reader.get8() - 128) / 128.0
-      case 16: return reader.get16LittleEndian() / 32768.0
-      case 24: return (reader.get24LittleEndian() << 8) / 2147483648.0
-      default: return 0
+  private async loadAudioFile(filePath: string, loadVersion: number): Promise<boolean> {
+    try {
+      const response = await fetch(filePath)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch audio file: ${response.status} ${response.statusText}`)
+      }
+
+      const arrayBuffer = await response.arrayBuffer()
+      const audioBuffer = await SoundLoader.getAudioContext().decodeAudioData(arrayBuffer.slice(0))
+
+      if (loadVersion !== this._loadVersion) {
+        return false
+      }
+
+      this._audioFileInfo.numberOfChannels = audioBuffer.numberOfChannels
+      this._audioFileInfo.samplingRate = audioBuffer.sampleRate
+      this._audioFileInfo.samplesPerChannel = audioBuffer.length
+      this._pcmData = Array.from(
+        { length: audioBuffer.numberOfChannels },
+        (_, channel) => Float32Array.from(audioBuffer.getChannelData(channel)),
+      )
+      return true
+    } catch (error) {
+      if (loadVersion === this._loadVersion) {
+        this.resetState()
+        console.error(`Failed to decode audio file: ${filePath}`, error)
+      }
+      return false
     }
   }
 
   releasePcmData(): void {
+    this._loadVersion++
+    this.resetState()
+  }
+
+  private resetState(): void {
     this._pcmData = null
     this._sampleOffset = 0
     this._userTimeSeconds = 0
     this._lastRms = 0
+    this._audioFileInfo.reset()
+  }
+
+  private static getAudioContext(): AudioContext {
+    if (this._audioContext) {
+      return this._audioContext
+    }
+
+    const AudioContextCtor = (
+      globalThis as typeof globalThis & { webkitAudioContext?: typeof AudioContext }
+    ).AudioContext ?? (
+      globalThis as typeof globalThis & { webkitAudioContext?: typeof AudioContext }
+    ).webkitAudioContext
+
+    if (!AudioContextCtor) {
+      throw new Error('Web Audio API is not supported in the current environment.')
+    }
+
+    this._audioContext = new AudioContextCtor()
+    return this._audioContext
   }
 }
 
-class WavFileInfo {
+class AudioFileInfo {
   numberOfChannels = 0
-  bitsPerSample = 0
   samplingRate = 0
   samplesPerChannel = 0
-}
 
-class ByteReader {
-  private _dataView: DataView
-  private _offset = 0
-  private _size: number
-
-  constructor(buffer: ArrayBuffer) {
-    this._dataView = new DataView(buffer)
-    this._size = buffer.byteLength
-  }
-
-  isEof(): boolean {
-    return this._offset >= this._size
-  }
-
-  get8(): number {
-    const ret = this._dataView.getUint8(this._offset)
-    this._offset += 1
-    return ret
-  }
-
-  get16LittleEndian(): number {
-    const ret
-      = (this._dataView.getUint8(this._offset + 1) << 8)
-        | this._dataView.getUint8(this._offset)
-    this._offset += 2
-    return ret
-  }
-
-  get24LittleEndian(): number {
-    const ret
-      = (this._dataView.getUint8(this._offset + 2) << 16)
-        | (this._dataView.getUint8(this._offset + 1) << 8)
-        | this._dataView.getUint8(this._offset)
-    this._offset += 3
-    return ret
-  }
-
-  get32LittleEndian(): number {
-    const ret
-      = (this._dataView.getUint8(this._offset + 3) << 24)
-        | (this._dataView.getUint8(this._offset + 2) << 16)
-        | (this._dataView.getUint8(this._offset + 1) << 8)
-        | this._dataView.getUint8(this._offset)
-    this._offset += 4
-    return ret
-  }
-
-  getCheckSignature(reference: string): boolean {
-    const refBytes = new TextEncoder().encode(reference)
-    if (reference.length !== 4)
-      return false
-    for (let i = 0; i < 4; i++) {
-      if (this.get8() !== refBytes[i])
-        return false
-    }
-    return true
-  }
-
-  skip(count: number): void {
-    this._offset += count
+  reset(): void {
+    this.numberOfChannels = 0
+    this.samplingRate = 0
+    this.samplesPerChannel = 0
   }
 }
