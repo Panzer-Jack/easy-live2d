@@ -1,0 +1,3 @@
+[submodule "packages/cubism/Framework"]
+	path = packages/cubism/Framework
+	url = git@github.com:Panzer-Jack/CubismWebFramework.git
