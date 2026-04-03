@@ -6,6 +6,14 @@
 
 English | [中文](/README.zh.md)
 
+You can directly experience the charm of easy-live2d in your browser using this cloud IDE [StackBlitz](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground)! 😋
+
+---
+
+## 📖 Documentation
+
+👉 [easy-live2d Official Documentation](https://panzer-jack.github.io/easy-live2d/en)
+
 ## Overview
 
 `easy-live2d` wraps Live2D models as Pixi.js `Sprite` objects, providing a compact API for model loading, hit detection, dragging, motions, expressions, voice playback, and lip sync.
@@ -48,8 +56,17 @@ yarn add easy-live2d pixi.js
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>easy-live2d</title>
     <style>
-      html, body { margin: 0; width: 100%; height: 100%; }
-      #live2d { display: block; width: 100vw; height: 100vh; }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #live2d {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
     </style>
   </head>
   <body>
@@ -131,15 +148,6 @@ await sprite.playVoice({
 ```
 
 Voice decoding uses Web Audio `decodeAudioData()`, supporting any browser-decodable audio format (wav, mp3, ogg, etc.). Lip sync requires `LipSync` parameter mapping in the model.
-
-## Documentation
-
-- English: https://panzer-jack.github.io/easy-live2d/en
-- 中文: https://panzer-jack.github.io/easy-live2d
-
-## Live Demo
-
-- [StackBlitz Playground](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground?file=src/App.vue)
 
 ## License
 
