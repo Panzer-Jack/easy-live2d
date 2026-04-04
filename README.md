@@ -1,7 +1,18 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="easy-live2d" width="260">
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="easy-live2d" width="260">
+  </p>
+  
   <h1>easy-live2d</h1>
-  <p>A Pixi.js-oriented Live2D Sprite wrapper.</p>
+  
+  Making Live2D integration easier! A lightweight, developer-friendly Live2D Web SDK wrapper library based on Pixi.js.
+  
+  Make your Live2D as easy to control as a pixi sprite!
+  
+  <div align="center">
+      <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
+      <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
+  </div>
 </div>
 
 English | [中文](/README.zh.md)
