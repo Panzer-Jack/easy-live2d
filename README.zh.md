@@ -1,7 +1,18 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="easy-live2d" width="260">
+  <p align="center">
+      <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="feuse-mcp" width="300px">
+  </p>
+  
   <h1>easy-live2d</h1>
-  <p>面向 Pixi.js 的 Live2D Sprite 封装。</p>
+  
+  让 Live2D 集成更简单！一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库。
+  
+  让你的 Live2D 和操控 pixi sprite 一样简单！
+  
+  <div align="center">
+      <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
+      <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
+  </div>
 </div>
 
 中文 | [English](/README.md)
