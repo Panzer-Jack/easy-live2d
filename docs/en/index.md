@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: easy-live2d
-  text: A Pixi.js-oriented Live2D Sprite Wrapper
-  tagline: A compact Web API centered on Live2DSprite for model loading, interaction, motions, expressions, and voice.
+  text: Lightweight Live2D Web SDK based on Pixi.js
+  tagline: Making Live2D integration simpler!
   actions:
     - theme: brand
       text: Getting Started
