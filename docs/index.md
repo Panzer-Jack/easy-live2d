@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: easy-live2d
-  text: 面向 Pixi.js 的 Live2D Sprite 封装
-  tagline: 以 Live2DSprite 为核心，提供模型加载、交互事件、动作表情、语音口型同步等能力。
+  text: 基于 Pixi.js 封装的 轻量级 Live2D Web SDK
+  tagline: 让 Live2D 集成变得更简单！
   actions:
     - theme: brand
       text: 快速开始
