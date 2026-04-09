@@ -61,6 +61,22 @@ export interface VoiceParams {
 }
 
 /**
+ * 动作信息
+ */
+export interface MotionInfo {
+  group: string
+  no: number
+  name: string
+}
+
+/**
+ * 表情信息
+ */
+export interface ExpressionInfo {
+  name: string
+}
+
+/**
  * 视口信息
  */
 export interface Viewport {

@@ -1,7 +1,7 @@
 import type { ICubismModelSetting } from '@Framework/icubismmodelsetting'
 import type { CubismMatrix44 } from '@Framework/math/cubismmatrix44'
 import type { EventBus } from '../core/EventBus'
-import type { Viewport } from '../core/types'
+import type { ExpressionInfo, MotionInfo, Viewport } from '../core/types'
 import type { IRedirectPath } from '../utils/cubismSetting'
 import { CubismUserModel } from '@Framework/model/cubismusermodel'
 import { csmMap as CsmMap } from '@Framework/type/csmmap'
@@ -204,5 +204,35 @@ export class Live2DModel extends CubismUserModel {
       x,
       y,
     )
+  }
+
+  getMotionInfos(): MotionInfo[] {
+    const setting = this._modelSettingRef
+    if (!setting)
+      return []
+
+    const result: MotionInfo[] = []
+    const groupCount = setting.getMotionGroupCount()
+    for (let i = 0; i < groupCount; i++) {
+      const group = setting.getMotionGroupName(i)
+      const count = setting.getMotionCount(group)
+      for (let no = 0; no < count; no++) {
+        result.push({ group, no, name: `${group}_${no}` })
+      }
+    }
+    return result
+  }
+
+  getExpressionInfos(): ExpressionInfo[] {
+    const setting = this._modelSettingRef
+    if (!setting)
+      return []
+
+    const result: ExpressionInfo[] = []
+    const count = setting.getExpressionCount()
+    for (let i = 0; i < count; i++) {
+      result.push({ name: setting.getExpressionName(i) })
+    }
+    return result
   }
 }

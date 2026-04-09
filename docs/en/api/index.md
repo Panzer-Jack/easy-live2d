@@ -146,6 +146,22 @@ sprite.releaseMotions(): void
 
 Releases cached motion data.
 
+#### getMotions
+
+```ts
+sprite.getMotions(): MotionInfo[]
+```
+
+```ts
+interface MotionInfo {
+  group: string
+  no: number
+  name: string
+}
+```
+
+Returns all available motions of the model. Each entry contains the group name, index, and a combined name. Returns an empty array if called before the model is ready.
+
 ### Expression Control
 
 #### setExpression
@@ -171,6 +187,20 @@ sprite.releaseExpressions(): void
 ```
 
 Releases cached expression data.
+
+#### getExpressions
+
+```ts
+sprite.getExpressions(): ExpressionInfo[]
+```
+
+```ts
+interface ExpressionInfo {
+  name: string
+}
+```
+
+Returns all available expressions of the model. Returns an empty array if called before the model is ready.
 
 ### Voice Control
 
