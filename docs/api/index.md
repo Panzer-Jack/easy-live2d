@@ -146,6 +146,22 @@ sprite.releaseMotions(): void
 
 释放已加载的动作缓存。
 
+#### getMotions
+
+```ts
+sprite.getMotions(): MotionInfo[]
+```
+
+```ts
+interface MotionInfo {
+  group: string
+  no: number
+  name: string
+}
+```
+
+获取模型所有可用动作列表。返回每个动作的分组名、索引和名称。模型就绪前调用返回空数组。
+
 ### 表情控制
 
 #### setExpression
@@ -171,6 +187,20 @@ sprite.releaseExpressions(): void
 ```
 
 释放已加载的表情缓存。
+
+#### getExpressions
+
+```ts
+sprite.getExpressions(): ExpressionInfo[]
+```
+
+```ts
+interface ExpressionInfo {
+  name: string
+}
+```
+
+获取模型所有可用表情列表。模型就绪前调用返回空数组。
 
 ### 语音控制
 

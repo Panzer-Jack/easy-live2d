@@ -5,9 +5,11 @@ import type {
 import type { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueuemanager'
 import type { DestroyOptions, Renderer, Size, Ticker } from 'pixi.js'
 import type {
+  ExpressionInfo,
   ExpressionParams,
   Live2DSpriteEvents,
   Live2DSpriteInit,
+  MotionInfo,
   MotionParams,
   Viewport,
   VoiceParams,
@@ -208,6 +210,14 @@ export class Live2DSprite extends Sprite {
 
   releaseExpressions(): void {
     this._model?.expressionCtrl.releaseExpressions()
+  }
+
+  getMotions(): MotionInfo[] {
+    return this._model?.getMotionInfos() ?? []
+  }
+
+  getExpressions(): ExpressionInfo[] {
+    return this._model?.getExpressionInfos() ?? []
   }
 
   onResize(): void {

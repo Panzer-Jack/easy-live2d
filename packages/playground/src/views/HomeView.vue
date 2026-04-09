@@ -77,8 +77,12 @@ onMounted(async () => {
     app.stage.addChild(live2DSprit2)
 
     // 模型加载完成后，打印原始尺寸信息
-    live2DSprite.onLive2D('ready', () => {
+    live2DSprit2.onLive2D('ready', () => {
       const size = live2DSprite.getModelCanvasSize()
+
+      console.log(live2DSprit2.getExpressions())
+
+      console.log(live2DSprit2.getMotions())
       if (size) {
         console.log('模型原始尺寸:', size.width, 'x', size.height)
       }

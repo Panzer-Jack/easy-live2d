@@ -159,6 +159,14 @@ sprite.setExpression({ expressionId: 'smile' })
 await sprite.playVoice({
   voicePath: '/Resources/Hiyori/sounds/test.mp3',
 })
+
+// Get all available motions
+const motions = sprite.getMotions()
+// => [{ group: 'Idle', no: 0, name: 'Idle_0' }, { group: 'TapBody', no: 0, name: 'TapBody_0' }, ...]
+
+// Get all available expressions
+const expressions = sprite.getExpressions()
+// => [{ name: 'smile' }, { name: 'angry' }, ...]
 ```
 
 Voice decoding uses Web Audio `decodeAudioData()`, supporting any browser-decodable audio format (wav, mp3, ogg, etc.). Lip sync requires `LipSync` parameter mapping in the model.

@@ -159,6 +159,14 @@ sprite.setExpression({ expressionId: 'smile' })
 await sprite.playVoice({
   voicePath: '/Resources/Hiyori/sounds/test.mp3',
 })
+
+// 获取模型所有动作列表
+const motions = sprite.getMotions()
+// => [{ group: 'Idle', no: 0, name: 'Idle_0' }, { group: 'TapBody', no: 0, name: 'TapBody_0' }, ...]
+
+// 获取模型所有表情列表
+const expressions = sprite.getExpressions()
+// => [{ name: 'smile' }, { name: 'angry' }, ...]
 ```
 
 语音解码基于 Web Audio `decodeAudioData()`，支持浏览器可解码的音频格式（wav、mp3、ogg 等）。口型同步需要模型配置 `LipSync` 参数映射。
