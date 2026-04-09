@@ -78,7 +78,7 @@ interface Live2DSpriteInit {
 
 ### 基于 Promise 的 Ready API
 
-除事件回调方式 `onLive2D('ready', callback)` 外，精灵对象还提供了两个 async/await 友好的 API，在模型、纹理及交互层加载完成后 resolve。
+除事件回调方式 `onLive2D('ready', callback)` 外，实例还提供了一个 async/await 友好的 API：`ready`，在模型、纹理及交互层加载完成后 resolve。
 
 #### ready
 

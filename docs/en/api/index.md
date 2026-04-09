@@ -78,7 +78,7 @@ Inherited Pixi `Sprite` properties also work: `x`, `y`, `anchor`, `scale`, `rota
 
 ### Promise-based Ready API
 
-In addition to the event-based `onLive2D('ready', callback)` pattern, the sprite exposes two async/await-friendly APIs that resolve when the model, textures, and interaction layer have finished loading.
+In addition to the event-based `onLive2D('ready', callback)` pattern, the instance exposes one async/await-friendly API: `ready`, which resolves when the model, textures, and interaction layer have finished loading.
 
 #### ready
 
