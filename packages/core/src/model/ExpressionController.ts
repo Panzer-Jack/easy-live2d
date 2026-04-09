@@ -43,6 +43,26 @@ export class ExpressionController {
     }
   }
 
+  setExpressionByIndex(index: number): void {
+    if (index < 0 || index >= this._expressions.getSize()) {
+      console.warn(`Expression index ${index} out of range (0-${this._expressions.getSize() - 1})`)
+      return
+    }
+    let i = 0
+    for (
+      let iter = this._expressions.begin();
+      iter.notEqual(this._expressions.end());
+      iter.preIncrement()
+    ) {
+      if (i === index) {
+        const name = iter.ptr().first
+        this.setExpression(name)
+        return
+      }
+      i++
+    }
+  }
+
   setRandomExpression(): void {
     if (this._expressions.getSize() === 0)
       return

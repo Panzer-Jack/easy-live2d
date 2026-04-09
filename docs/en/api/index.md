@@ -167,10 +167,10 @@ Returns all available motions of the model. Each entry contains the group name, 
 #### setExpression
 
 ```ts
-sprite.setExpression(params: { expressionId: string }): void
+sprite.setExpression(params: { expressionId: string } | { index: number }): void
 ```
 
-Sets the specified expression. Logs a warning if `expressionId` does not exist.
+Sets the specified expression. Pass either `expressionId` or `index`. Logs a warning if the value does not exist.
 
 #### setRandomExpression
 

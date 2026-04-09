@@ -46,11 +46,11 @@ export interface MotionParams {
 }
 
 /**
- * 表情设置参数
+ * 表情设置参数（expressionId 和 index 二选一）
  */
-export interface ExpressionParams {
-  expressionId: string
-}
+export type ExpressionParams =
+  | { expressionId: string, index?: never }
+  | { index: number, expressionId?: never }
 
 /**
  * 语音播放参数

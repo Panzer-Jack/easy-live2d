@@ -167,10 +167,10 @@ interface MotionInfo {
 #### setExpression
 
 ```ts
-sprite.setExpression(params: { expressionId: string }): void
+sprite.setExpression(params: { expressionId: string } | { index: number }): void
 ```
 
-设置指定表情。`expressionId` 不存在时控制台输出警告。
+设置指定表情。支持通过 `expressionId` 或 `index` 指定，二选一。不存在时控制台输出警告。
 
 #### setRandomExpression
 

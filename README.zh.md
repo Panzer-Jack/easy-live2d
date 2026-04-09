@@ -152,8 +152,11 @@ await sprite.startMotion({
   priority: Priority.Force,
 })
 
-// 表情切换
+// 表情切换（通过 expressionId）
 sprite.setExpression({ expressionId: 'smile' })
+
+// 表情切换（通过 index）
+sprite.setExpression({ index: 0 })
 
 // 语音播放（带口型同步）
 await sprite.playVoice({
