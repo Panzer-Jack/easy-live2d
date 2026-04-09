@@ -99,6 +99,7 @@ yarn add easy-live2d pixi.js
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
 
+      // 方式一：事件回调（既有 API）
       sprite.onLive2D('ready', async () => {
         await sprite.startMotion({
           group: 'TapBody',
@@ -106,6 +107,10 @@ yarn add easy-live2d pixi.js
           priority: Priority.Normal,
         })
       })
+
+      // 方式二：async/await（新 API）
+      // await sprite.ready
+      // await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
     </script>
   </body>
 </html>

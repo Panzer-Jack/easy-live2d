@@ -53,6 +53,11 @@ export class Live2DSprite extends Sprite {
 
   private _preQueue = new Set<() => unknown>()
 
+  /** Stable Promise that resolves once the sprite is ready. */
+  private _readyPromise!: Promise<void>
+  /** Resolver captured from the _readyPromise constructor; cleared after resolving. */
+  private _readyResolve: (() => void) | null = null
+
   override get width(): number {
     return Math.abs(this.scale.x) * this.getLocalModelWidth()
   }
@@ -79,10 +84,32 @@ export class Live2DSprite extends Sprite {
     this._draggable = value
   }
 
+  /**
+   * A stable Promise that resolves when the sprite finishes loading and
+   * becomes ready. If the sprite is already ready, the Promise is already
+   * resolved.
+   *
+   * The same Promise instance is returned on every access, so it is safe to
+   * await multiple times without attaching extra listeners.
+   *
+   * @example
+   * ```ts
+   * await sprite.ready
+   * sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+   * ```
+   */
+  get ready(): Promise<void> {
+    return this._readyPromise
+  }
+
   constructor(initConfig?: Live2DSpriteInit) {
     super()
     this._ctx = new Live2DContext()
     this.renderable = false
+    // Create the stable ready promise and capture its resolver.
+    this._readyPromise = new Promise<void>((resolve) => {
+      this._readyResolve = resolve
+    })
 
     if (initConfig)
       this.init(initConfig)
@@ -265,6 +292,10 @@ export class Live2DSprite extends Sprite {
         this.initInteraction()
         this.flushPreQueue()
         this._ctx.eventBus.emit('ready')
+        // Resolve the stable ready Promise exactly once; clear the resolver to free memory.
+        // Single-resolution is intentional: a sprite instance initializes at most once.
+        this._readyResolve?.()
+        this._readyResolve = null
         this._renderInitialized = true
       } finally {
         this._renderInitializing = false

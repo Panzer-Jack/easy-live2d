@@ -72,8 +72,26 @@ interface Live2DSpriteInit {
 | `draggable` | `boolean` | Whether dragging is enabled |
 | `width` | `number` | Logical model width (read/write) |
 | `height` | `number` | Logical model height (read/write) |
+| `ready` | `Promise<void>` | Stable Promise that resolves once the sprite is ready (see below) |
 
 Inherited Pixi `Sprite` properties also work: `x`, `y`, `anchor`, `scale`, `rotation`, `visible`, etc.
+
+### Promise-based Ready API
+
+In addition to the event-based `onLive2D('ready', callback)` pattern, the instance exposes one async/await-friendly API: `ready`, which resolves when the model, textures, and interaction layer have finished loading.
+
+#### ready
+
+```ts
+sprite.ready: Promise<void>
+```
+
+A stable `Promise` that resolves once the sprite becomes ready. The **same Promise instance** is returned on every access, so awaiting it multiple times does not attach extra listeners.
+
+```ts
+await sprite.ready
+sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+```
 
 ### Events
 

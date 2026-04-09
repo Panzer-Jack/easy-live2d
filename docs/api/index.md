@@ -72,8 +72,26 @@ interface Live2DSpriteInit {
 | `draggable` | `boolean` | 是否允许拖拽 |
 | `width` | `number` | 模型逻辑宽度（可读写） |
 | `height` | `number` | 模型逻辑高度（可读写） |
+| `ready` | `Promise<void>` | 模型就绪后 resolve 的稳定 Promise（见下方说明） |
 
 继承自 Pixi `Sprite` 的属性同样可用：`x`、`y`、`anchor`、`scale`、`rotation`、`visible` 等。
+
+### 基于 Promise 的 Ready API
+
+除事件回调方式 `onLive2D('ready', callback)` 外，实例还提供了一个 async/await 友好的 API：`ready`，在模型、纹理及交互层加载完成后 resolve。
+
+#### ready
+
+```ts
+sprite.ready: Promise<void>
+```
+
+一个稳定的 `Promise`，在精灵就绪后 resolve。每次访问返回**同一个 Promise 实例**，多次 await 不会重复挂载监听器。
+
+```ts
+await sprite.ready
+sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+```
 
 ### 事件
 
