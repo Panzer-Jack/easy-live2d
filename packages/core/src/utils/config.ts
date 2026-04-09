@@ -38,6 +38,26 @@ export interface ConfigType {
   // 鼠标跟随
   MouseFollow: boolean
 
+  /**
+   * 纹理图片跨域设置（crossOrigin）
+   * 用于防止 WebGL 纹理上传时因跨域限制触发 SecurityError。
+   * 设置为 "anonymous" 时，图片请求会携带 CORS 头但不含凭证；
+   * 设置为 "use-credentials" 时，图片请求会携带凭证（Cookie 等）；
+   * 设置为 undefined 时，不设置 crossOrigin（不推荐用于跨域场景）。
+   *
+   * 注意：服务器必须返回正确的 Access-Control-Allow-Origin 响应头，
+   * 否则即使设置了 crossOrigin 也会导致加载失败。
+   *
+   * Texture image cross-origin setting.
+   * Prevents `SecurityError` during WebGL `texImage2D` caused by tainted images.
+   * - "anonymous": CORS request without credentials (suitable for most CDN scenarios)
+   * - "use-credentials": CORS request with credentials (cookies, etc.)
+   * - undefined: no crossOrigin attribute set (not recommended for cross-origin assets)
+   *
+   * The server must respond with a valid `Access-Control-Allow-Origin` header.
+   */
+  crossOrigin: string | undefined
+
   // 重制默认配置
   resetConfig: () => void
 }
@@ -69,6 +89,9 @@ const DefaultConfig: Omit<ConfigType, 'resetConfig'> = {
 
   // 鼠标跟随
   MouseFollow: true,
+
+  // 纹理图片跨域设置，默认 "anonymous" 以兼容常见 CDN 跨域场景
+  crossOrigin: 'anonymous' as string | undefined,
 
   // 框架输出日志级别设置
   CubismLoggingLevel: LogLevel.LogLevel_Verbose,

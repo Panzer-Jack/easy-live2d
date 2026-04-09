@@ -118,6 +118,13 @@ import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from 'easy-li
 
 Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
+// 配置纹理图片的 crossOrigin，防止 WebGL 纹理上传时触发 SecurityError。
+// 默认值为 "anonymous"，适用于大多数 CDN 跨域场景。
+// 如果服务器需要凭证，可设置为 "use-credentials"。
+// 设置为 undefined 可关闭此功能（不推荐用于跨域资源）。
+// 注意：服务器必须返回正确的 Access-Control-Allow-Origin 响应头。
+Config.crossOrigin = 'anonymous'
+
 const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
   draggable: true,
