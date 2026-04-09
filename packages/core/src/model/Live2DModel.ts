@@ -48,6 +48,7 @@ export class Live2DModel extends CubismUserModel {
       this.effectCtrl.eyeBlinkIds,
       this.effectCtrl.lipSyncIds,
       this.loadMotion.bind(this),
+      this.effectCtrl.playVoice.bind(this.effectCtrl),
     )
     this.expressionCtrl = new ExpressionController(
       this._expressionManager,
