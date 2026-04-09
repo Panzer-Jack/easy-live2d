@@ -1,4 +1,5 @@
 import type { WebGLBackend } from '../rendering/WebGLBackend'
+import { Config } from '../utils/config'
 
 /**
  * 纹理信息
@@ -35,12 +36,18 @@ export class TextureLoader {
     )
     if (cached) {
       cached.img = new Image()
+      // 设置 crossOrigin 必须在 src 之前，以避免 WebGL 纹理上传时触发 SecurityError
+      if (Config.crossOrigin !== undefined)
+        cached.img.crossOrigin = Config.crossOrigin
       cached.img.addEventListener('load', () => callback(cached), { passive: true })
       cached.img.src = fileName
       return
     }
 
     const img = new Image()
+    // 设置 crossOrigin 必须在 src 之前，以避免 WebGL 纹理上传时触发 SecurityError
+    if (Config.crossOrigin !== undefined)
+      img.crossOrigin = Config.crossOrigin
     img.addEventListener('load', () => {
       const textureInfo = this.createGlTexture(img, fileName, usePremultiply)
       callback(textureInfo)

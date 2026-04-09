@@ -258,6 +258,43 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | `DebugTouchLogEnable` | `boolean` | `false` | 输出点击坐标日志 |
 | `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism 日志级别 |
 | `MouseFollow` | `boolean` | `true` | 模型跟随鼠标 |
+| `crossOrigin` | `string \| undefined` | `'anonymous'` | 纹理图片的 `crossOrigin` 属性，用于避免 WebGL 跨域纹理导致的 `SecurityError`。可设为 `'anonymous'`、`'use-credentials'` 或 `undefined`（禁用，不推荐）。 |
+
+### crossOrigin 说明
+
+`Config.crossOrigin` 会在所有纹理图片（用于 `texImage2D` 的 `<img>`）加载前统一设置 `img.crossOrigin`，避免浏览器将 WebGL 画布标记为 "tainted"，从而防止出现以下错误：
+
+```
+SecurityError: The operation is insecure.
+```
+
+**类型与取值：**
+
+| 取值 | 说明 |
+| --- | --- |
+| `'anonymous'` | 发起匿名跨域请求（不携带 Cookie/证书），服务端需返回 `Access-Control-Allow-Origin`（默认值） |
+| `'use-credentials'` | 携带凭据（Cookie、客户端证书等），服务端 `Access-Control-Allow-Origin` 不能为 `*`，且需设置 `Access-Control-Allow-Credentials: true` |
+| `undefined` | 不设置 `crossOrigin`，跨域纹理可能导致 WebGL 上传失败，**不推荐** |
+
+**使用示例：**
+
+```ts
+import { Config } from 'easy-live2d'
+
+// 默认值，通常无需手动设置
+Config.crossOrigin = 'anonymous'
+
+// 若需携带 Cookie 等凭据
+Config.crossOrigin = 'use-credentials'
+
+// 禁用（不推荐，跨域资源可能引发 SecurityError）
+Config.crossOrigin = undefined
+```
+
+> **注意事项**
+> - 请在创建 `Live2DSprite` 实例之前设置此项，以确保所有纹理加载均生效。
+> - 资源服务器必须返回正确的 `Access-Control-Allow-Origin` 响应头；使用 `'use-credentials'` 时，服务端还需返回 `Access-Control-Allow-Credentials: true`，且 `Access-Control-Allow-Origin` 不能为通配符 `*`。
+> - 若将此项设为 `undefined`，加载跨域纹理时 WebGL 可能抛出 `SecurityError`。
 
 ### resetConfig
 

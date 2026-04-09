@@ -258,6 +258,43 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | `DebugTouchLogEnable` | `boolean` | `false` | Log touch coordinates |
 | `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism log level |
 | `MouseFollow` | `boolean` | `true` | Model follows mouse |
+| `crossOrigin` | `string \| undefined` | `'anonymous'` | The `crossOrigin` attribute applied to all texture images before upload via `texImage2D`. Prevents WebGL canvas tainting and `SecurityError`. Accepted values: `'anonymous'`, `'use-credentials'`, or `undefined` (disabled, not recommended). |
+
+### crossOrigin Details
+
+`Config.crossOrigin` sets `img.crossOrigin` on every texture image before it is uploaded to WebGL, preventing the browser from marking the canvas as "tainted" and avoiding:
+
+```
+SecurityError: The operation is insecure.
+```
+
+**Type and accepted values:**
+
+| Value | Description |
+| --- | --- |
+| `'anonymous'` | Sends an anonymous cross-origin request (no cookies/credentials). The server must return `Access-Control-Allow-Origin`. *(Default)* |
+| `'use-credentials'` | Sends credentials (cookies, client certificates, etc.). The server must return `Access-Control-Allow-Credentials: true` and `Access-Control-Allow-Origin` must not be `*`. |
+| `undefined` | Disables the attribute. Cross-origin textures may cause a WebGL upload failure. **Not recommended.** |
+
+**Usage example:**
+
+```ts
+import { Config } from 'easy-live2d'
+
+// Default — usually no change needed
+Config.crossOrigin = 'anonymous'
+
+// When credentials (e.g. cookies) must be sent
+Config.crossOrigin = 'use-credentials'
+
+// Disabled (not recommended — cross-origin resources may throw SecurityError)
+Config.crossOrigin = undefined
+```
+
+> **Notes**
+> - Set this option before creating any `Live2DSprite` instance so that all texture loads are affected.
+> - The asset server must return a valid `Access-Control-Allow-Origin` header. When using `'use-credentials'`, the server must also return `Access-Control-Allow-Credentials: true`, and `Access-Control-Allow-Origin` must not be the wildcard `*`.
+> - Setting this to `undefined` may cause WebGL to throw a `SecurityError` when loading cross-origin textures.
 
 ### resetConfig
 

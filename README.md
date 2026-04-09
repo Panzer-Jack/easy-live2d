@@ -118,6 +118,13 @@ import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from 'easy-li
 
 Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
+// Configure crossOrigin for WebGL texture loading.
+// Default is "anonymous", which works for most CDN scenarios.
+// Set to "use-credentials" if your server requires credentials.
+// Set to undefined to disable (not recommended for cross-origin assets).
+// The server must respond with a valid Access-Control-Allow-Origin header.
+Config.crossOrigin = 'anonymous'
+
 const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
   draggable: true,
