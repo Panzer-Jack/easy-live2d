@@ -175,12 +175,16 @@ After a motion finishes, the runtime falls back to the idle group specified by `
 ## Change Expressions
 
 ```ts
+// By expressionId
 sprite.setExpression({ expressionId: 'smile' })
+
+// By index
+sprite.setExpression({ index: 0 })
 
 sprite.setRandomExpression()
 ```
 
-A warning is logged if the `expressionId` does not exist.
+A warning is logged if the `expressionId` or `index` does not exist.
 
 ## Voice and Lip Sync
 

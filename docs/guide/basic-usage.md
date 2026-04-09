@@ -175,12 +175,16 @@ await sprite.startRandomMotion({
 ## 切换表情
 
 ```ts
+// 通过 expressionId
 sprite.setExpression({ expressionId: 'smile' })
+
+// 通过 index
+sprite.setExpression({ index: 0 })
 
 sprite.setRandomExpression()
 ```
 
-`expressionId` 不存在时会在控制台输出警告。
+`expressionId` 或 `index` 不存在时会在控制台输出警告。
 
 ## 语音与口型同步
 

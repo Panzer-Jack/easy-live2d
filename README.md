@@ -152,8 +152,11 @@ await sprite.startMotion({
   priority: Priority.Force,
 })
 
-// Expressions
+// Expressions (by expressionId)
 sprite.setExpression({ expressionId: 'smile' })
+
+// Expressions (by index)
+sprite.setExpression({ index: 0 })
 
 // Voice with lip sync
 await sprite.playVoice({

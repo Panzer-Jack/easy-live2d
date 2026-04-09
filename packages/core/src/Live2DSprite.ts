@@ -174,7 +174,13 @@ export class Live2DSprite extends Sprite {
   }
 
   setExpression(params: ExpressionParams): void {
-    const fn = () => this._model!.expressionCtrl.setExpression(params.expressionId)
+    const fn = () => {
+      if ('index' in params && params.index !== undefined) {
+        this._model!.expressionCtrl.setExpressionByIndex(params.index)
+      } else {
+        this._model!.expressionCtrl.setExpression(params.expressionId!)
+      }
+    }
     if (!this._model?.isReady) {
       this._preQueue.add(fn)
       return
