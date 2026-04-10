@@ -1,8 +1,9 @@
 import type { ICubismModelSetting } from '@Framework/icubismmodelsetting'
 import type { CubismMatrix44 } from '@Framework/math/cubismmatrix44'
 import type { EventBus } from '../core/EventBus'
-import type { ExpressionInfo, MotionInfo, Viewport } from '../core/types'
+import type { ExpressionInfo, MotionInfo, ParameterValueRange, Viewport } from '../core/types'
 import type { IRedirectPath } from '../utils/cubismSetting'
+import { CubismFramework } from '@Framework/live2dcubismframework'
 import { CubismUserModel } from '@Framework/model/cubismusermodel'
 import { csmMap as CsmMap } from '@Framework/type/csmmap'
 import { sound } from '@pixi/sound'
@@ -236,5 +237,42 @@ export class Live2DModel extends CubismUserModel {
       result.push({ name: setting.getExpressionName(i) })
     }
     return result
+  }
+
+  setParameterValueById(id: string, value: number, weight?: number): void {
+    if (!this._model)
+      return
+    const handle = CubismFramework.getIdManager().getId(id)
+    this._model.setParameterValueById(handle, value, weight)
+  }
+
+  setParameterValueByIndex(index: number, value: number, weight?: number): void {
+    if (!this._model)
+      return
+    this._model.setParameterValueByIndex(index, value, weight)
+  }
+
+  getParameterValueRangeById(id: string): ParameterValueRange | null {
+    if (!this._model)
+      return null
+    const handle = CubismFramework.getIdManager().getId(id)
+    const index = this._model.getParameterIndex(handle)
+    if (index < 0 || index >= this._model.getParameterCount())
+      return null
+    return {
+      min: this._model.getParameterMinimumValue(index),
+      max: this._model.getParameterMaximumValue(index),
+    }
+  }
+
+  getParameterValueRangeByIndex(index: number): ParameterValueRange | null {
+    if (!this._model)
+      return null
+    if (index < 0 || index >= this._model.getParameterCount())
+      return null
+    return {
+      min: this._model.getParameterMinimumValue(index),
+      max: this._model.getParameterMaximumValue(index),
+    }
   }
 }

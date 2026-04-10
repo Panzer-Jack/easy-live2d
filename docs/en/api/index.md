@@ -202,6 +202,61 @@ interface ExpressionInfo {
 
 Returns all available expressions of the model. Returns an empty array if called before the model is ready.
 
+### Parameter Control
+
+#### setParameterValueById
+
+```ts
+sprite.setParameterValueById(id: string, value: number, weight?: number): void
+```
+
+Sets a model parameter value by its string ID. `weight` is the blend weight (default `1`). Calls before `ready` are automatically queued.
+
+```ts
+sprite.setParameterValueById('ParamAngleX', 15.0)
+
+// With weight
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8)
+```
+
+#### setParameterValueByIndex
+
+```ts
+sprite.setParameterValueByIndex(index: number, value: number, weight?: number): void
+```
+
+Sets a model parameter value by its numeric index. `weight` is the blend weight (default `1`). Calls before `ready` are automatically queued.
+
+```ts
+sprite.setParameterValueByIndex(0, 0.5)
+```
+
+#### getParameterValueRangeById
+
+```ts
+sprite.getParameterValueRangeById(id: string): { min: number, max: number } | null
+```
+
+Returns the value range of a model parameter by its string ID. Returns `null` if the model is not ready or the parameter does not exist.
+
+```ts
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+```
+
+#### getParameterValueRangeByIndex
+
+```ts
+sprite.getParameterValueRangeByIndex(index: number): { min: number, max: number } | null
+```
+
+Returns the value range of a model parameter by its numeric index. Returns `null` if the model is not ready or the index is out of range.
+
+```ts
+const range = sprite.getParameterValueRangeByIndex(0)
+// range => { min: -30, max: 30 }
+```
+
 ### Voice Control
 
 #### playVoice
