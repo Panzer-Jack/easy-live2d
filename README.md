@@ -194,10 +194,24 @@ Voice decoding uses Web Audio `decodeAudioData()`, supporting any browser-decoda
 
 ## Development
 
-If you want to develop or contribute to this project locally, you need to manually download the Live2D Cubism SDK:
+If you want to develop or contribute to this project locally:
 
-1. Go to [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) and download the SDK
-2. Copy the following files from the SDK's `Core/` directory into `packages/cubism/Core/`:
+1. Clone the repository with submodules:
+
+```bash
+git clone --recursive https://github.com/Panzer-Jack/easy-live2d.git
+```
+
+If you've already cloned without `--recursive`, initialize the submodule manually:
+
+```bash
+git submodule update --init --recursive
+```
+
+This will pull `packages/cubism/Framework` (the Cubism Web Framework).
+
+2. Go to [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) and download the SDK
+3. Copy the following files from the SDK's `Core/` directory into `packages/cubism/Core/`:
    - `live2dcubismcore.js`
    - `live2dcubismcore.min.js`
    - `live2dcubismcore.d.ts`

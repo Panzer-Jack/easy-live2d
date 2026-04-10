@@ -194,10 +194,24 @@ const expressions = sprite.getExpressions()
 
 ## 本地开发
 
-如果你想在本地开发或参与贡献本项目，需要手动下载 Live2D Cubism SDK：
+如果你想在本地开发或参与贡献本项目：
 
-1. 前往 [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) 下载 SDK
-2. 将 SDK 中 `Core/` 目录下的以下文件复制到 `packages/cubism/Core/`：
+1. 克隆仓库时带上子模块：
+
+```bash
+git clone --recursive https://github.com/Panzer-Jack/easy-live2d.git
+```
+
+如果已经克隆但没有带 `--recursive`，手动初始化子模块：
+
+```bash
+git submodule update --init --recursive
+```
+
+这会拉取 `packages/cubism/Framework`（Cubism Web Framework）。
+
+2. 前往 [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) 下载 SDK
+3. 将 SDK 中 `Core/` 目录下的以下文件复制到 `packages/cubism/Core/`：
    - `live2dcubismcore.js`
    - `live2dcubismcore.js.map`
    - `live2dcubismcore.min.js`
