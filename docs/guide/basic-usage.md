@@ -244,12 +244,38 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | --- | --- | --- |
 | `MotionGroupIdle` | `'Idle'` | 动作结束后回落的 idle 动作组 |
 | `MouseFollow` | `true` | 模型是否跟随鼠标移动 |
+| `MotionSound` | `true` | 是否在 `startMotion` 时自动播放动作绑定的音效 |
 | `DebugLogEnable` | `true` | 是否启用 Cubism 日志 |
 | `DebugTouchLogEnable` | `false` | 是否输出点击坐标日志 |
 | `CubismLoggingLevel` | `LogLevel_Verbose` | Cubism Framework 日志级别 |
 | `MOCConsistencyValidationEnable` | `true` | 是否开启 moc 一致性校验 |
 
 使用 `Config.resetConfig()` 可恢复所有默认值。
+
+## 驱动参数控制
+
+```ts
+// 通过参数 ID 设置驱动参数值（持久生效，每帧自动重新写入）
+sprite.setParameterValueById('ParamAngleX', 15.0)
+
+// 带混合权重
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8)
+
+// 通过参数索引设置驱动参数值
+sprite.setParameterValueByIndex(0, 0.5)
+
+// 通过参数 ID 获取驱动参数的取值范围
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+
+// 通过参数索引获取驱动参数的取值范围
+const rangeByIndex = sprite.getParameterValueRangeByIndex(0)
+// rangeByIndex => { min: -30, max: 30 }
+```
+
+- `setParameterValueById` / `setParameterValueByIndex` 设置的值会**持久生效**——每帧渲染时均自动重新写入，无需每帧手动调用。
+- `ready` 前调用会自动排队，待模型初始化完成后执行。
+- `getParameterValueRangeById` / `getParameterValueRangeByIndex` 模型未就绪或参数不存在时返回 `null`。
 
 ## 释放资源
 

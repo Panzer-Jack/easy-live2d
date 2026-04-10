@@ -244,12 +244,38 @@ Common fields:
 | --- | --- | --- |
 | `MotionGroupIdle` | `'Idle'` | Idle motion group to fall back to |
 | `MouseFollow` | `true` | Model follows mouse movement |
+| `MotionSound` | `true` | Whether to automatically play motion-bound sound effects when calling `startMotion` |
 | `DebugLogEnable` | `true` | Enable Cubism logging |
 | `DebugTouchLogEnable` | `false` | Log touch coordinates |
 | `CubismLoggingLevel` | `LogLevel_Verbose` | Cubism Framework log level |
 | `MOCConsistencyValidationEnable` | `true` | Enable moc consistency validation |
 
 Use `Config.resetConfig()` to restore all defaults.
+
+## Parameter Control
+
+```ts
+// Set a parameter value by ID (persists across frames — re-applied every render cycle)
+sprite.setParameterValueById('ParamAngleX', 15.0)
+
+// With blend weight
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8)
+
+// Set a parameter value by index
+sprite.setParameterValueByIndex(0, 0.5)
+
+// Get the value range of a parameter by ID
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+
+// Get the value range of a parameter by index
+const rangeByIndex = sprite.getParameterValueRangeByIndex(0)
+// rangeByIndex => { min: -30, max: 30 }
+```
+
+- Values set via `setParameterValueById` / `setParameterValueByIndex` **persist across frames** — they are re-applied every render cycle without needing to be called again each frame.
+- Calls before `ready` are automatically queued and executed after initialization.
+- `getParameterValueRangeById` / `getParameterValueRangeByIndex` return `null` if the model is not ready or the parameter does not exist.
 
 ## Release Resources
 

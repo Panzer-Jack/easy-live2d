@@ -202,6 +202,65 @@ interface ExpressionInfo {
 
 Returns all available expressions of the model. Returns an empty array if called before the model is ready.
 
+### Parameter Control
+
+#### setParameterValueById
+
+```ts
+sprite.setParameterValueById(id: string, value: number, weight?: number): void
+```
+
+Sets a model parameter value by its string ID. `weight` is the blend weight (default `1`). Calls before `ready` are automatically queued.
+
+The value **persists across frames** — it is re-applied every render cycle.
+
+```ts
+sprite.setParameterValueById('ParamAngleX', 15.0)
+
+// With weight
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8)
+```
+
+#### setParameterValueByIndex
+
+```ts
+sprite.setParameterValueByIndex(index: number, value: number, weight?: number): void
+```
+
+Sets a model parameter value by its numeric index. `weight` is the blend weight (default `1`). Calls before `ready` are automatically queued.
+
+Like `setParameterValueById`, the value persists across frames.
+
+```ts
+sprite.setParameterValueByIndex(0, 0.5)
+```
+
+#### getParameterValueRangeById
+
+```ts
+sprite.getParameterValueRangeById(id: string): { min: number, max: number } | null
+```
+
+Returns the value range of a model parameter by its string ID. Returns `null` if the model is not ready or the parameter does not exist.
+
+```ts
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+```
+
+#### getParameterValueRangeByIndex
+
+```ts
+sprite.getParameterValueRangeByIndex(index: number): { min: number, max: number } | null
+```
+
+Returns the value range of a model parameter by its numeric index. Returns `null` if the model is not ready or the index is out of range.
+
+```ts
+const range = sprite.getParameterValueRangeByIndex(0)
+// range => { min: -30, max: 30 }
+```
+
 ### Voice Control
 
 #### playVoice
@@ -306,6 +365,7 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | `DebugTouchLogEnable` | `boolean` | `false` | Log touch coordinates |
 | `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism log level |
 | `MouseFollow` | `boolean` | `true` | Model follows mouse |
+| `MotionSound` | `boolean` | `true` | Whether to automatically play motion-bound sound effects when calling `startMotion` |
 | `crossOrigin` | `string \| undefined` | `'anonymous'` | The `crossOrigin` attribute applied to all texture images before upload via `texImage2D`. Prevents WebGL canvas tainting and `SecurityError`. Accepted values: `'anonymous'`, `'use-credentials'`, or `undefined` (disabled, not recommended). |
 
 ### crossOrigin Details

@@ -11,6 +11,7 @@ import type {
   Live2DSpriteInit,
   MotionInfo,
   MotionParams,
+  ParameterValueRange,
   Viewport,
   VoiceParams,
 } from './core/types'
@@ -224,6 +225,32 @@ export class Live2DSprite extends Sprite {
 
   getExpressions(): ExpressionInfo[] {
     return this._model?.getExpressionInfos() ?? []
+  }
+
+  setParameterValueById(id: string, value: number, weight?: number): void {
+    const fn = () => this._model!.setParameterValueById(id, value, weight)
+    if (!this._model?.isReady) {
+      this._preQueue.add(fn)
+      return
+    }
+    fn()
+  }
+
+  setParameterValueByIndex(index: number, value: number, weight?: number): void {
+    const fn = () => this._model!.setParameterValueByIndex(index, value, weight)
+    if (!this._model?.isReady) {
+      this._preQueue.add(fn)
+      return
+    }
+    fn()
+  }
+
+  getParameterValueRangeById(id: string): ParameterValueRange | null {
+    return this._model?.getParameterValueRangeById(id) ?? null
+  }
+
+  getParameterValueRangeByIndex(index: number): ParameterValueRange | null {
+    return this._model?.getParameterValueRangeByIndex(index) ?? null
   }
 
   onResize(): void {

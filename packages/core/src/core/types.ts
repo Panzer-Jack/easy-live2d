@@ -53,6 +53,14 @@ export type ExpressionParams =
   | { index: number, expressionId?: never }
 
 /**
+ * 驱动参数范围值
+ */
+export interface ParameterValueRange {
+  min: number
+  max: number
+}
+
+/**
  * 语音播放参数
  */
 export interface VoiceParams {

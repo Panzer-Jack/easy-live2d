@@ -15,7 +15,7 @@ import {
 } from '@Framework/motion/cubismmotionqueuemanager'
 import { csmMap as CsmMap } from '@Framework/type/csmmap'
 import { FileLoader } from '../loader/FileLoader'
-import { Priority } from '../utils/config'
+import { Config, Priority } from '../utils/config'
 
 /**
  * 动作控制器
@@ -29,6 +29,7 @@ export class MotionController {
 
   // 以下引用由 Live2DModel 注入
   private _loadMotionFn: (buf: ArrayBuffer, size: number, name: string, onFinished?: FinishedMotionCallback, onBegan?: BeganMotionCallback, setting?: ICubismModelSetting, group?: string, no?: number) => CubismMotion
+  private _playVoiceFn: (voicePath: string, immediate: boolean) => Promise<void>
 
   private _modelSetting!: ICubismModelSetting
   private _modelHomeDir!: string
@@ -39,6 +40,7 @@ export class MotionController {
     Pose: '',
     Expressions: [],
     Motions: {},
+    MotionSounds: {},
     UserData: '',
   }
 
@@ -47,11 +49,13 @@ export class MotionController {
     eyeBlinkIds: csmVector<CubismIdHandle>,
     lipSyncIds: csmVector<CubismIdHandle>,
     loadMotionFn: typeof MotionController.prototype._loadMotionFn,
+    playVoiceFn: typeof MotionController.prototype._playVoiceFn,
   ) {
     this._motionManager = motionManager
     this._eyeBlinkIds = eyeBlinkIds
     this._lipSyncIds = lipSyncIds
     this._loadMotionFn = loadMotionFn
+    this._playVoiceFn = playVoiceFn
   }
 
   setContext(setting: ICubismModelSetting, homeDir: string, redirPath: IRedirectPath): void {
@@ -98,6 +102,20 @@ export class MotionController {
         motion.setBeganMotionHandler(onBegan)
       if (onFinished)
         motion.setFinishedMotionHandler(onFinished)
+    }
+
+    if (Config.MotionSound) {
+      const soundFileName = this._modelSetting.getMotionSoundFileName(group, no)
+      if (soundFileName) {
+        const soundUrl = this._redirPath.MotionSounds[group]?.[no]
+          || `${this._modelHomeDir}${soundFileName}`
+        if (Config.DebugLogEnable) {
+          console.log(`[MotionController] Playing motion sound: ${soundUrl}`)
+        }
+        this._playVoiceFn(soundUrl, true).catch((err) => {
+          console.warn(`[MotionController] Failed to play motion sound: ${soundFileName}`, err)
+        })
+      }
     }
 
     return this._motionManager.startMotionPriority(motion, autoDelete, priority)

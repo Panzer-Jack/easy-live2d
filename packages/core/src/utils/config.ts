@@ -38,6 +38,9 @@ export interface ConfigType {
   // 鼠标跟随
   MouseFollow: boolean
 
+  // 动作音效
+  MotionSound: boolean
+
   /**
    * 纹理图片跨域设置（crossOrigin）
    * 用于防止 WebGL 纹理上传时因跨域限制触发 SecurityError。
@@ -89,6 +92,9 @@ const DefaultConfig: Omit<ConfigType, 'resetConfig'> = {
 
   // 鼠标跟随
   MouseFollow: true,
+
+  // 动作音效，默认开启
+  MotionSound: true,
 
   // 纹理图片跨域设置，默认 "anonymous" 以兼容常见 CDN 跨域场景
   crossOrigin: 'anonymous' as string | undefined,

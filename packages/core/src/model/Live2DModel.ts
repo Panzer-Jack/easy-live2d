@@ -1,8 +1,9 @@
 import type { ICubismModelSetting } from '@Framework/icubismmodelsetting'
 import type { CubismMatrix44 } from '@Framework/math/cubismmatrix44'
 import type { EventBus } from '../core/EventBus'
-import type { ExpressionInfo, MotionInfo, Viewport } from '../core/types'
+import type { ExpressionInfo, MotionInfo, ParameterValueRange, Viewport } from '../core/types'
 import type { IRedirectPath } from '../utils/cubismSetting'
+import { CubismFramework } from '@Framework/live2dcubismframework'
 import { CubismUserModel } from '@Framework/model/cubismusermodel'
 import { csmMap as CsmMap } from '@Framework/type/csmmap'
 import { sound } from '@pixi/sound'
@@ -11,6 +12,7 @@ import { EffectController } from './EffectController'
 import { ExpressionController } from './ExpressionController'
 import { HitTestHelper } from './HitTestHelper'
 import { MotionController } from './MotionController'
+import { ParameterOverrideMap } from './ParameterOverrideMap'
 
 const EMPTY_REDIR_PATH: IRedirectPath = {
   Moc: '',
@@ -19,6 +21,7 @@ const EMPTY_REDIR_PATH: IRedirectPath = {
   Pose: '',
   Expressions: [],
   Motions: {},
+  MotionSounds: {},
   UserData: '',
 }
 
@@ -32,6 +35,13 @@ export class Live2DModel extends CubismUserModel {
   private _redirPath: IRedirectPath = EMPTY_REDIR_PATH
   private _userTimeSeconds = 0
   private _ready = false
+
+  /**
+   * 用户通过 setParameterValueById / setParameterValueByIndex 设置的持久覆盖值。
+   * 每帧 update() 末尾（loadParameters/motion/expression/effects/physics 均已执行完毕后）
+   * 统一应用，确保用户设定值优先级最高且跨帧持久有效。
+   */
+  private _parameterOverrides = new ParameterOverrideMap()
 
   readonly motionCtrl: MotionController
   readonly expressionCtrl: ExpressionController
@@ -48,6 +58,7 @@ export class Live2DModel extends CubismUserModel {
       this.effectCtrl.eyeBlinkIds,
       this.effectCtrl.lipSyncIds,
       this.loadMotion.bind(this),
+      this.effectCtrl.playVoice.bind(this.effectCtrl),
     )
     this.expressionCtrl = new ExpressionController(
       this._expressionManager,
@@ -168,6 +179,9 @@ export class Live2DModel extends CubismUserModel {
     if (this._physics)
       this._physics.evaluate(this._model, deltaTime)
 
+    // 应用用户持久化参数覆盖（最高优先级，在所有系统更新之后写入）
+    this._applyParameterOverrides()
+
     this._model.update()
   }
 
@@ -234,5 +248,59 @@ export class Live2DModel extends CubismUserModel {
       result.push({ name: setting.getExpressionName(i) })
     }
     return result
+  }
+
+  setParameterValueById(id: string, value: number, weight?: number): void {
+    // 存入持久覆盖表，确保每帧 loadParameters() 后仍能重新写入
+    this._parameterOverrides.setById(id, value, weight)
+    if (!this._model)
+      return
+    const handle = CubismFramework.getIdManager().getId(id)
+    this._model.setParameterValueById(handle, value, weight)
+  }
+
+  setParameterValueByIndex(index: number, value: number, weight?: number): void {
+    // 存入持久覆盖表，确保每帧 loadParameters() 后仍能重新写入
+    this._parameterOverrides.setByIndex(index, value, weight)
+    if (!this._model)
+      return
+    this._model.setParameterValueByIndex(index, value, weight)
+  }
+
+  getParameterValueRangeById(id: string): ParameterValueRange | null {
+    if (!this._model)
+      return null
+    const handle = CubismFramework.getIdManager().getId(id)
+    const index = this._model.getParameterIndex(handle)
+    if (index < 0 || index >= this._model.getParameterCount())
+      return null
+    return {
+      min: this._model.getParameterMinimumValue(index),
+      max: this._model.getParameterMaximumValue(index),
+    }
+  }
+
+  getParameterValueRangeByIndex(index: number): ParameterValueRange | null {
+    if (!this._model)
+      return null
+    if (index < 0 || index >= this._model.getParameterCount())
+      return null
+    return {
+      min: this._model.getParameterMinimumValue(index),
+      max: this._model.getParameterMaximumValue(index),
+    }
+  }
+
+  /**
+   * 将持久覆盖表中的所有参数值写入模型。
+   * 在 update() 末尾、_model.update() 之前调用，保证最高优先级。
+   */
+  private _applyParameterOverrides(): void {
+    if (!this._model)
+      return
+    this._parameterOverrides.applyToModel(
+      this._model,
+      id => CubismFramework.getIdManager().getId(id),
+    )
   }
 }

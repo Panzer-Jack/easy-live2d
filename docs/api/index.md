@@ -202,6 +202,65 @@ interface ExpressionInfo {
 
 获取模型所有可用表情列表。模型就绪前调用返回空数组。
 
+### 驱动参数控制
+
+#### setParameterValueById
+
+```ts
+sprite.setParameterValueById(id: string, value: number, weight?: number): void
+```
+
+通过参数 ID 设置驱动参数的值。`weight` 为混合权重，默认为 `1`。`ready` 前调用会自动排队。
+
+设置的值会**持久生效**——每帧渲染时均自动重新写入。
+
+```ts
+sprite.setParameterValueById('ParamAngleX', 15.0)
+
+// 带权重
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8)
+```
+
+#### setParameterValueByIndex
+
+```ts
+sprite.setParameterValueByIndex(index: number, value: number, weight?: number): void
+```
+
+通过参数索引设置驱动参数的值。`weight` 为混合权重，默认为 `1`。`ready` 前调用会自动排队。
+
+同 `setParameterValueById`，设置的值会持久生效。
+
+```ts
+sprite.setParameterValueByIndex(0, 0.5)
+```
+
+#### getParameterValueRangeById
+
+```ts
+sprite.getParameterValueRangeById(id: string): { min: number, max: number } | null
+```
+
+通过参数 ID 获取驱动参数的取值范围。模型未就绪或参数不存在时返回 `null`。
+
+```ts
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+```
+
+#### getParameterValueRangeByIndex
+
+```ts
+sprite.getParameterValueRangeByIndex(index: number): { min: number, max: number } | null
+```
+
+通过参数索引获取驱动参数的取值范围。模型未就绪或索引越界时返回 `null`。
+
+```ts
+const range = sprite.getParameterValueRangeByIndex(0)
+// range => { min: -30, max: 30 }
+```
+
 ### 语音控制
 
 #### playVoice
@@ -306,6 +365,7 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | `DebugTouchLogEnable` | `boolean` | `false` | 输出点击坐标日志 |
 | `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism 日志级别 |
 | `MouseFollow` | `boolean` | `true` | 模型跟随鼠标 |
+| `MotionSound` | `boolean` | `true` | 是否在 `startMotion` 时自动播放动作绑定的音效 |
 | `crossOrigin` | `string \| undefined` | `'anonymous'` | 纹理图片的 `crossOrigin` 属性，用于避免 WebGL 跨域纹理导致的 `SecurityError`。可设为 `'anonymous'`、`'use-credentials'` 或 `undefined`（禁用，不推荐）。 |
 
 ### crossOrigin 说明

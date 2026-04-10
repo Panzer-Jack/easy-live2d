@@ -132,6 +132,9 @@ import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from 'easy-li
 
 Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
+// Disable automatic sound playback for motions (enabled by default)
+// Config.MotionSound = false
+
 // Configure crossOrigin for WebGL texture loading.
 // Default is "anonymous", which works for most CDN scenarios.
 // Set to "use-credentials" if your server requires credentials.
@@ -179,6 +182,19 @@ const motions = sprite.getMotions()
 // Get all available expressions
 const expressions = sprite.getExpressions()
 // => [{ name: 'smile' }, { name: 'angry' }, ...]
+
+// Set a parameter value by ID (persists across frames — re-applied every render cycle)
+sprite.setParameterValueById('ParamAngleX', 15.0)
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8) // with blend weight
+
+// Set a parameter value by index
+sprite.setParameterValueByIndex(0, 0.5)
+
+// Get the value range of a parameter by ID / index
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+const rangeByIndex = sprite.getParameterValueRangeByIndex(0)
+// rangeByIndex => { min: -30, max: 30 }
 ```
 
 Voice decoding uses Web Audio `decodeAudioData()`, supporting any browser-decodable audio format (wav, mp3, ogg, etc.). Lip sync requires `LipSync` parameter mapping in the model.
