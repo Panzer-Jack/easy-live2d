@@ -212,6 +212,8 @@ sprite.setParameterValueById(id: string, value: number, weight?: number): void
 
 通过参数 ID 设置驱动参数的值。`weight` 为混合权重，默认为 `1`。`ready` 前调用会自动排队。
 
+设置的值会**持久生效**——每帧渲染时均自动重新写入。
+
 ```ts
 sprite.setParameterValueById('ParamAngleX', 15.0)
 
@@ -226,6 +228,8 @@ sprite.setParameterValueByIndex(index: number, value: number, weight?: number): 
 ```
 
 通过参数索引设置驱动参数的值。`weight` 为混合权重，默认为 `1`。`ready` 前调用会自动排队。
+
+同 `setParameterValueById`，设置的值会持久生效。
 
 ```ts
 sprite.setParameterValueByIndex(0, 0.5)

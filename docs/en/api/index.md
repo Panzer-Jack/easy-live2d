@@ -212,6 +212,8 @@ sprite.setParameterValueById(id: string, value: number, weight?: number): void
 
 Sets a model parameter value by its string ID. `weight` is the blend weight (default `1`). Calls before `ready` are automatically queued.
 
+The value **persists across frames** — it is re-applied every render cycle.
+
 ```ts
 sprite.setParameterValueById('ParamAngleX', 15.0)
 
@@ -226,6 +228,8 @@ sprite.setParameterValueByIndex(index: number, value: number, weight?: number): 
 ```
 
 Sets a model parameter value by its numeric index. `weight` is the blend weight (default `1`). Calls before `ready` are automatically queued.
+
+Like `setParameterValueById`, the value persists across frames.
 
 ```ts
 sprite.setParameterValueByIndex(0, 0.5)
