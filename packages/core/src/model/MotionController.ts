@@ -40,6 +40,7 @@ export class MotionController {
     Pose: '',
     Expressions: [],
     Motions: {},
+    MotionSounds: {},
     UserData: '',
   }
 
@@ -106,7 +107,12 @@ export class MotionController {
     if (Config.MotionSound) {
       const soundFileName = this._modelSetting.getMotionSoundFileName(group, no)
       if (soundFileName) {
-        this._playVoiceFn(`${this._modelHomeDir}${soundFileName}`, true).catch((err) => {
+        const soundUrl = this._redirPath.MotionSounds[group]?.[no]
+          || `${this._modelHomeDir}${soundFileName}`
+        if (Config.DebugLogEnable) {
+          console.log(`[MotionController] Playing motion sound: ${soundUrl}`)
+        }
+        this._playVoiceFn(soundUrl, true).catch((err) => {
           console.warn(`[MotionController] Failed to play motion sound: ${soundFileName}`, err)
         })
       }

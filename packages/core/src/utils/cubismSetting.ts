@@ -8,6 +8,7 @@ const enum EFilename {
   pose = 'Pose',
   expressions = 'Expressions',
   motions = 'Motions',
+  motionSounds = 'MotionSounds',
   userData = 'UserData',
 }
 
@@ -18,6 +19,12 @@ export interface IRedirectPath {
   [EFilename.pose]: string
   [EFilename.expressions]: string[]
   [EFilename.motions]: { [groupName: string]: string[] }
+  /**
+   * Redirected URLs for motion sound files, keyed by group name then motion index.
+   * When populated via `redirectPath()`, `MotionController` will use these URLs
+   * instead of resolving sound files relative to the model home directory.
+   */
+  [EFilename.motionSounds]: { [groupName: string]: string[] }
   [EFilename.userData]: string
 }
 
@@ -30,6 +37,7 @@ export class CubismSetting extends CubismModelSettingJson {
     [EFilename.pose]: '',
     [EFilename.expressions]: [],
     [EFilename.motions]: {},
+    [EFilename.motionSounds]: {},
     [EFilename.userData]: '',
   }
 
@@ -61,10 +69,15 @@ export class CubismSetting extends CubismModelSettingJson {
       const groupName = this.getMotionGroupName(i)
       const motionCount = this.getMotionCount(groupName)
       this.redirPath[EFilename.motions][groupName] = []
+      this.redirPath[EFilename.motionSounds][groupName] = []
       for (let j = 0; j < motionCount; j++) {
         this.redirPath[EFilename.motions][groupName][j] = redirFn({
           file: this.getMotionFileName(groupName, j),
         })
+        const soundFile = this.getMotionSoundFileName(groupName, j)
+        if (soundFile) {
+          this.redirPath[EFilename.motionSounds][groupName][j] = redirFn({ file: soundFile })
+        }
       }
     }
 
