@@ -365,6 +365,7 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | `DebugTouchLogEnable` | `boolean` | `false` | Log touch coordinates |
 | `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism log level |
 | `MouseFollow` | `boolean` | `true` | Model follows mouse |
+| `MotionSound` | `boolean` | `true` | Whether to automatically play motion-bound sound effects when calling `startMotion` |
 | `crossOrigin` | `string \| undefined` | `'anonymous'` | The `crossOrigin` attribute applied to all texture images before upload via `texImage2D`. Prevents WebGL canvas tainting and `SecurityError`. Accepted values: `'anonymous'`, `'use-credentials'`, or `undefined` (disabled, not recommended). |
 
 ### crossOrigin Details

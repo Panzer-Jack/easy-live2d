@@ -365,6 +365,7 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 | `DebugTouchLogEnable` | `boolean` | `false` | 输出点击坐标日志 |
 | `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism 日志级别 |
 | `MouseFollow` | `boolean` | `true` | 模型跟随鼠标 |
+| `MotionSound` | `boolean` | `true` | 是否在 `startMotion` 时自动播放动作绑定的音效 |
 | `crossOrigin` | `string \| undefined` | `'anonymous'` | 纹理图片的 `crossOrigin` 属性，用于避免 WebGL 跨域纹理导致的 `SecurityError`。可设为 `'anonymous'`、`'use-credentials'` 或 `undefined`（禁用，不推荐）。 |
 
 ### crossOrigin 说明

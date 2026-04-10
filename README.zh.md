@@ -132,6 +132,9 @@ import { Config, CubismSetting, Live2DSprite, LogLevel, Priority } from 'easy-li
 
 Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
+// 关闭动作自动播放音效（默认开启）
+// Config.MotionSound = false
+
 // 配置纹理图片的 crossOrigin，防止 WebGL 纹理上传时触发 SecurityError。
 // 默认值为 "anonymous"，适用于大多数 CDN 跨域场景。
 // 如果服务器需要凭证，可设置为 "use-credentials"。
@@ -179,6 +182,19 @@ const motions = sprite.getMotions()
 // 获取模型所有表情列表
 const expressions = sprite.getExpressions()
 // => [{ name: 'smile' }, { name: 'angry' }, ...]
+
+// 通过参数 ID 设置驱动参数值（持久生效，每帧自动重新写入）
+sprite.setParameterValueById('ParamAngleX', 15.0)
+sprite.setParameterValueById('ParamMouthOpenY', 1.0, 0.8) // 带混合权重
+
+// 通过参数索引设置驱动参数值
+sprite.setParameterValueByIndex(0, 0.5)
+
+// 通过参数 ID / 索引获取驱动参数的取值范围
+const range = sprite.getParameterValueRangeById('ParamAngleX')
+// range => { min: -30, max: 30 }
+const rangeByIndex = sprite.getParameterValueRangeByIndex(0)
+// rangeByIndex => { min: -30, max: 30 }
 ```
 
 语音解码基于 Web Audio `decodeAudioData()`，支持浏览器可解码的音频格式（wav、mp3、ogg 等）。口型同步需要模型配置 `LipSync` 参数映射。
