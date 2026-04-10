@@ -14,6 +14,7 @@ export default panzerjack({
     'src/services/figma/**',
     'CLAUDE.md',
     './packages/cubism/**',
+    '**/public/**',
   ],
   rules: {
     'pnpm/json-enforce-catalog': 'off',

@@ -11,13 +11,14 @@ export { CubismSetting } from './utils/cubismSetting'
 Application code imports from the root package:
 
 ```ts
+import type { ConfigType } from 'easy-live2d'
 import {
   Config,
+
   CubismSetting,
   Live2DSprite,
   LogLevel,
-  Priority,
-  type ConfigType,
+  Priority
 } from 'easy-live2d'
 ```
 
@@ -50,12 +51,12 @@ interface Live2DSpriteInit {
 }
 ```
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `modelPath` | `string` | Path to the model `.model3.json` |
+| Field          | Type            | Description                        |
+| -------------- | --------------- | ---------------------------------- |
+| `modelPath`    | `string`        | Path to the model `.model3.json`   |
 | `modelSetting` | `CubismSetting` | Manually constructed model setting |
-| `ticker` | `Ticker` | Pixi Ticker reference |
-| `draggable` | `boolean` | Enable dragging. Default `false` |
+| `ticker`       | `Ticker`        | Pixi Ticker reference              |
+| `draggable`    | `boolean`       | Enable dragging. Default `false`   |
 
 - At least one of `modelPath` or `modelSetting` is required.
 - If both are present, `modelPath` takes precedence.
@@ -63,16 +64,16 @@ interface Live2DSpriteInit {
 
 ### Public Properties
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `modelPath` | `string \| null` | Model path |
-| `modelSetting` | `CubismSetting \| null` | Model setting object |
-| `ticker` | `Ticker \| null` | Ticker reference |
-| `renderer` | `Renderer` | Pixi renderer, available after first render |
-| `draggable` | `boolean` | Whether dragging is enabled |
-| `width` | `number` | Logical model width (read/write) |
-| `height` | `number` | Logical model height (read/write) |
-| `ready` | `Promise<void>` | Stable Promise that resolves once the sprite is ready (see below) |
+| Property       | Type                    | Description                                                       |
+| -------------- | ----------------------- | ----------------------------------------------------------------- |
+| `modelPath`    | `string \| null`        | Model path                                                        |
+| `modelSetting` | `CubismSetting \| null` | Model setting object                                              |
+| `ticker`       | `Ticker \| null`        | Ticker reference                                                  |
+| `renderer`     | `Renderer`              | Pixi renderer, available after first render                       |
+| `draggable`    | `boolean`               | Whether dragging is enabled                                       |
+| `width`        | `number`                | Logical model width (read/write)                                  |
+| `height`       | `number`                | Logical model height (read/write)                                 |
+| `ready`        | `Promise<void>`         | Stable Promise that resolves once the sprite is ready (see below) |
 
 Inherited Pixi `Sprite` properties also work: `x`, `y`, `anchor`, `scale`, `rotation`, `visible`, etc.
 
@@ -99,13 +100,13 @@ sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
 sprite.onLive2D(eventName, callback)
 ```
 
-| Event | Callback Args | Description |
-| --- | --- | --- |
-| `ready` | `()` | Model, textures, and interaction initialized |
-| `hit` | `({ hitAreaName, x, y })` | Click hit a model hit area |
-| `dragStart` | `({ x, y, deltaX, deltaY })` | Drag started |
-| `dragMove` | `({ x, y, deltaX, deltaY })` | Dragging |
-| `dragEnd` | `({ x, y, deltaX, deltaY })` | Drag ended |
+| Event       | Callback Args                | Description                                  |
+| ----------- | ---------------------------- | -------------------------------------------- |
+| `ready`     | `()`                         | Model, textures, and interaction initialized |
+| `hit`       | `({ hitAreaName, x, y })`    | Click hit a model hit area                   |
+| `dragStart` | `({ x, y, deltaX, deltaY })` | Drag started                                 |
+| `dragMove`  | `({ x, y, deltaX, deltaY })` | Dragging                                     |
+| `dragEnd`   | `({ x, y, deltaX, deltaY })` | Drag ended                                   |
 
 - `hit` `x`, `y` are model-view coordinates.
 - `drag*` `x`, `y` are sprite position.
@@ -346,27 +347,27 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
 ### Fields
 
-| Field | Type | Default | Description |
-| --- | --- | --- | --- |
-| `ViewScale` | `number` | `1.0` | Initial view scale |
-| `ViewMaxScale` | `number` | `2.0` | Maximum scale |
-| `ViewMinScale` | `number` | `0.8` | Minimum scale |
-| `ViewLogicalLeft` | `number` | `-1.0` | Logical view left bound |
-| `ViewLogicalRight` | `number` | `1.0` | Logical view right bound |
-| `ViewLogicalBottom` | `number` | `-1.0` | Logical view bottom bound |
-| `ViewLogicalTop` | `number` | `1.0` | Logical view top bound |
-| `ViewLogicalMaxLeft` | `number` | `-2.0` | Max movement left bound |
-| `ViewLogicalMaxRight` | `number` | `2.0` | Max movement right bound |
-| `ViewLogicalMaxBottom` | `number` | `-2.0` | Max movement bottom bound |
-| `ViewLogicalMaxTop` | `number` | `2.0` | Max movement top bound |
-| `MotionGroupIdle` | `string` | `'Idle'` | Idle motion group to fall back to |
-| `MOCConsistencyValidationEnable` | `boolean` | `true` | moc consistency validation |
-| `DebugLogEnable` | `boolean` | `true` | Enable Cubism logging |
-| `DebugTouchLogEnable` | `boolean` | `false` | Log touch coordinates |
-| `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism log level |
-| `MouseFollow` | `boolean` | `true` | Model follows mouse |
-| `MotionSound` | `boolean` | `true` | Whether to automatically play motion-bound sound effects when calling `startMotion` |
-| `crossOrigin` | `string \| undefined` | `'anonymous'` | The `crossOrigin` attribute applied to all texture images before upload via `texImage2D`. Prevents WebGL canvas tainting and `SecurityError`. Accepted values: `'anonymous'`, `'use-credentials'`, or `undefined` (disabled, not recommended). |
+| Field                            | Type                  | Default            | Description                                                                                                                                                                                                                                    |
+| -------------------------------- | --------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ViewScale`                      | `number`              | `1.0`              | Initial view scale                                                                                                                                                                                                                             |
+| `ViewMaxScale`                   | `number`              | `2.0`              | Maximum scale                                                                                                                                                                                                                                  |
+| `ViewMinScale`                   | `number`              | `0.8`              | Minimum scale                                                                                                                                                                                                                                  |
+| `ViewLogicalLeft`                | `number`              | `-1.0`             | Logical view left bound                                                                                                                                                                                                                        |
+| `ViewLogicalRight`               | `number`              | `1.0`              | Logical view right bound                                                                                                                                                                                                                       |
+| `ViewLogicalBottom`              | `number`              | `-1.0`             | Logical view bottom bound                                                                                                                                                                                                                      |
+| `ViewLogicalTop`                 | `number`              | `1.0`              | Logical view top bound                                                                                                                                                                                                                         |
+| `ViewLogicalMaxLeft`             | `number`              | `-2.0`             | Max movement left bound                                                                                                                                                                                                                        |
+| `ViewLogicalMaxRight`            | `number`              | `2.0`              | Max movement right bound                                                                                                                                                                                                                       |
+| `ViewLogicalMaxBottom`           | `number`              | `-2.0`             | Max movement bottom bound                                                                                                                                                                                                                      |
+| `ViewLogicalMaxTop`              | `number`              | `2.0`              | Max movement top bound                                                                                                                                                                                                                         |
+| `MotionGroupIdle`                | `string`              | `'Idle'`           | Idle motion group to fall back to                                                                                                                                                                                                              |
+| `MOCConsistencyValidationEnable` | `boolean`             | `true`             | moc consistency validation                                                                                                                                                                                                                     |
+| `DebugLogEnable`                 | `boolean`             | `true`             | Enable Cubism logging                                                                                                                                                                                                                          |
+| `DebugTouchLogEnable`            | `boolean`             | `false`            | Log touch coordinates                                                                                                                                                                                                                          |
+| `CubismLoggingLevel`             | `LogLevel`            | `LogLevel_Verbose` | Cubism log level                                                                                                                                                                                                                               |
+| `MouseFollow`                    | `boolean`             | `true`             | Model follows mouse                                                                                                                                                                                                                            |
+| `MotionSound`                    | `boolean`             | `true`             | Whether to automatically play motion-bound sound effects when calling `startMotion`                                                                                                                                                            |
+| `crossOrigin`                    | `string \| undefined` | `'anonymous'`      | The `crossOrigin` attribute applied to all texture images before upload via `texImage2D`. Prevents WebGL canvas tainting and `SecurityError`. Accepted values: `'anonymous'`, `'use-credentials'`, or `undefined` (disabled, not recommended). |
 
 ### crossOrigin Details
 
@@ -378,11 +379,11 @@ SecurityError: The operation is insecure.
 
 **Type and accepted values:**
 
-| Value | Description |
-| --- | --- |
-| `'anonymous'` | Sends an anonymous cross-origin request (no cookies/credentials). The server must return `Access-Control-Allow-Origin`. *(Default)* |
+| Value               | Description                                                                                                                                                                |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `'anonymous'`       | Sends an anonymous cross-origin request (no cookies/credentials). The server must return `Access-Control-Allow-Origin`. _(Default)_                                        |
 | `'use-credentials'` | Sends credentials (cookies, client certificates, etc.). The server must return `Access-Control-Allow-Credentials: true` and `Access-Control-Allow-Origin` must not be `*`. |
-| `undefined` | Disables the attribute. Cross-origin textures may cause a WebGL upload failure. **Not recommended.** |
+| `undefined`         | Disables the attribute. Cross-origin textures may cause a WebGL upload failure. **Not recommended.**                                                                       |
 
 **Usage example:**
 
@@ -400,6 +401,7 @@ Config.crossOrigin = undefined
 ```
 
 > **Notes**
+>
 > - Set this option before creating any `Live2DSprite` instance so that all texture loads are affected.
 > - The asset server must return a valid `Access-Control-Allow-Origin` header. When using `'use-credentials'`, the server must also return `Access-Control-Allow-Credentials: true`, and `Access-Control-Allow-Origin` must not be the wildcard `*`.
 > - Setting this to `undefined` may cause WebGL to throw a `SecurityError` when loading cross-origin textures.
@@ -426,10 +428,10 @@ Motion priority enum.
 
 ```ts
 enum Priority {
-  None = 0,   // No preemption
-  Idle = 1,   // Idle motion
+  None = 0, // No preemption
+  Idle = 1, // Idle motion
   Normal = 2, // Normal motion
-  Force = 3,  // Force-interrupt current motion
+  Force = 3, // Force-interrupt current motion
 }
 ```
 
@@ -439,14 +441,14 @@ enum Priority {
 
 Log level enum re-exported from Cubism Framework. Used with `Config.CubismLoggingLevel`.
 
-| Member | Description |
-| --- | --- |
-| `LogLevel.LogLevel_Verbose` | Verbose logging |
-| `LogLevel.LogLevel_Debug` | Debug logging |
-| `LogLevel.LogLevel_Info` | Info logging |
-| `LogLevel.LogLevel_Warning` | Warning logging |
-| `LogLevel.LogLevel_Error` | Error logging |
-| `LogLevel.LogLevel_Off` | Logging disabled |
+| Member                      | Description      |
+| --------------------------- | ---------------- |
+| `LogLevel.LogLevel_Verbose` | Verbose logging  |
+| `LogLevel.LogLevel_Debug`   | Debug logging    |
+| `LogLevel.LogLevel_Info`    | Info logging     |
+| `LogLevel.LogLevel_Warning` | Warning logging  |
+| `LogLevel.LogLevel_Error`   | Error logging    |
+| `LogLevel.LogLevel_Off`     | Logging disabled |
 
 ---
 
@@ -460,9 +462,9 @@ Model configuration wrapper. Use when receiving `model3.json` at runtime and con
 new CubismSetting({ modelJSON: any, prefixPath?: string })
 ```
 
-| Field | Description |
-| --- | --- |
-| `modelJSON` | Parsed `model3.json` object |
+| Field        | Description                            |
+| ------------ | -------------------------------------- |
+| `modelJSON`  | Parsed `model3.json` object            |
 | `prefixPath` | Shared prefix for relative asset paths |
 
 ### redirectPath

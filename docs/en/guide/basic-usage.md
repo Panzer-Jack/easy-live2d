@@ -163,12 +163,12 @@ await sprite.startRandomMotion({
 
 `Priority` values:
 
-| Value | Description |
-| --- | --- |
-| `Priority.None` | No preemption |
-| `Priority.Idle` | Idle motion |
-| `Priority.Normal` | Normal motion |
-| `Priority.Force` | Force-interrupt the current motion |
+| Value             | Description                        |
+| ----------------- | ---------------------------------- |
+| `Priority.None`   | No preemption                      |
+| `Priority.Idle`   | Idle motion                        |
+| `Priority.Normal` | Normal motion                      |
+| `Priority.Force`  | Force-interrupt the current motion |
 
 After a motion finishes, the runtime falls back to the idle group specified by `Config.MotionGroupIdle`.
 
@@ -240,15 +240,15 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
 Common fields:
 
-| Field | Default | Description |
-| --- | --- | --- |
-| `MotionGroupIdle` | `'Idle'` | Idle motion group to fall back to |
-| `MouseFollow` | `true` | Model follows mouse movement |
-| `MotionSound` | `true` | Whether to automatically play motion-bound sound effects when calling `startMotion` |
-| `DebugLogEnable` | `true` | Enable Cubism logging |
-| `DebugTouchLogEnable` | `false` | Log touch coordinates |
-| `CubismLoggingLevel` | `LogLevel_Verbose` | Cubism Framework log level |
-| `MOCConsistencyValidationEnable` | `true` | Enable moc consistency validation |
+| Field                            | Default            | Description                                                                         |
+| -------------------------------- | ------------------ | ----------------------------------------------------------------------------------- |
+| `MotionGroupIdle`                | `'Idle'`           | Idle motion group to fall back to                                                   |
+| `MouseFollow`                    | `true`             | Model follows mouse movement                                                        |
+| `MotionSound`                    | `true`             | Whether to automatically play motion-bound sound effects when calling `startMotion` |
+| `DebugLogEnable`                 | `true`             | Enable Cubism logging                                                               |
+| `DebugTouchLogEnable`            | `false`            | Log touch coordinates                                                               |
+| `CubismLoggingLevel`             | `LogLevel_Verbose` | Cubism Framework log level                                                          |
+| `MOCConsistencyValidationEnable` | `true`             | Enable moc consistency validation                                                   |
 
 Use `Config.resetConfig()` to restore all defaults.
 

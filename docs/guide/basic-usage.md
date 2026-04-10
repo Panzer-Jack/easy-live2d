@@ -163,12 +163,12 @@ await sprite.startRandomMotion({
 
 `Priority` 枚举值：
 
-| 值 | 说明 |
-| --- | --- |
-| `Priority.None` | 不主动抢占 |
-| `Priority.Idle` | 空闲动作 |
-| `Priority.Normal` | 普通动作 |
-| `Priority.Force` | 强制打断当前动作 |
+| 值                | 说明             |
+| ----------------- | ---------------- |
+| `Priority.None`   | 不主动抢占       |
+| `Priority.Idle`   | 空闲动作         |
+| `Priority.Normal` | 普通动作         |
+| `Priority.Force`  | 强制打断当前动作 |
 
 动作结束后会自动回落到 `Config.MotionGroupIdle` 指定的 idle 动作组。
 
@@ -240,15 +240,15 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
 常用配置项：
 
-| 字段 | 默认值 | 说明 |
-| --- | --- | --- |
-| `MotionGroupIdle` | `'Idle'` | 动作结束后回落的 idle 动作组 |
-| `MouseFollow` | `true` | 模型是否跟随鼠标移动 |
-| `MotionSound` | `true` | 是否在 `startMotion` 时自动播放动作绑定的音效 |
-| `DebugLogEnable` | `true` | 是否启用 Cubism 日志 |
-| `DebugTouchLogEnable` | `false` | 是否输出点击坐标日志 |
-| `CubismLoggingLevel` | `LogLevel_Verbose` | Cubism Framework 日志级别 |
-| `MOCConsistencyValidationEnable` | `true` | 是否开启 moc 一致性校验 |
+| 字段                             | 默认值             | 说明                                          |
+| -------------------------------- | ------------------ | --------------------------------------------- |
+| `MotionGroupIdle`                | `'Idle'`           | 动作结束后回落的 idle 动作组                  |
+| `MouseFollow`                    | `true`             | 模型是否跟随鼠标移动                          |
+| `MotionSound`                    | `true`             | 是否在 `startMotion` 时自动播放动作绑定的音效 |
+| `DebugLogEnable`                 | `true`             | 是否启用 Cubism 日志                          |
+| `DebugTouchLogEnable`            | `false`            | 是否输出点击坐标日志                          |
+| `CubismLoggingLevel`             | `LogLevel_Verbose` | Cubism Framework 日志级别                     |
+| `MOCConsistencyValidationEnable` | `true`             | 是否开启 moc 一致性校验                       |
 
 使用 `Config.resetConfig()` 可恢复所有默认值。
 

@@ -48,9 +48,9 @@ export interface MotionParams {
 /**
  * 表情设置参数（expressionId 和 index 二选一）
  */
-export type ExpressionParams =
-  | { expressionId: string, index?: never }
-  | { index: number, expressionId?: never }
+export type ExpressionParams
+  = | { expressionId: string, index?: never }
+    | { index: number, expressionId?: never }
 
 /**
  * 驱动参数范围值

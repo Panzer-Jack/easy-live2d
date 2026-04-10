@@ -11,13 +11,14 @@ export { CubismSetting } from './utils/cubismSetting'
 业务代码从根包导入：
 
 ```ts
+import type { ConfigType } from 'easy-live2d'
 import {
   Config,
+
   CubismSetting,
   Live2DSprite,
   LogLevel,
-  Priority,
-  type ConfigType,
+  Priority
 } from 'easy-live2d'
 ```
 
@@ -50,12 +51,12 @@ interface Live2DSpriteInit {
 }
 ```
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `modelPath` | `string` | 模型 `.model3.json` 路径 |
-| `modelSetting` | `CubismSetting` | 手动构造的模型设置对象 |
-| `ticker` | `Ticker` | Pixi Ticker 引用 |
-| `draggable` | `boolean` | 是否允许拖拽，默认 `false` |
+| 字段           | 类型            | 说明                       |
+| -------------- | --------------- | -------------------------- |
+| `modelPath`    | `string`        | 模型 `.model3.json` 路径   |
+| `modelSetting` | `CubismSetting` | 手动构造的模型设置对象     |
+| `ticker`       | `Ticker`        | Pixi Ticker 引用           |
+| `draggable`    | `boolean`       | 是否允许拖拽，默认 `false` |
 
 - `modelPath` 和 `modelSetting` 至少提供一个。
 - 两者同时存在时优先使用 `modelPath`。
@@ -63,16 +64,16 @@ interface Live2DSpriteInit {
 
 ### 公开属性
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| `modelPath` | `string \| null` | 模型路径 |
-| `modelSetting` | `CubismSetting \| null` | 模型设置对象 |
-| `ticker` | `Ticker \| null` | Ticker 引用 |
-| `renderer` | `Renderer` | Pixi 渲染器，首次渲染后可用 |
-| `draggable` | `boolean` | 是否允许拖拽 |
-| `width` | `number` | 模型逻辑宽度（可读写） |
-| `height` | `number` | 模型逻辑高度（可读写） |
-| `ready` | `Promise<void>` | 模型就绪后 resolve 的稳定 Promise（见下方说明） |
+| 属性           | 类型                    | 说明                                            |
+| -------------- | ----------------------- | ----------------------------------------------- |
+| `modelPath`    | `string \| null`        | 模型路径                                        |
+| `modelSetting` | `CubismSetting \| null` | 模型设置对象                                    |
+| `ticker`       | `Ticker \| null`        | Ticker 引用                                     |
+| `renderer`     | `Renderer`              | Pixi 渲染器，首次渲染后可用                     |
+| `draggable`    | `boolean`               | 是否允许拖拽                                    |
+| `width`        | `number`                | 模型逻辑宽度（可读写）                          |
+| `height`       | `number`                | 模型逻辑高度（可读写）                          |
+| `ready`        | `Promise<void>`         | 模型就绪后 resolve 的稳定 Promise（见下方说明） |
 
 继承自 Pixi `Sprite` 的属性同样可用：`x`、`y`、`anchor`、`scale`、`rotation`、`visible` 等。
 
@@ -99,13 +100,13 @@ sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
 sprite.onLive2D(eventName, callback)
 ```
 
-| 事件名 | 回调参数 | 说明 |
-| --- | --- | --- |
-| `ready` | `()` | 模型、纹理和交互层初始化完成 |
-| `hit` | `({ hitAreaName, x, y })` | 点击命中模型 hit area |
-| `dragStart` | `({ x, y, deltaX, deltaY })` | 开始拖拽 |
-| `dragMove` | `({ x, y, deltaX, deltaY })` | 拖拽移动中 |
-| `dragEnd` | `({ x, y, deltaX, deltaY })` | 拖拽结束 |
+| 事件名      | 回调参数                     | 说明                         |
+| ----------- | ---------------------------- | ---------------------------- |
+| `ready`     | `()`                         | 模型、纹理和交互层初始化完成 |
+| `hit`       | `({ hitAreaName, x, y })`    | 点击命中模型 hit area        |
+| `dragStart` | `({ x, y, deltaX, deltaY })` | 开始拖拽                     |
+| `dragMove`  | `({ x, y, deltaX, deltaY })` | 拖拽移动中                   |
+| `dragEnd`   | `({ x, y, deltaX, deltaY })` | 拖拽结束                     |
 
 - `hit` 的 `x`、`y` 是模型视图坐标。
 - `drag*` 的 `x`、`y` 是精灵位置。
@@ -346,27 +347,27 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Warning
 
 ### 字段
 
-| 字段 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `ViewScale` | `number` | `1.0` | 初始视图缩放 |
-| `ViewMaxScale` | `number` | `2.0` | 最大缩放 |
-| `ViewMinScale` | `number` | `0.8` | 最小缩放 |
-| `ViewLogicalLeft` | `number` | `-1.0` | 逻辑视图左边界 |
-| `ViewLogicalRight` | `number` | `1.0` | 逻辑视图右边界 |
-| `ViewLogicalBottom` | `number` | `-1.0` | 逻辑视图下边界 |
-| `ViewLogicalTop` | `number` | `1.0` | 逻辑视图上边界 |
-| `ViewLogicalMaxLeft` | `number` | `-2.0` | 视图移动最大左边界 |
-| `ViewLogicalMaxRight` | `number` | `2.0` | 视图移动最大右边界 |
-| `ViewLogicalMaxBottom` | `number` | `-2.0` | 视图移动最大下边界 |
-| `ViewLogicalMaxTop` | `number` | `2.0` | 视图移动最大上边界 |
-| `MotionGroupIdle` | `string` | `'Idle'` | 动作结束后回落的 idle 动作组 |
-| `MOCConsistencyValidationEnable` | `boolean` | `true` | moc 一致性校验 |
-| `DebugLogEnable` | `boolean` | `true` | 启用 Cubism 日志 |
-| `DebugTouchLogEnable` | `boolean` | `false` | 输出点击坐标日志 |
-| `CubismLoggingLevel` | `LogLevel` | `LogLevel_Verbose` | Cubism 日志级别 |
-| `MouseFollow` | `boolean` | `true` | 模型跟随鼠标 |
-| `MotionSound` | `boolean` | `true` | 是否在 `startMotion` 时自动播放动作绑定的音效 |
-| `crossOrigin` | `string \| undefined` | `'anonymous'` | 纹理图片的 `crossOrigin` 属性，用于避免 WebGL 跨域纹理导致的 `SecurityError`。可设为 `'anonymous'`、`'use-credentials'` 或 `undefined`（禁用，不推荐）。 |
+| 字段                             | 类型                  | 默认值             | 说明                                                                                                                                                     |
+| -------------------------------- | --------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ViewScale`                      | `number`              | `1.0`              | 初始视图缩放                                                                                                                                             |
+| `ViewMaxScale`                   | `number`              | `2.0`              | 最大缩放                                                                                                                                                 |
+| `ViewMinScale`                   | `number`              | `0.8`              | 最小缩放                                                                                                                                                 |
+| `ViewLogicalLeft`                | `number`              | `-1.0`             | 逻辑视图左边界                                                                                                                                           |
+| `ViewLogicalRight`               | `number`              | `1.0`              | 逻辑视图右边界                                                                                                                                           |
+| `ViewLogicalBottom`              | `number`              | `-1.0`             | 逻辑视图下边界                                                                                                                                           |
+| `ViewLogicalTop`                 | `number`              | `1.0`              | 逻辑视图上边界                                                                                                                                           |
+| `ViewLogicalMaxLeft`             | `number`              | `-2.0`             | 视图移动最大左边界                                                                                                                                       |
+| `ViewLogicalMaxRight`            | `number`              | `2.0`              | 视图移动最大右边界                                                                                                                                       |
+| `ViewLogicalMaxBottom`           | `number`              | `-2.0`             | 视图移动最大下边界                                                                                                                                       |
+| `ViewLogicalMaxTop`              | `number`              | `2.0`              | 视图移动最大上边界                                                                                                                                       |
+| `MotionGroupIdle`                | `string`              | `'Idle'`           | 动作结束后回落的 idle 动作组                                                                                                                             |
+| `MOCConsistencyValidationEnable` | `boolean`             | `true`             | moc 一致性校验                                                                                                                                           |
+| `DebugLogEnable`                 | `boolean`             | `true`             | 启用 Cubism 日志                                                                                                                                         |
+| `DebugTouchLogEnable`            | `boolean`             | `false`            | 输出点击坐标日志                                                                                                                                         |
+| `CubismLoggingLevel`             | `LogLevel`            | `LogLevel_Verbose` | Cubism 日志级别                                                                                                                                          |
+| `MouseFollow`                    | `boolean`             | `true`             | 模型跟随鼠标                                                                                                                                             |
+| `MotionSound`                    | `boolean`             | `true`             | 是否在 `startMotion` 时自动播放动作绑定的音效                                                                                                            |
+| `crossOrigin`                    | `string \| undefined` | `'anonymous'`      | 纹理图片的 `crossOrigin` 属性，用于避免 WebGL 跨域纹理导致的 `SecurityError`。可设为 `'anonymous'`、`'use-credentials'` 或 `undefined`（禁用，不推荐）。 |
 
 ### crossOrigin 说明
 
@@ -378,11 +379,11 @@ SecurityError: The operation is insecure.
 
 **类型与取值：**
 
-| 取值 | 说明 |
-| --- | --- |
-| `'anonymous'` | 发起匿名跨域请求（不携带 Cookie/证书），服务端需返回 `Access-Control-Allow-Origin`（默认值） |
+| 取值                | 说明                                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `'anonymous'`       | 发起匿名跨域请求（不携带 Cookie/证书），服务端需返回 `Access-Control-Allow-Origin`（默认值）                                         |
 | `'use-credentials'` | 携带凭据（Cookie、客户端证书等），服务端 `Access-Control-Allow-Origin` 不能为 `*`，且需设置 `Access-Control-Allow-Credentials: true` |
-| `undefined` | 不设置 `crossOrigin`，跨域纹理可能导致 WebGL 上传失败，**不推荐** |
+| `undefined`         | 不设置 `crossOrigin`，跨域纹理可能导致 WebGL 上传失败，**不推荐**                                                                    |
 
 **使用示例：**
 
@@ -400,6 +401,7 @@ Config.crossOrigin = undefined
 ```
 
 > **注意事项**
+>
 > - 请在创建 `Live2DSprite` 实例之前设置此项，以确保所有纹理加载均生效。
 > - 资源服务器必须返回正确的 `Access-Control-Allow-Origin` 响应头；使用 `'use-credentials'` 时，服务端还需返回 `Access-Control-Allow-Credentials: true`，且 `Access-Control-Allow-Origin` 不能为通配符 `*`。
 > - 若将此项设为 `undefined`，加载跨域纹理时 WebGL 可能抛出 `SecurityError`。
@@ -426,10 +428,10 @@ Config.resetConfig(): void
 
 ```ts
 enum Priority {
-  None = 0,   // 不主动抢占
-  Idle = 1,   // 空闲动作
+  None = 0, // 不主动抢占
+  Idle = 1, // 空闲动作
   Normal = 2, // 普通动作
-  Force = 3,  // 强制打断当前动作
+  Force = 3, // 强制打断当前动作
 }
 ```
 
@@ -439,14 +441,14 @@ enum Priority {
 
 从 Cubism Framework 透出的日志级别枚举，用于 `Config.CubismLoggingLevel`。
 
-| 成员 | 说明 |
-| --- | --- |
+| 成员                        | 说明     |
+| --------------------------- | -------- |
 | `LogLevel.LogLevel_Verbose` | 详细日志 |
-| `LogLevel.LogLevel_Debug` | 调试日志 |
-| `LogLevel.LogLevel_Info` | 信息日志 |
+| `LogLevel.LogLevel_Debug`   | 调试日志 |
+| `LogLevel.LogLevel_Info`    | 信息日志 |
 | `LogLevel.LogLevel_Warning` | 警告日志 |
-| `LogLevel.LogLevel_Error` | 错误日志 |
-| `LogLevel.LogLevel_Off` | 关闭日志 |
+| `LogLevel.LogLevel_Error`   | 错误日志 |
+| `LogLevel.LogLevel_Off`     | 关闭日志 |
 
 ---
 
@@ -460,10 +462,10 @@ enum Priority {
 new CubismSetting({ modelJSON: any, prefixPath?: string })
 ```
 
-| 字段 | 说明 |
-| --- | --- |
-| `modelJSON` | 已解析的 `model3.json` 对象 |
-| `prefixPath` | 资源公共前缀路径 |
+| 字段         | 说明                        |
+| ------------ | --------------------------- |
+| `modelJSON`  | 已解析的 `model3.json` 对象 |
+| `prefixPath` | 资源公共前缀路径            |
 
 ### redirectPath
 

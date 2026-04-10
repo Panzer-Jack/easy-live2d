@@ -84,8 +84,17 @@ const setting = new CubismSetting({
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>easy-live2d</title>
     <style>
-      html, body { margin: 0; width: 100%; height: 100%; }
-      #live2d { display: block; width: 100vw; height: 100vh; }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #live2d {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
     </style>
   </head>
   <body>
