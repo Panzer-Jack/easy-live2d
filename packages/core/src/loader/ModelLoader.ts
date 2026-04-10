@@ -20,6 +20,7 @@ const EMPTY_REDIR: IRedirectPath = {
   Pose: '',
   Expressions: [],
   Motions: {},
+  MotionSounds: {},
   UserData: '',
 }
 
