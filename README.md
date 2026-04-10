@@ -2,13 +2,13 @@
   <p align="center">
     <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="easy-live2d" width="260">
   </p>
-  
+
   <h1>easy-live2d</h1>
-  
-  Making Live2D integration easier! A lightweight, developer-friendly Live2D Web SDK wrapper library based on Pixi.js.
-  
-  Make your Live2D as easy to control as a pixi sprite!
-  
+
+Making Live2D integration easier! A lightweight, developer-friendly Live2D Web SDK wrapper library based on Pixi.js.
+
+Make your Live2D as easy to control as a pixi sprite!
+
   <div align="center">
       <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
       <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
@@ -49,7 +49,7 @@ yarn add easy-live2d pixi.js
 
 ## Prerequisites
 
-1. Download and load the official `live2dcubismcore.js` in your entry HTML
+1. Download and load the official `live2dcubismcore.js`（[Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)） in your entry HTML
 2. Browser environment (not SSR)
 3. An accessible Live2D `model3.json`
 
@@ -67,8 +67,17 @@ yarn add easy-live2d pixi.js
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>easy-live2d</title>
     <style>
-      html, body { margin: 0; width: 100%; height: 100%; }
-      #live2d { display: block; width: 100vw; height: 100vh; }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #live2d {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
     </style>
   </head>
   <body>
@@ -182,6 +191,18 @@ Voice decoding uses Web Audio `decodeAudioData()`, supporting any browser-decoda
 ## Live Demo
 
 - [StackBlitz Playground](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground?file=src/App.vue)
+
+## Development
+
+If you want to develop or contribute to this project locally, you need to manually download the Live2D Cubism SDK:
+
+1. Go to [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) and download the SDK
+2. Copy the following files from the SDK's `Core/` directory into `packages/cubism/Core/`:
+   - `live2dcubismcore.js`
+   - `live2dcubismcore.min.js`
+   - `live2dcubismcore.d.ts`
+
+> These files are not included in the repository due to Live2D's license restrictions.
 
 ## License
 

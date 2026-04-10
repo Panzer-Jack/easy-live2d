@@ -2,13 +2,13 @@
   <p align="center">
       <img src="https://github.com/user-attachments/assets/4ebc2d19-2ebe-4490-b214-e6ac8b350ce0" alt="feuse-mcp" width="300px">
   </p>
-  
+
   <h1>easy-live2d</h1>
-  
-  让 Live2D 集成更简单！一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库。
-  
-  让你的 Live2D 和操控 pixi sprite 一样简单！
-  
+
+让 Live2D 集成更简单！一个基于 Pixi.js 轻量、开发者友好的 Live2D Web SDK 封装库。
+
+让你的 Live2D 和操控 pixi sprite 一样简单！
+
   <div align="center">
       <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
       <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
@@ -49,7 +49,7 @@ yarn add easy-live2d pixi.js
 
 ## 前置条件
 
-1. 在页面入口引入官方 `live2dcubismcore.js`
+1. 在页面入口引入官方 `live2dcubismcore.js`（[Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)）
 2. 浏览器环境（不支持 SSR）
 3. 可访问的 Live2D `model3.json` 模型文件
 
@@ -67,8 +67,17 @@ yarn add easy-live2d pixi.js
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>easy-live2d</title>
     <style>
-      html, body { margin: 0; width: 100%; height: 100%; }
-      #live2d { display: block; width: 100vw; height: 100vh; }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #live2d {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
     </style>
   </head>
   <body>
@@ -182,6 +191,21 @@ const expressions = sprite.getExpressions()
 ## 在线演示
 
 - [StackBlitz Playground](https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground?file=src/App.vue)
+
+## 本地开发
+
+如果你想在本地开发或参与贡献本项目，需要手动下载 Live2D Cubism SDK：
+
+1. 前往 [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) 下载 SDK
+2. 将 SDK 中 `Core/` 目录下的以下文件复制到 `packages/cubism/Core/`：
+   - `live2dcubismcore.js`
+   - `live2dcubismcore.js.map`
+   - `live2dcubismcore.min.js`
+   - `live2dcubismcore.d.ts`
+   - `LICENSE.md`
+   - `CHANGELOG.md`
+
+> 由于 Live2D 许可证限制，这些文件未包含在仓库中。
 
 ## 许可证
 
