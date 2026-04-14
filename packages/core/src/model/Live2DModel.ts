@@ -35,6 +35,8 @@ export class Live2DModel extends CubismUserModel {
   private _redirPath: IRedirectPath = EMPTY_REDIR_PATH
   private _userTimeSeconds = 0
   private _ready = false
+  /** 空闲动作启动中的并发保护标记，避免每帧重复发起异步请求。 */
+  private _idleMotionPending = false
 
   /**
    * 用户通过 setParameterValueById / setParameterValueByIndex 设置的持久覆盖值。
@@ -155,8 +157,12 @@ export class Live2DModel extends CubismUserModel {
 
     this._model.loadParameters()
     const motionFinished = this.motionCtrl.update()
-    if (motionFinished) {
-      this.motionCtrl.startRandomMotion(Config.MotionGroupIdle, Priority.Idle)
+    if (motionFinished && !this._idleMotionPending) {
+      this._idleMotionPending = true
+      void this.motionCtrl.startRandomMotion(Config.MotionGroupIdle, Priority.Idle)
+        .finally(() => {
+          this._idleMotionPending = false
+        })
     } else {
       this._motionManager.updateMotion(this._model, deltaTime)
     }

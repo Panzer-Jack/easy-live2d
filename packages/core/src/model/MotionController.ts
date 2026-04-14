@@ -121,12 +121,29 @@ export class MotionController {
     return this._motionManager.startMotionPriority(motion, autoDelete, priority)
   }
 
+  /**
+   * 检查模型配置中是否存在指定动作分组。
+   * 避免直接调用 SDK 在缺失 Motions 节点时可能抛错的路径。
+   */
+  private _hasMotionGroup(group: string): boolean {
+    if (!this._modelSetting)
+      return false
+    const count = this._modelSetting.getMotionGroupCount()
+    for (let i = 0; i < count; i++) {
+      if (this._modelSetting.getMotionGroupName(i) === group)
+        return true
+    }
+    return false
+  }
+
   startRandomMotion(
     group: string,
     priority: Priority,
     onFinished?: FinishedMotionCallback,
     onBegan?: BeganMotionCallback,
   ): Promise<CubismMotionQueueEntryHandle> {
+    if (!this._hasMotionGroup(group))
+      return Promise.resolve(InvalidMotionQueueEntryHandleValue)
     const count = this._modelSetting.getMotionCount(group)
     if (count === 0)
       return Promise.resolve(InvalidMotionQueueEntryHandleValue)
