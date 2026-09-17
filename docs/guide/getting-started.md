@@ -8,6 +8,8 @@
 
 ## 最小示例
 
+使用 **Cubism 5 SDK for Web R5** 的 Core 和支持 WebGL 2 的浏览器。Pixi 默认选择 WebGL 2，无需填写 `ticker`。示例中的包名导入需要 Vite 等打包环境。
+
 ```html
 <!doctype html>
 <html>
@@ -33,7 +35,7 @@
     <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js'
+      import { Application } from 'pixi.js'
       import { Config, Live2DSprite, Priority } from 'easy-live2d'
 
       // 全局配置（在创建实例前设置）
@@ -52,22 +54,17 @@
 
       const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared,
       })
 
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
 
-      // 模型就绪后播放动作
-      sprite.onLive2D('ready', async () => {
-        console.log('模型已就绪')
-
-        await sprite.startMotion({
-          group: 'TapBody',
-          no: 0,
-          priority: Priority.Normal,
-        })
-      })
+      try {
+        await sprite.ready
+        await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+      } catch (error) {
+        console.error('模型初始化或动作加载失败', error)
+      }
     </script>
   </body>
 </html>
@@ -86,7 +83,7 @@
 ```vue
 <script setup lang="ts">
 import { Config, Live2DSprite } from 'easy-live2d'
-import { Application, Ticker } from 'pixi.js'
+import { Application } from 'pixi.js'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -97,7 +94,6 @@ Config.MouseFollow = false
 
 const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
   draggable: true,
 })
 
@@ -115,9 +111,12 @@ onMounted(async () => {
   sprite.width = canvasRef.value.clientWidth
   app.stage.addChild(sprite)
 
-  sprite.onLive2D('ready', () => {
+  try {
+    await sprite.ready
     console.log('模型已就绪')
-  })
+  } catch (error) {
+    console.error('模型加载失败或已取消', error)
+  }
 })
 
 onUnmounted(() => {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Config, CubismSetting, Live2DSprite, LogLevel } from '@easy-live2d/core'
-import { Application, Ticker } from 'pixi.js'
+import { Application } from 'pixi.js'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement>()
@@ -14,15 +14,13 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 // 创建Live2D精灵 并初始化
 const live2DSprite = new Live2DSprite()
 live2DSprite.init({
-  modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
+  modelPath: '/SdkResources/Hiyori/Hiyori.model3.json',
   draggable: true,
 })
 
 const live2DSprit2 = new Live2DSprite()
 live2DSprit2.init({
-  modelPath: '/Resources/Cub3/ING.model3.json',
-  ticker: Ticker.shared,
+  modelPath: '/SdkResources/Haru/Haru.model3.json',
   draggable: true,
 })
 
@@ -37,22 +35,20 @@ live2DSprite.onLive2D('dragMove', ({ x, y }) => {
 
 // 你也可以直接这样初始化
 // const live2DSprite = new Live2DSprite({
-//   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-//   ticker: Ticker.shared
+//   modelPath: '/SdkResources/Hiyori/Hiyori.model3.json',
 // })
 
 onMounted(async () => {
   const resolution = Math.max(window.devicePixelRatio || 1, 1)
 
   // 你同时又可以直接这样初始化
-  const model2Json = await (await fetch('/Resources/Hiyori/Hiyori.model3.json')).json()
+  const model2Json = await (await fetch('/SdkResources/Hiyori/Hiyori.model3.json')).json()
   const modelSetting = new CubismSetting({
-    prefixPath: '/Resources/Hiyori/',
+    prefixPath: '/SdkResources/Hiyori/',
     modelJSON: model2Json,
   })
   live2DSprite.init({
     modelSetting,
-    ticker: Ticker.shared,
   })
 
   live2DSprite.x = 20
@@ -95,7 +91,7 @@ onMounted(async () => {
     // // 播放声音
     // live2DSprite.playVoice({
     //   // 当前音嘴同步 仅支持wav格式
-    //   voicePath: '/Resources/Hiyori/sounds/test3.wav',
+    //   voicePath: '/SdkResources/Hiyori/sounds/test3.wav',
     // })
 
     // 播放网络声音
@@ -110,7 +106,7 @@ onMounted(async () => {
     setTimeout(() => {
       // 播放声音
       live2DSprite.playVoice({
-        voicePath: '/Resources/Hiyori/sounds/test.wav',
+        voicePath: '/SdkResources/Hiyori/sounds/test.wav',
         immediate: true, // 是否立即播放: 默认为true，会把当前正在播放的声音停止并立即播放新的声音
       })
     }, 10000)

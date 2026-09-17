@@ -6,7 +6,7 @@
     "email": "panzer_jack@panzer-jack.cn",
     "url": "https://www.panzer-jack.cn"
   },
-  "license": "MPL-2.0",
+  "license": "MIT",
   "homepage": "https://panzer-jack.github.io/easy-live2d/",
   "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "exports": {
@@ -29,10 +29,6 @@
   },
   "dependencies": {
     "@pixi/sound": "^6.0.1",
-    "@tweenjs/tween.js": "catalog:dep",
-    "dayjs": "catalog:dep",
-    "localforage": "catalog:dep",
-    "pixi-filters": "catalog:dep",
     "pixi.js": "catalog:dep"
   },
   "devDependencies": {

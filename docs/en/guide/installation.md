@@ -2,6 +2,8 @@
 
 ## Install
 
+These branch docs describe the pending R5 implementation. Unversioned npm commands install published packages, which may differ from this checkout. See [Migration](./cubism-r5-migration.md) for compatibility and local verification.
+
 ::: code-group
 
 ```bash [pnpm]
@@ -24,7 +26,7 @@ Application code should import from `easy-live2d`. `@easy-live2d/core` is the in
 
 ### 1. Load the Official Cubism Core
 
-The library does not include Live2D Core. You need to download and host `live2dcubismcore.js` yourself per Live2D licensing:
+The library does not include Live2D Core. You need to download and host `live2dcubismcore.js` from **Cubism 5 SDK for Web R5** yourself per Live2D licensing:
 
 ```html
 <script src="/Core/live2dcubismcore.js"></script>
@@ -37,9 +39,11 @@ Depends on these browser APIs:
 - `document` / `fetch` / `Image`
 - `ResizeObserver`
 - `AudioContext`
-- `WebGL`
+- `WebGL 2` (WebGL 1 and WebGPU are not supported)
 
 Not suitable for SSR. Initialize `Live2DSprite` after client mount.
+
+Pixi defaults to WebGL 2, so no additional renderer options are required. R5 shaders are bundled with the library.
 
 ### 3. Pixi.js as Host
 
@@ -101,7 +105,7 @@ Best for:
     <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js'
+      import { Application } from 'pixi.js'
       import { Live2DSprite } from 'easy-live2d'
 
       const canvas = document.getElementById('live2d')
@@ -116,7 +120,6 @@ Best for:
 
       const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared,
       })
 
       sprite.width = canvas.clientWidth

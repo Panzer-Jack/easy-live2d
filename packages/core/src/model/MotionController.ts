@@ -7,13 +7,11 @@ import type {
 import type { CubismMotion } from '@Framework/motion/cubismmotion'
 import type { CubismMotionManager } from '@Framework/motion/cubismmotionmanager'
 import type { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueuemanager'
-import type { csmVector } from '@Framework/type/csmvector'
 import type { IRedirectPath } from '../utils/cubismSetting'
 import { ACubismMotion } from '@Framework/motion/acubismmotion'
 import {
   InvalidMotionQueueEntryHandleValue,
 } from '@Framework/motion/cubismmotionqueuemanager'
-import { csmMap as CsmMap } from '@Framework/type/csmmap'
 import { FileLoader } from '../loader/FileLoader'
 import { Config, Priority } from '../utils/config'
 
@@ -22,10 +20,11 @@ import { Config, Priority } from '../utils/config'
  * 负责动作的播放、随机播放、预加载和释放
  */
 export class MotionController {
-  private _motions = new CsmMap<string, ACubismMotion | null>()
+  private _motions = new Map<string, ACubismMotion | null>()
+  private _loadAbort = new AbortController()
   private _motionManager: CubismMotionManager
-  private _eyeBlinkIds: csmVector<CubismIdHandle>
-  private _lipSyncIds: csmVector<CubismIdHandle>
+  private _eyeBlinkIds: CubismIdHandle[]
+  private _lipSyncIds: CubismIdHandle[]
 
   // 以下引用由 Live2DModel 注入
   private _loadMotionFn: (buf: ArrayBuffer, size: number, name: string, onFinished?: FinishedMotionCallback, onBegan?: BeganMotionCallback, setting?: ICubismModelSetting, group?: string, no?: number) => CubismMotion
@@ -46,8 +45,8 @@ export class MotionController {
 
   constructor(
     motionManager: CubismMotionManager,
-    eyeBlinkIds: csmVector<CubismIdHandle>,
-    lipSyncIds: csmVector<CubismIdHandle>,
+    eyeBlinkIds: CubismIdHandle[],
+    lipSyncIds: CubismIdHandle[],
     loadMotionFn: typeof MotionController.prototype._loadMotionFn,
     playVoiceFn: typeof MotionController.prototype._playVoiceFn,
   ) {
@@ -64,7 +63,7 @@ export class MotionController {
     this._redirPath = redirPath
   }
 
-  get motions(): CsmMap<string, ACubismMotion | null> {
+  get motions(): Map<string, ACubismMotion | null> {
     return this._motions
   }
 
@@ -82,26 +81,31 @@ export class MotionController {
     }
 
     const name = `${group}_${no}`
-    let motion = this._motions.getValue(name) as CubismMotion
+    let motion = this._motions.get(name) as CubismMotion
     let autoDelete = false
 
-    if (motion === null) {
+    if (motion == null) {
       const fileName = this._modelSetting.getMotionFileName(group, no)
       const hasRedir = Object.keys(this._redirPath.Motions).length > 0
       const url = (hasRedir && this._redirPath.Motions[group]?.[no])
         || `${this._modelHomeDir}${fileName}`
-      const buf = await FileLoader.fetchSafe(url)
-
-      motion = this._loadMotionFn(buf, buf.byteLength, name, onFinished, onBegan, this._modelSetting, group, no)
-      if (motion) {
+      try {
+        const buf = await FileLoader.loadArrayBuffer(url, this._loadAbort.signal)
+        this._loadAbort.signal.throwIfAborted()
+        motion = this._loadMotionFn(buf, buf.byteLength, name, onFinished, onBegan, this._modelSetting, group, no)
+        if (!motion)
+          throw new Error(`Could not load motion: ${name}`)
         motion.setEffectIds(this._eyeBlinkIds, this._lipSyncIds)
         autoDelete = true
+      } catch (error) {
+        // 失败的加载不能占住预约优先级，阻止后续正常动作。
+        if (this._motionManager.getReservePriority() === priority)
+          this._motionManager.setReservePriority(Priority.None)
+        throw error
       }
     } else {
-      if (onBegan)
-        motion.setBeganMotionHandler(onBegan)
-      if (onFinished)
-        motion.setFinishedMotionHandler(onFinished)
+      motion.setBeganMotionHandler(onBegan)
+      motion.setFinishedMotionHandler(onFinished)
     }
 
     if (Config.MotionSound) {
@@ -161,15 +165,24 @@ export class MotionController {
     const motion = this._loadMotionFn(buf, buf.byteLength, name, undefined, undefined, setting, group, no) as CubismMotion
     if (motion) {
       motion.setEffectIds(this._eyeBlinkIds, this._lipSyncIds)
-      const existing = this._motions.getValue(name)
-      if (existing !== null) {
+      const existing = this._motions.get(name)
+      if (existing != null) {
         ACubismMotion.delete(existing)
       }
-      this._motions.setValue(name, motion)
+      this._motions.set(name, motion)
     }
   }
 
   releaseMotions(): void {
+    this._motions.clear()
+  }
+
+  dispose(): void {
+    this._loadAbort.abort()
+    for (const motion of this._motions.values()) {
+      if (motion)
+        ACubismMotion.delete(motion)
+    }
     this._motions.clear()
   }
 

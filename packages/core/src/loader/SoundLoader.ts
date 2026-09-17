@@ -10,6 +10,7 @@ export class SoundLoader {
   private _lastRms = 0
   private _audioFileInfo = new AudioFileInfo()
   private _loadVersion = 0
+  private _loadAbort: AbortController | null = null
   private static _audioContext: AudioContext | null = null
 
   update(deltaTimeSeconds: number): boolean {
@@ -54,24 +55,24 @@ export class SoundLoader {
     return this._lastRms
   }
 
-  async start(filePath: string): Promise<boolean> {
-    const loadVersion = ++this._loadVersion
-    this.resetState()
-    return this.loadAudioFile(filePath, loadVersion)
+  async start(filePath: string): Promise<AudioBuffer | null> {
+    this.releasePcmData()
+    this._loadAbort = new AbortController()
+    return this.loadAudioFile(filePath, this._loadVersion, this._loadAbort.signal)
   }
 
-  private async loadAudioFile(filePath: string, loadVersion: number): Promise<boolean> {
+  private async loadAudioFile(filePath: string, loadVersion: number, signal: AbortSignal): Promise<AudioBuffer | null> {
     try {
-      const response = await fetch(filePath)
+      const response = await fetch(filePath, { signal })
       if (!response.ok) {
         throw new Error(`Failed to fetch audio file: ${response.status} ${response.statusText}`)
       }
 
       const arrayBuffer = await response.arrayBuffer()
-      const audioBuffer = await SoundLoader.getAudioContext().decodeAudioData(arrayBuffer.slice(0))
+      const audioBuffer = await SoundLoader.getAudioContext().decodeAudioData(arrayBuffer)
 
       if (loadVersion !== this._loadVersion) {
-        return false
+        return null
       }
 
       this._audioFileInfo.numberOfChannels = audioBuffer.numberOfChannels
@@ -79,20 +80,22 @@ export class SoundLoader {
       this._audioFileInfo.samplesPerChannel = audioBuffer.length
       this._pcmData = Array.from(
         { length: audioBuffer.numberOfChannels },
-        (_, channel) => Float32Array.from(audioBuffer.getChannelData(channel)),
+        (_, channel) => audioBuffer.getChannelData(channel),
       )
-      return true
+      return audioBuffer
     } catch (error) {
       if (loadVersion === this._loadVersion) {
         this.resetState()
         console.error(`Failed to decode audio file: ${filePath}`, error)
       }
-      return false
+      return null
     }
   }
 
   releasePcmData(): void {
     this._loadVersion++
+    this._loadAbort?.abort()
+    this._loadAbort = null
     this.resetState()
   }
 

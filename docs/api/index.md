@@ -3,6 +3,7 @@
 ## 导出总览
 
 ```ts
+export type { ExpressionInfo, MotionInfo, ParameterValueRange } from './core/types'
 export { Live2DSprite } from './Live2DSprite'
 export { Config, ConfigType, LogLevel, Priority } from './utils/config'
 export { CubismSetting } from './utils/cubismSetting'
@@ -46,6 +47,7 @@ sprite.init(config: Live2DSpriteInit): boolean
 interface Live2DSpriteInit {
   modelPath?: string
   modelSetting?: CubismSetting
+  /** @deprecated 无实际作用，仅保留接口兼容。 */
   ticker?: Ticker
   draggable?: boolean
 }
@@ -55,7 +57,7 @@ interface Live2DSpriteInit {
 | -------------- | --------------- | -------------------------- |
 | `modelPath`    | `string`        | 模型 `.model3.json` 路径   |
 | `modelSetting` | `CubismSetting` | 手动构造的模型设置对象     |
-| `ticker`       | `Ticker`        | Pixi Ticker 引用           |
+| `ticker`       | `Ticker`        | 已废弃，仅保留兼容           |
 | `draggable`    | `boolean`       | 是否允许拖拽，默认 `false` |
 
 - `modelPath` 和 `modelSetting` 至少提供一个。
@@ -68,7 +70,7 @@ interface Live2DSpriteInit {
 | -------------- | ----------------------- | ----------------------------------------------- |
 | `modelPath`    | `string \| null`        | 模型路径                                        |
 | `modelSetting` | `CubismSetting \| null` | 模型设置对象                                    |
-| `ticker`       | `Ticker \| null`        | Ticker 引用                                     |
+| `ticker`       | `Ticker \| null`        | 已废弃，仅保留兼容                                     |
 | `renderer`     | `Renderer`              | Pixi 渲染器，首次渲染后可用                     |
 | `draggable`    | `boolean`               | 是否允许拖拽                                    |
 | `width`        | `number`                | 模型逻辑宽度（可读写）                          |
@@ -89,9 +91,15 @@ sprite.ready: Promise<void>
 
 一个稳定的 `Promise`，在精灵就绪后 resolve。每次访问返回**同一个 Promise 实例**，多次 await 不会重复挂载监听器。
 
+初始化失败（包括不支持的 Core/上下文或已声明资源不可用）会拒绝该 Promise；就绪前销毁也会拒绝，初始化失败后不逐帧重试。若 Pixi 设置了 `autoStart: false`，应在加入舞台后先调用 `app.render()` 再等待就绪。同步 ready 回调异常会记录日志但不释放已加载模型；异步回调的 rejection 需在回调内自行捕获。
+
 ```ts
-await sprite.ready
-sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+try {
+  await sprite.ready
+  await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+} catch (error) {
+  console.error('模型初始化或动作加载失败', error)
+}
 ```
 
 ### 事件
@@ -129,7 +137,7 @@ interface MotionParams {
 }
 ```
 
-按动作组和索引播放指定动作。`ready` 前调用会自动排队。
+按动作组和索引播放指定动作。`ready` 前调用会自动排队，但其返回的 Promise 不等待排队动作实际启动；需要动作句柄或捕获加载错误时，应先等待 `sprite.ready`。每次播放仅使用本次传入的回调，省略回调不会沿用上次回调。动态资源加载失败会 reject 并释放预约优先级，允许后续动作启动。
 
 #### startRandomMotion
 
@@ -281,13 +289,17 @@ interface VoiceParams {
 - `immediate`：默认 `true`，先停止当前语音再播放新语音。
 - 口型同步依赖模型中的 `LipSync` 参数映射。
 
+播放和口型共用一次下载、解码。`playVoice()` 等待的是播放启动请求而非整段音频结束；就绪前调用仅入队。下载/解码失败会记录日志并跳过播放；最新的待加载语音请求会替代之前尚未开始的请求。
+
+语音资源由每个精灵独立持有，停止或销毁一个精灵不会打断其他模型。销毁时会取消未完成的音频加载；`immediate: false` 会保留本实例已经开始播放的语音。
+
 #### stopVoice
 
 ```ts
 sprite.stopVoice(): void
 ```
 
-停止当前语音。
+停止本精灵持有的所有语音，取消其待完成的语音加载/解码结果；不影响其他精灵。
 
 ### 尺寸与生命周期
 
@@ -329,7 +341,7 @@ sprite.onResize(): void
 sprite.destroy(options?: DestroyOptions): void
 ```
 
-清理所有资源：指针事件、ResizeObserver、WebGL 纹理、Live2D 上下文、Cubism 生命周期。
+释放本精灵的监听、模型、动作、表情、纹理、VAO 和语音资源。重复调用安全。加载中销毁会取消请求并拒绝尚未完成的 `ready`；已成功的 `ready` 保持成功。共享 Framework 只在最后一个存活/加载实例结束后释放。Pixi Application 和 canvas 的生命周期仍由宿主管理。
 
 ---
 

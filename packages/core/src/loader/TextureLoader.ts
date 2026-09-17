@@ -25,95 +25,81 @@ export class TextureLoader {
     this._webgl = webgl
   }
 
-  createTextureFromPngFile(
-    fileName: string,
-    usePremultiply: boolean,
-    callback: (textureInfo: TextureInfo) => void,
-  ): void {
-    // 搜索已加载的纹理缓存
-    const cached = this._textures.find(
-      t => t.fileName === fileName && t.usePremultiply === usePremultiply,
-    )
-    if (cached) {
-      cached.img = new Image()
-      // 设置 crossOrigin 必须在 src 之前，以避免 WebGL 纹理上传时触发 SecurityError
+  async load(fileName: string, usePremultiply: boolean, signal?: AbortSignal): Promise<TextureInfo> {
+    signal?.throwIfAborted()
+    const findCached = () => this._textures.find(t => t.fileName === fileName && t.usePremultiply === usePremultiply)
+    const cached = findCached()
+    if (cached)
+      return cached
+
+    return new Promise((resolve, reject) => {
+      const img = new Image()
       if (Config.crossOrigin !== undefined)
-        cached.img.crossOrigin = Config.crossOrigin
-      cached.img.addEventListener('load', () => callback(cached), { passive: true })
-      cached.img.src = fileName
-      return
-    }
-
-    const img = new Image()
-    // 设置 crossOrigin 必须在 src 之前，以避免 WebGL 纹理上传时触发 SecurityError
-    if (Config.crossOrigin !== undefined)
-      img.crossOrigin = Config.crossOrigin
-    img.addEventListener('load', () => {
-      const textureInfo = this.createGlTexture(img, fileName, usePremultiply)
-      callback(textureInfo)
-    }, { passive: true })
-    img.src = fileName
+        img.crossOrigin = Config.crossOrigin
+      function cleanup() {
+        img.onload = null
+        img.onerror = null
+        signal?.removeEventListener('abort', abort)
+      }
+      function abort() {
+        cleanup()
+        img.src = ''
+        reject(signal?.reason ?? new Error('Texture loading aborted.'))
+      }
+      img.onload = () => {
+        cleanup()
+        try {
+          // 同一模型的重复纹理槽可能并发加载，只上传一次。
+          resolve(findCached() ?? this.createGlTexture(img, fileName, usePremultiply))
+        } catch (error) {
+          reject(error)
+        }
+      }
+      img.onerror = () => {
+        cleanup()
+        reject(new Error(`Failed to load texture: ${fileName}`))
+      }
+      signal?.addEventListener('abort', abort, { once: true })
+      img.src = fileName
+    })
   }
 
-  private createGlTexture(
-    img: HTMLImageElement,
-    fileName: string,
-    usePremultiply: boolean,
-  ): TextureInfo {
+  private createGlTexture(img: HTMLImageElement, fileName: string, usePremultiply: boolean): TextureInfo {
     const gl = this._webgl.getGl()
-    const tex = gl.createTexture()!
+    const binding = gl.getParameter(gl.TEXTURE_BINDING_2D)
+    const premultiply = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL)
+    const flipY = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL)
+    const tex = gl.createTexture()
+    if (!tex)
+      throw new Error(`Failed to create texture: ${fileName}`)
 
-    gl.bindTexture(gl.TEXTURE_2D, tex)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-
-    if (usePremultiply) {
-      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1)
+    try {
+      gl.bindTexture(gl.TEXTURE_2D, tex)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, usePremultiply ? 1 : 0)
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
+      gl.generateMipmap(gl.TEXTURE_2D)
+    } catch (error) {
+      gl.deleteTexture(tex)
+      throw error
+    } finally {
+      gl.bindTexture(gl.TEXTURE_2D, binding)
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiply ? 1 : 0)
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY ? 1 : 0)
     }
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
-    gl.generateMipmap(gl.TEXTURE_2D)
-    gl.bindTexture(gl.TEXTURE_2D, null)
-
-    const textureInfo = new TextureInfo()
-    textureInfo.fileName = fileName
-    textureInfo.width = img.width
-    textureInfo.height = img.height
-    textureInfo.id = tex
-    textureInfo.img = img
-    textureInfo.usePremultiply = usePremultiply
-    this._textures.push(textureInfo)
-
-    return textureInfo
-  }
-
-  releaseTextures(): void {
-    const gl = this._webgl.getGl()
-    for (const tex of this._textures) {
-      gl.deleteTexture(tex.id)
-    }
-    this._textures = []
-  }
-
-  releaseTextureByTexture(texture: WebGLTexture): void {
-    const gl = this._webgl.getGl()
-    const idx = this._textures.findIndex(t => t.id === texture)
-    if (idx !== -1) {
-      gl.deleteTexture(this._textures[idx].id)
-      this._textures.splice(idx, 1)
-    }
-  }
-
-  releaseTextureByFilePath(fileName: string): void {
-    const gl = this._webgl.getGl()
-    const idx = this._textures.findIndex(t => t.fileName === fileName)
-    if (idx !== -1) {
-      gl.deleteTexture(this._textures[idx].id)
-      this._textures.splice(idx, 1)
-    }
+    const info = new TextureInfo()
+    Object.assign(info, { fileName, width: img.width, height: img.height, id: tex, img, usePremultiply })
+    this._textures.push(info)
+    return info
   }
 
   release(): void {
-    this.releaseTextures()
+    const gl = this._webgl.getGl()
+    for (const texture of this._textures)
+      gl.deleteTexture(texture.id)
+    this._textures = []
   }
 }

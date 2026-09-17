@@ -29,7 +29,6 @@ export class Live2DContext {
       return false
     }
 
-    this.webgl.setupBlend()
     this.frameBuffer = this.webgl.getFrameBuffer()
     this.viewTransform.initialize(viewport)
 

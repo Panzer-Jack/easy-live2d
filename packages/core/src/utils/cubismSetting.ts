@@ -1,4 +1,5 @@
 import { CubismModelSettingJson } from '@Framework/cubismmodelsettingjson'
+import { initializeCubism } from '../core/initializeCubism'
 import { json2ArrayBuffer } from './json2ArrayBuffer'
 
 const enum EFilename {
@@ -42,7 +43,9 @@ export class CubismSetting extends CubismModelSettingJson {
   }
 
   constructor({ modelJSON, prefixPath = '' }: { modelJSON: any, prefixPath?: string }) {
-    super(json2ArrayBuffer(modelJSON), json2ArrayBuffer(modelJSON).byteLength)
+    initializeCubism()
+    const buffer = json2ArrayBuffer(modelJSON)
+    super(buffer, buffer.byteLength)
     this.prefixPath = prefixPath
   }
 

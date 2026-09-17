@@ -13,7 +13,8 @@ import { Config } from '../utils/config'
 export class ModelRenderer {
   private _viewTransform: ViewTransform
   private _frameBuffer: WebGLFramebuffer | null = null
-  private _gl: WebGLRenderingContext | WebGL2RenderingContext | null = null
+  private _gl: WebGL2RenderingContext | null = null
+  private _vertexArray: WebGLVertexArrayObject | null = null
 
   constructor(viewTransform: ViewTransform) {
     this._viewTransform = viewTransform
@@ -23,8 +24,15 @@ export class ModelRenderer {
     this._frameBuffer = frameBuffer
   }
 
-  setGl(gl: WebGLRenderingContext | WebGL2RenderingContext): void {
+  setGl(gl: WebGL2RenderingContext): void {
     this._gl = gl
+    this._vertexArray = gl.createVertexArray()
+  }
+
+  release(): void {
+    if (this._vertexArray)
+      this._gl?.deleteVertexArray(this._vertexArray)
+    this._vertexArray = null
   }
 
   render(model: Live2DModel, viewport: Viewport, timeManager: TimeManager): void {
@@ -61,9 +69,14 @@ export class ModelRenderer {
         return
       }
 
-      this._prepareFrame(gl, glViewport, scissorViewport)
-      model.draw(projection, this._frameBuffer!, glViewport)
-      this._restoreGlState(gl)
+      try {
+        // Cubism 会重设顶点属性指针，使用独立 VAO 避免改写 Pixi 的几何缓存。
+        gl.bindVertexArray(this._vertexArray)
+        this._prepareFrame(gl, glViewport, scissorViewport)
+        model.draw(projection, this._frameBuffer!, glViewport)
+      } finally {
+        this._restoreGlState(gl)
+      }
     } else {
       model.draw(projection, this._frameBuffer!, viewport)
     }
@@ -77,6 +90,7 @@ export class ModelRenderer {
     clearDepth: number
     blend: boolean
     scissorTest: boolean
+    stencilTest: boolean
     depthTest: boolean
     cullFace: boolean
     frontFace: number
@@ -84,6 +98,9 @@ export class ModelRenderer {
     activeTexture: number
     currentProgram: WebGLProgram | null
     framebuffer: WebGLFramebuffer | null
+    readFramebuffer: WebGLFramebuffer | null
+    vertexArray: WebGLVertexArrayObject | null
+    texture2: WebGLTexture | null
     arrayBuffer: WebGLBuffer | null
     elementArrayBuffer: WebGLBuffer | null
     blendSrcRGB: number
@@ -93,7 +110,11 @@ export class ModelRenderer {
     colorMask: boolean[]
   } | null = null
 
-  private _saveGlState(gl: WebGLRenderingContext): void {
+  private _saveGlState(gl: WebGL2RenderingContext): void {
+    const activeTexture = gl.getParameter(gl.ACTIVE_TEXTURE)
+    gl.activeTexture(gl.TEXTURE2)
+    const texture2 = gl.getParameter(gl.TEXTURE_BINDING_2D)
+    gl.activeTexture(activeTexture)
     this._savedState = {
       viewport: gl.getParameter(gl.VIEWPORT),
       scissorBox: gl.getParameter(gl.SCISSOR_BOX),
@@ -101,13 +122,17 @@ export class ModelRenderer {
       clearDepth: gl.getParameter(gl.DEPTH_CLEAR_VALUE),
       blend: gl.isEnabled(gl.BLEND),
       scissorTest: gl.isEnabled(gl.SCISSOR_TEST),
+      stencilTest: gl.isEnabled(gl.STENCIL_TEST),
       depthTest: gl.isEnabled(gl.DEPTH_TEST),
       cullFace: gl.isEnabled(gl.CULL_FACE),
       frontFace: gl.getParameter(gl.FRONT_FACE),
       depthFunc: gl.getParameter(gl.DEPTH_FUNC),
-      activeTexture: gl.getParameter(gl.ACTIVE_TEXTURE),
+      activeTexture,
       currentProgram: gl.getParameter(gl.CURRENT_PROGRAM),
       framebuffer: gl.getParameter(gl.FRAMEBUFFER_BINDING),
+      readFramebuffer: gl.getParameter(gl.READ_FRAMEBUFFER_BINDING),
+      vertexArray: gl.getParameter(gl.VERTEX_ARRAY_BINDING),
+      texture2,
       arrayBuffer: gl.getParameter(gl.ARRAY_BUFFER_BINDING),
       elementArrayBuffer: gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING),
       blendSrcRGB: gl.getParameter(gl.BLEND_SRC_RGB),
@@ -118,7 +143,7 @@ export class ModelRenderer {
     }
   }
 
-  private _restoreGlState(gl: WebGLRenderingContext): void {
+  private _restoreGlState(gl: WebGL2RenderingContext): void {
     const s = this._savedState
     if (!s)
       return
@@ -132,14 +157,19 @@ export class ModelRenderer {
 
     s.blend ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND)
     s.scissorTest ? gl.enable(gl.SCISSOR_TEST) : gl.disable(gl.SCISSOR_TEST)
+    s.stencilTest ? gl.enable(gl.STENCIL_TEST) : gl.disable(gl.STENCIL_TEST)
     s.depthTest ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST)
     s.cullFace ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE)
 
     gl.blendFuncSeparate(s.blendSrcRGB, s.blendDstRGB, s.blendSrcAlpha, s.blendDstAlpha)
     gl.colorMask(s.colorMask[0], s.colorMask[1], s.colorMask[2], s.colorMask[3])
+    gl.activeTexture(gl.TEXTURE2)
+    gl.bindTexture(gl.TEXTURE_2D, s.texture2)
     gl.activeTexture(s.activeTexture)
     gl.useProgram(s.currentProgram)
     gl.bindFramebuffer(gl.FRAMEBUFFER, s.framebuffer)
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, s.readFramebuffer)
+    gl.bindVertexArray(s.vertexArray)
     gl.bindBuffer(gl.ARRAY_BUFFER, s.arrayBuffer)
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, s.elementArrayBuffer)
 

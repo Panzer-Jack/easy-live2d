@@ -4,13 +4,13 @@ import type { Live2DModel } from '../model/Live2DModel'
 import type { CubismSetting, IRedirectPath } from '../utils/cubismSetting'
 import type { TextureLoader } from './TextureLoader'
 import { CubismModelSettingJson } from '@Framework/cubismmodelsettingjson'
-import { CubismLogError as logCubismError } from '@Framework/utils/cubismdebug'
 import { FileLoader } from './FileLoader'
 
 interface ResolvedSetting {
   setting: ICubismModelSetting
   homeDir: string
   redir: IRedirectPath
+  signal?: AbortSignal
 }
 
 const EMPTY_REDIR: IRedirectPath = {
@@ -33,37 +33,35 @@ export class ModelLoader {
     modelAssets: ModelAssets,
     model: Live2DModel,
     textureLoader: TextureLoader,
-    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    gl: WebGL2RenderingContext,
+    signal?: AbortSignal,
   ): Promise<void> {
-    try {
-      const ctx = await this.resolveSetting(modelAssets)
-      model.setModelSetting(ctx.setting, ctx.homeDir, ctx.redir)
+    const ctx = await this.resolveSetting(modelAssets, signal)
+    model.setModelSetting(ctx.setting, ctx.homeDir, ctx.redir)
 
-      await this.loadMoc(model, ctx)
-      await this.loadExpressions(model, ctx)
-      await this.loadPhysics(model, ctx)
-      await this.loadPose(model, ctx)
-      model.setupEffects(ctx.setting)
-      await this.loadUserData(model, ctx)
-      model.setupLayout(ctx.setting)
-      await this.loadMotions(model, ctx)
+    await this.loadMoc(model, ctx)
+    await this.loadExpressions(model, ctx)
+    await this.loadPhysics(model, ctx)
+    await this.loadPose(model, ctx)
+    model.setupEffects(ctx.setting)
+    await this.loadUserData(model, ctx)
+    model.setupLayout(ctx.setting)
+    await this.loadMotions(model, ctx)
 
-      model.initializeRenderer(gl)
-      await this.loadTextures(model, ctx, textureLoader)
-      model.setReady(true)
-    } catch (error) {
-      logCubismError(`Failed to load model: ${error}`)
-    }
+    signal?.throwIfAborted()
+    model.initializeRenderer(gl)
+    await this.loadTextures(model, ctx, textureLoader)
+    model.setReady(true)
   }
 
-  private async resolveSetting(assets: ModelAssets): Promise<ResolvedSetting> {
+  private async resolveSetting(assets: ModelAssets, signal?: AbortSignal): Promise<ResolvedSetting> {
     if (typeof assets === 'string') {
       const homeDir = `${assets.slice(0, assets.lastIndexOf('/'))}/`
-      const buf = await FileLoader.loadArrayBuffer(assets)
-      return { setting: new CubismModelSettingJson(buf, buf.byteLength), homeDir, redir: EMPTY_REDIR }
+      const buf = await FileLoader.loadArrayBuffer(assets, signal)
+      return { setting: new CubismModelSettingJson(buf, buf.byteLength), homeDir, redir: EMPTY_REDIR, signal }
     }
     const s = assets as CubismSetting
-    return { setting: s as unknown as ICubismModelSetting, homeDir: s.prefixPath, redir: s.redirPath }
+    return { setting: s as unknown as ICubismModelSetting, homeDir: s.prefixPath, redir: s.redirPath, signal }
   }
 
   private resolveUrl(redir: string | undefined, homeDir: string, fileName: string): string {
@@ -73,8 +71,8 @@ export class ModelLoader {
   private async loadMoc(model: Live2DModel, ctx: ResolvedSetting): Promise<void> {
     const fileName = ctx.setting.getModelFileName()
     if (!fileName)
-      return
-    const buf = await FileLoader.fetchSafe(this.resolveUrl(ctx.redir.Moc, ctx.homeDir, fileName))
+      throw new Error('Model settings must specify a MOC3 file.')
+    const buf = await FileLoader.loadArrayBuffer(this.resolveUrl(ctx.redir.Moc, ctx.homeDir, fileName), ctx.signal)
     model.loadMocModel(buf)
   }
 
@@ -83,7 +81,7 @@ export class ModelLoader {
     for (let i = 0; i < count; i++) {
       const name = ctx.setting.getExpressionName(i)
       const url = this.resolveUrl(ctx.redir.Expressions[i], ctx.homeDir, ctx.setting.getExpressionFileName(i))
-      const buf = await FileLoader.fetchSafe(url)
+      const buf = await FileLoader.loadArrayBuffer(url, ctx.signal)
       model.loadExpressionData(name, buf)
     }
   }
@@ -92,7 +90,7 @@ export class ModelLoader {
     const fileName = ctx.setting.getPhysicsFileName()
     if (!fileName)
       return
-    const buf = await FileLoader.fetchSafe(this.resolveUrl(ctx.redir.Physics, ctx.homeDir, fileName))
+    const buf = await FileLoader.loadArrayBuffer(this.resolveUrl(ctx.redir.Physics, ctx.homeDir, fileName), ctx.signal)
     model.loadPhysicsData(buf)
   }
 
@@ -100,7 +98,7 @@ export class ModelLoader {
     const fileName = ctx.setting.getPoseFileName()
     if (!fileName)
       return
-    const buf = await FileLoader.fetchSafe(this.resolveUrl(ctx.redir.Pose, ctx.homeDir, fileName))
+    const buf = await FileLoader.loadArrayBuffer(this.resolveUrl(ctx.redir.Pose, ctx.homeDir, fileName), ctx.signal)
     model.loadPoseData(buf)
   }
 
@@ -108,7 +106,7 @@ export class ModelLoader {
     const fileName = ctx.setting.getUserDataFile()
     if (!fileName)
       return
-    const buf = await FileLoader.fetchSafe(this.resolveUrl(ctx.redir.UserData, ctx.homeDir, fileName))
+    const buf = await FileLoader.loadArrayBuffer(this.resolveUrl(ctx.redir.UserData, ctx.homeDir, fileName), ctx.signal)
     model.loadUserDataData(buf)
   }
 
@@ -128,7 +126,8 @@ export class ModelLoader {
     for (let i = 0; i < count; i++) {
       const fileName = ctx.setting.getMotionFileName(group, i)
       const url = (hasRedir && ctx.redir.Motions[group]?.[i]) || `${ctx.homeDir}${fileName}`
-      const buf = await FileLoader.fetchSafe(url)
+      const buf = await FileLoader.loadArrayBuffer(url, ctx.signal)
+      ctx.signal?.throwIfAborted()
       model.loadMotionData(group, i, buf, ctx.setting)
     }
   }
@@ -147,11 +146,9 @@ export class ModelLoader {
       if (!fileName)
         continue
       const url = (hasRedir && ctx.redir.Textures[i]) || `${ctx.homeDir}${fileName}`
-      promises.push(new Promise((resolve) => {
-        textureLoader.createTextureFromPngFile(url, true, (info) => {
-          model.bindTexture(i, info.id)
-          resolve()
-        })
+      promises.push(textureLoader.load(url, true, ctx.signal).then((info) => {
+        ctx.signal?.throwIfAborted()
+        model.bindTexture(i, info.id)
       }))
     }
     await Promise.all(promises)

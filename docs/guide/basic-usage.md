@@ -6,11 +6,9 @@
 
 ```ts
 import { Live2DSprite } from 'easy-live2d'
-import { Ticker } from 'pixi.js'
 
 const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
 })
 ```
 
@@ -21,7 +19,6 @@ const sprite = new Live2DSprite()
 
 sprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
   draggable: true,
 })
 ```
@@ -30,7 +27,6 @@ sprite.init({
 
 ```ts
 import { CubismSetting, Live2DSprite } from 'easy-live2d'
-import { Ticker } from 'pixi.js'
 
 const modelJSON = await fetch('/Resources/Hiyori/Hiyori.model3.json').then(r => r.json())
 
@@ -46,7 +42,6 @@ modelSetting.redirectPath(({ file }) => {
 
 const sprite = new Live2DSprite({
   modelSetting,
-  ticker: Ticker.shared,
 })
 ```
 
@@ -80,6 +75,8 @@ sprite.anchor.set(0.5)
 sprite.scale.set(0.8)
 ```
 
+Pixi 默认使用 WebGL 2，无需额外渲染选项或 `ticker`。模型跟随 Pixi 渲染更新；首帧间隔为 0，长暂停后单次最多推进 100ms。
+
 ## 监听模型就绪
 
 模型完成内部初始化后触发 `ready` 事件：
@@ -96,6 +93,21 @@ sprite.onLive2D('ready', () => {
 ::: tip
 在 `ready` 之前调用 `startMotion()`、`setExpression()`、`playVoice()` 等方法时，请求会自动排队，待模型初始化完成后执行。
 :::
+
+```ts
+import { Priority } from 'easy-live2d'
+
+try {
+  await sprite.ready
+  await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+} catch (error) {
+  console.error('模型初始化或动作加载失败', error)
+}
+```
+
+初始化失败（包括不支持的 Core/上下文或已声明资源不可用）会拒绝该 Promise；就绪前销毁也会拒绝，初始化失败后不逐帧重试。若 Pixi 设置了 `autoStart: false`，应在加入舞台后先调用 `app.render()` 再等待就绪。同步 ready 回调异常会记录日志但不释放已加载模型；异步回调的 rejection 需在回调内自行捕获。
+
+就绪前入队的调用不等待实际播放。需要获知执行结果时，请先等待 `sprite.ready`。
 
 ## 点击命中区域
 
@@ -207,6 +219,8 @@ sprite.stopVoice()
 - 语音解码使用 Web Audio `decodeAudioData`，支持浏览器可解码的音频格式（wav、mp3、ogg 等）。
 - 口型同步依赖模型中配置的 `LipSync` 参数映射。
 
+语音按精灵隔离，停止或销毁会取消待完成语音操作，不打断其他精灵；`immediate: false` 保留本精灵已开始播放的语音。播放和口型共用一次下载、解码，完成与失败行为见 [语音 API](/api/#playvoice)。
+
 ## 尺寸控制
 
 ```ts
@@ -285,6 +299,8 @@ sprite.destroy()
 
 销毁时会清理指针事件监听、`ResizeObserver`、WebGL 纹理缓存、Live2D 上下文和 Cubism 生命周期。在 Vue、React 等框架中应在组件卸载时调用。
 
+重复销毁安全；加载中销毁会拒绝待完成的 ready 并取消请求。最后一个存活/加载实例结束前，共享 Framework 保持可用。宿主不再需要 Pixi Application 时，应另外销毁 Application。
+
 ## 多实例
 
 每个 `Live2DSprite` 持有独立的上下文和事件总线，支持在同一个 Pixi 场景中创建多个实例：
@@ -292,12 +308,10 @@ sprite.destroy()
 ```ts
 const spriteA = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
 })
 
 const spriteB = new Live2DSprite({
   modelPath: '/Resources/Mark/Mark.model3.json',
-  ticker: Ticker.shared,
 })
 
 spriteA.width = 300

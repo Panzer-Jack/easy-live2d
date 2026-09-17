@@ -3,28 +3,23 @@
  * 管理 WebGL 上下文的获取和释放
  */
 export class WebGLBackend {
-  private _gl: WebGLRenderingContext | WebGL2RenderingContext | null = null
+  private _gl: WebGL2RenderingContext | null = null
 
   initialize(
     canvas: HTMLCanvasElement,
     context?: WebGLRenderingContext | WebGL2RenderingContext | null,
   ): boolean {
-    this._gl = context ?? canvas.getContext('webgl2') ?? canvas.getContext('webgl')
-    if (!this._gl) {
+    const gl = context ?? canvas.getContext('webgl2')
+    if (!gl || typeof (gl as WebGL2RenderingContext).blitFramebuffer !== 'function') {
       this._gl = null
       return false
     }
+    this._gl = gl as WebGL2RenderingContext
     return true
   }
 
-  getGl(): WebGLRenderingContext | WebGL2RenderingContext {
+  getGl(): WebGL2RenderingContext {
     return this._gl!
-  }
-
-  setupBlend(): void {
-    const gl = this._gl!
-    gl.enable(gl.BLEND)
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
   }
 
   getFrameBuffer(): WebGLFramebuffer | null {

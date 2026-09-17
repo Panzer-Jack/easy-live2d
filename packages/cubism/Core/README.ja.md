@@ -6,15 +6,6 @@
 
 このフォルダーには、JavaScriptまたはTypeScriptアプリケーションを開発するためのコアライブラリファイルが含まれています。
 
-## ⚠️ セットアップが必要です
-
-ライセンスの制約により、Cubism Core SDKファイルはこのリポジトリに含まれていません。開発前に手動でダウンロードする必要があります：
-
-1. [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) にアクセスしてSDKをダウンロードしてください
-2. 以下のファイルをこの `packages/cubism/Core/` フォルダーにコピーしてください：
-   - `live2dcubismcore.d.ts`
-   - `live2dcubismcore.js`
-   - `live2dcubismcore.min.js`
 
 ## ファイルリスト
 

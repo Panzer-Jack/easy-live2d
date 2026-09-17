@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
-  "license": "MPL-2.0",
+  "license": "MIT",
   "homepage": "https://panzer-jack.github.io/easy-live2d/",
   "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "engines": {

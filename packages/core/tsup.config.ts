@@ -8,6 +8,7 @@ export default defineConfig({
   sourcemap: true, // 开启源映射
   outDir: 'dist', // 输出目录
   clean: true, // 清理旧的输出文件
+  loader: { '.vert': 'text', '.frag': 'text' },
 
   external: [], // 不打包的外部依赖
 

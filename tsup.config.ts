@@ -14,10 +14,6 @@ export default defineConfig({
   external: [
     '@Framework/*',
     '@easy-live2d/*',
-    '@tweenjs/tween.js',
-    'dayjs',
-    'localforage',
-    'pixi-filters',
     'pixi.js',
   ],
   esbuildPlugins: [

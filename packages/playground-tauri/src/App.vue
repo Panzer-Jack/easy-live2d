@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Config, CubismSetting, Live2DSprite, LogLevel } from '@easy-live2d/core'
-import { Application, Ticker } from 'pixi.js'
+import { Application } from 'pixi.js'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement>()
@@ -15,14 +15,12 @@ Config.CubismLoggingLevel = LogLevel.LogLevel_Off // 设置日志级别
 const live2DSprite = new Live2DSprite()
 live2DSprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
   draggable: true,
 })
 
 const live2DSprit2 = new Live2DSprite()
 live2DSprit2.init({
   modelPath: '/Resources/Cub3/ING.model3.json',
-  ticker: Ticker.shared,
   draggable: true,
 })
 
@@ -38,7 +36,6 @@ live2DSprite.onLive2D('dragMove', ({ x, y }) => {
 // 你也可以直接这样初始化
 // const live2DSprite = new Live2DSprite({
 //   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-//   ticker: Ticker.shared
 // })
 
 onMounted(async () => {
@@ -52,7 +49,6 @@ onMounted(async () => {
   })
   live2DSprite.init({
     modelSetting,
-    ticker: Ticker.shared,
   })
 
   live2DSprite.x = 20

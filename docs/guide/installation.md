@@ -2,6 +2,8 @@
 
 ## 安装
 
+本分支文档描述待发布的 R5 实现。不指定版本的 npm 命令获取已发布包，可能与当前分支不同；兼容性与本地验证流程见 [迁移说明](./cubism-r5-migration.md)。
+
 ::: code-group
 
 ```bash [pnpm]
@@ -24,7 +26,7 @@ yarn add easy-live2d pixi.js
 
 ### 1. 引入官方 Cubism Core
 
-库本身不包含 Live2D Core。你需要按 Live2D 官方许可自行下载，并在页面入口引入：
+库本身不包含 Live2D Core。你需要按 Live2D 官方许可下载 **Cubism 5 SDK for Web R5**，并在页面入口引入：
 
 ```html
 <script src="/Core/live2dcubismcore.js"></script>
@@ -37,7 +39,7 @@ yarn add easy-live2d pixi.js
 - `document` / `fetch` / `Image`
 - `ResizeObserver`
 - `AudioContext`
-- `WebGL`
+- `WebGL 2`（不支持 WebGL 1 或 WebGPU）
 
 不适合 SSR，需在客户端挂载后初始化 `Live2DSprite`。
 
@@ -101,7 +103,7 @@ const setting = new CubismSetting({
     <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js'
+      import { Application } from 'pixi.js'
       import { Live2DSprite } from 'easy-live2d'
 
       const canvas = document.getElementById('live2d')
@@ -116,7 +118,6 @@ const setting = new CubismSetting({
 
       const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared,
       })
 
       sprite.width = canvas.clientWidth
