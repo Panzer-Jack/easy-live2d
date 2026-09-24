@@ -5,8 +5,8 @@ import type { ExpressionInfo, MotionInfo, ParameterValueRange, Viewport } from '
 import type { IRedirectPath } from '../utils/cubismSetting'
 import { CubismFramework } from '@Framework/live2dcubismframework'
 import { CubismUserModel } from '@Framework/model/cubismusermodel'
-import { csmMap as CsmMap } from '@Framework/type/csmmap'
 import { sound } from '@pixi/sound'
+import { initializeCubismShaders } from '../rendering/CubismShaders'
 import { Config, Priority } from '../utils/config'
 import { EffectController } from './EffectController'
 import { ExpressionController } from './ExpressionController'
@@ -14,26 +14,12 @@ import { HitTestHelper } from './HitTestHelper'
 import { MotionController } from './MotionController'
 import { ParameterOverrideMap } from './ParameterOverrideMap'
 
-const EMPTY_REDIR_PATH: IRedirectPath = {
-  Moc: '',
-  Textures: [],
-  Physics: '',
-  Pose: '',
-  Expressions: [],
-  Motions: {},
-  MotionSounds: {},
-  UserData: '',
-}
-
 /**
  * Live2D 模型包装
  * 继承 CubismUserModel，持有模型数据，委托给各 Controller
  */
 export class Live2DModel extends CubismUserModel {
   private _modelSettingRef!: ICubismModelSetting
-  private _modelHomeDir = ''
-  private _redirPath: IRedirectPath = EMPTY_REDIR_PATH
-  private _userTimeSeconds = 0
   private _ready = false
   /** 空闲动作启动中的并发保护标记，避免每帧重复发起异步请求。 */
   private _idleMotionPending = false
@@ -83,13 +69,13 @@ export class Live2DModel extends CubismUserModel {
 
   setModelSetting(setting: ICubismModelSetting, homeDir: string, redirPath: IRedirectPath): void {
     this._modelSettingRef = setting
-    this._modelHomeDir = homeDir
-    this._redirPath = redirPath
     this.motionCtrl.setContext(setting, homeDir, redirPath)
   }
 
   loadMocModel(buf: ArrayBuffer): void {
     this.loadModel(buf, this._mocConsistency)
+    if (!this.getModel())
+      throw new Error('Cubism could not load the model. Check the MOC3 format and integrity.')
   }
 
   loadExpressionData(name: string, buf: ArrayBuffer): void {
@@ -119,7 +105,7 @@ export class Live2DModel extends CubismUserModel {
   }
 
   setupLayout(setting: ICubismModelSetting): void {
-    const layout = new CsmMap<string, number>()
+    const layout = new Map<string, number>()
     if (setting.getLayoutMap(layout)) {
       this.getModelMatrix().setupFromLayout(layout)
     }
@@ -131,14 +117,25 @@ export class Live2DModel extends CubismUserModel {
     this._initialized = false
   }
 
-  initializeRenderer(gl: WebGLRenderingContext | WebGL2RenderingContext): void {
-    this.createRenderer()
+  initializeRenderer(gl: WebGL2RenderingContext): void {
+    this.createRenderer(gl.drawingBufferWidth, gl.drawingBufferHeight)
     this.getRenderer().startUp(gl)
+    initializeCubismShaders(gl)
     this.getRenderer().setIsPremultipliedAlpha(true)
   }
 
   bindTexture(index: number, textureId: WebGLTexture): void {
     this.getRenderer().bindTexture(index, textureId)
+  }
+
+  override release(): void {
+    this._ready = false
+    this._motionManager?.stopAllMotions()
+    this._expressionManager?.stopAllMotions()
+    this.motionCtrl.dispose()
+    this.expressionCtrl.dispose()
+    this.effectCtrl.dispose()
+    super.release()
   }
 
   setReady(value: boolean): void {
@@ -149,7 +146,6 @@ export class Live2DModel extends CubismUserModel {
   update(deltaTime: number): void {
     if (!this._ready)
       return
-    this._userTimeSeconds += deltaTime
 
     this._dragManager.update(deltaTime)
     const dragX = this._dragManager.getX()
@@ -160,6 +156,10 @@ export class Live2DModel extends CubismUserModel {
     if (motionFinished && !this._idleMotionPending) {
       this._idleMotionPending = true
       void this.motionCtrl.startRandomMotion(Config.MotionGroupIdle, Priority.Idle)
+        .catch((error) => {
+          if (this._ready)
+            console.warn('[easy-live2d] Failed to start idle motion:', error)
+        })
         .finally(() => {
           this._idleMotionPending = false
         })
@@ -196,6 +196,7 @@ export class Live2DModel extends CubismUserModel {
       return
     matrix.multiplyByMatrix(this._modelMatrix)
     this.getRenderer().setMvpMatrix(matrix)
+    this.getRenderer().setRenderTargetSize(viewport.width, viewport.height)
     this.getRenderer().setRenderState(frameBuffer, [viewport.x, viewport.y, viewport.width, viewport.height])
     this.getRenderer().drawModel()
   }

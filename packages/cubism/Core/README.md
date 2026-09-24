@@ -6,6 +6,7 @@
 
 This folder contains core library files for developing JavaScript or TypeScript applications.
 
+
 ## File List
 
 ### live2dcubismcore.d.ts

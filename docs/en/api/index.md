@@ -3,6 +3,7 @@
 ## Export Overview
 
 ```ts
+export type { ExpressionInfo, MotionInfo, ParameterValueRange } from './core/types'
 export { Live2DSprite } from './Live2DSprite'
 export { Config, ConfigType, LogLevel, Priority } from './utils/config'
 export { CubismSetting } from './utils/cubismSetting'
@@ -46,6 +47,7 @@ sprite.init(config: Live2DSpriteInit): boolean
 interface Live2DSpriteInit {
   modelPath?: string
   modelSetting?: CubismSetting
+  /** @deprecated Unused; retained for compatibility. */
   ticker?: Ticker
   draggable?: boolean
 }
@@ -55,7 +57,7 @@ interface Live2DSpriteInit {
 | -------------- | --------------- | ---------------------------------- |
 | `modelPath`    | `string`        | Path to the model `.model3.json`   |
 | `modelSetting` | `CubismSetting` | Manually constructed model setting |
-| `ticker`       | `Ticker`        | Pixi Ticker reference              |
+| `ticker`       | `Ticker`        | Deprecated; compatibility only              |
 | `draggable`    | `boolean`       | Enable dragging. Default `false`   |
 
 - At least one of `modelPath` or `modelSetting` is required.
@@ -68,7 +70,7 @@ interface Live2DSpriteInit {
 | -------------- | ----------------------- | ----------------------------------------------------------------- |
 | `modelPath`    | `string \| null`        | Model path                                                        |
 | `modelSetting` | `CubismSetting \| null` | Model setting object                                              |
-| `ticker`       | `Ticker \| null`        | Ticker reference                                                  |
+| `ticker`       | `Ticker \| null`        | Deprecated; compatibility only                                                  |
 | `renderer`     | `Renderer`              | Pixi renderer, available after first render                       |
 | `draggable`    | `boolean`               | Whether dragging is enabled                                       |
 | `width`        | `number`                | Logical model width (read/write)                                  |
@@ -89,9 +91,15 @@ sprite.ready: Promise<void>
 
 A stable `Promise` that resolves once the sprite becomes ready. The **same Promise instance** is returned on every access, so awaiting it multiple times does not attach extra listeners.
 
+Initialization failures, including unsupported Core/context or unavailable declared resources, reject this Promise. Destruction before readiness also rejects it; initialization does not retry every frame. With `autoStart: false`, call `app.render()` after adding the sprite and before awaiting readiness. Synchronous ready listener errors are logged without releasing the model; async listener rejections must be handled inside the listener.
+
 ```ts
-await sprite.ready
-sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+try {
+  await sprite.ready
+  await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+} catch (error) {
+  console.error('Model initialization or motion loading failed', error)
+}
 ```
 
 ### Events
@@ -129,7 +137,7 @@ interface MotionParams {
 }
 ```
 
-Plays a specific motion by group and index. Calls before `ready` are automatically queued.
+Plays a specific motion by group and index. Calls before `ready` are queued, but their returned Promise does not wait for actual playback. Await `sprite.ready` first when you need the real handle or loading errors. Each playback uses only the callbacks supplied for that call. Dynamic resource failures reject and release the reserved priority so later motions can start.
 
 #### startRandomMotion
 
@@ -281,13 +289,17 @@ interface VoiceParams {
 - `immediate`: Default `true`. Stops current voice before playing the new one.
 - Lip sync requires `LipSync` parameter mapping in the model.
 
+Playback and lip sync share one download/decode. `playVoice()` completes the playback-start request, not the entire audio; before readiness it only queues the request. Load/decode failures are logged and playback is skipped. The latest pending voice request supersedes an older pending request.
+
+Voice resources belong to each sprite. Stopping or destroying one sprite does not interrupt another. Destroying a sprite cancels pending audio loads. `immediate: false` preserves voices already playing on the same sprite.
+
 #### stopVoice
 
 ```ts
 sprite.stopVoice(): void
 ```
 
-Stops current voice playback.
+Stops all voices owned by this sprite and cancels its pending voice load/decode result. Other sprites are unaffected.
 
 ### Size and Lifecycle
 
@@ -329,7 +341,7 @@ Manually triggers view recalculation. Usually not needed — the internal `Resiz
 sprite.destroy(options?: DestroyOptions): void
 ```
 
-Cleans up all resources: pointer events, ResizeObserver, WebGL textures, Live2D context, Cubism lifecycle.
+Releases this sprite's listeners, model, motions, expressions, textures, VAO, and voice resources. Repeated calls are safe. Destruction during loading cancels requests and rejects unresolved readiness; an already resolved `ready` stays resolved. Shared Framework resources are released only after the last active/loading sprite finishes. Pixi Application/canvas lifecycle remains the host's responsibility.
 
 ---
 

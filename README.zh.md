@@ -10,7 +10,7 @@
 让你的 Live2D 和操控 pixi sprite 一样简单！
 
   <div align="center">
-      <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
+      <img src="https://img.shields.io/badge/node-%5E18.0.0%20%7C%7C%20%3E%3D20.0.0-brightgreen" alt="Node.js">
       <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
   </div>
 </div>
@@ -37,6 +37,26 @@
 - `Priority` — 动作优先级枚举
 - `LogLevel` — Cubism 日志级别枚举
 
+## 版本与 Cubism 兼容性
+
+**本分支的 R5 改动（计划版本 `easy-live2d@1.0.0-uat.0`）仅支持配套使用 Cubism 5 SDK for Web R5 的 Core 和 Framework，运行环境必须支持 WebGL 2。** 升级时请同步替换页面加载的 `live2dcubismcore.js` 并更新缓存版本，不能只升级 npm 包后继续使用旧 Core。
+
+如果项目需要继续使用旧版 Cubism SDK / Core，请将 easy-live2d 回退并固定到 **`0.4.4`**，同时保留或恢复该项目原先配套、已验证可用的 Core：
+
+```bash
+pnpm add --save-exact easy-live2d@0.4.4
+# 或
+npm install --save-exact easy-live2d@0.4.4
+# 或
+yarn add --exact easy-live2d@0.4.4
+```
+
+`0.4.4` 是本次 R5 升级前的版本，不代表支持所有历史 Cubism SDK / Core 的任意组合。不要混用新版 Framework 与旧版 Core。
+
+这里的版本要求针对 **SDK / Core**。已有旧 `.moc3` 模型通常可以继续由 R5 加载，无需仅因模型导出版本较旧而回退 easy-live2d；升级后仍需验证模型表现。
+
+本地包版本号仍是 `0.4.4`，本轮尚未执行发布；本文描述待发布的 R5 实现。版本记录见 [更新日志](docs/changelog.md)，升级步骤见 [R5 迁移说明](docs/guide/cubism-r5-migration.md)。不指定版本的 npm 安装命令获取的是已发布包，可能与本分支不同；验证当前代码请使用下方本地开发流程。
+
 ## 安装
 
 ```bash
@@ -49,8 +69,8 @@ yarn add easy-live2d pixi.js
 
 ## 前置条件
 
-1. 在页面入口引入官方 `live2dcubismcore.js`（[Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)）
-2. 浏览器环境（不支持 SSR）
+1. 在页面入口引入 **Cubism 5 SDK for Web R5** 的 `live2dcubismcore.js`（[Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)）
+2. 支持 WebGL 2 的浏览器环境（不支持 SSR）
 3. 可访问的 Live2D `model3.json` 模型文件
 
 ```html
@@ -84,7 +104,7 @@ yarn add easy-live2d pixi.js
     <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js'
+      import { Application } from 'pixi.js'
       import { Config, Live2DSprite, Priority } from 'easy-live2d'
 
       Config.MotionGroupIdle = 'Idle'
@@ -102,28 +122,29 @@ yarn add easy-live2d pixi.js
 
       const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared,
       })
 
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
 
-      // 方式一：事件回调（既有 API）
-      sprite.onLive2D('ready', async () => {
-        await sprite.startMotion({
-          group: 'TapBody',
-          no: 0,
-          priority: Priority.Normal,
-        })
-      })
-
-      // 方式二：async/await（新 API）
-      // await sprite.ready
-      // await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+      try {
+        await sprite.ready
+        await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+      } catch (error) {
+        console.error('模型初始化或动作加载失败', error)
+      }
     </script>
   </body>
 </html>
 ```
+
+## 运行行为
+
+- Pixi 默认优先使用 WebGL 2，无需额外填写渲染选项或 `ticker`；`ticker` 仅保留接口兼容。
+- 使用 `await sprite.ready` 处理初始化失败。已声明资源加载失败时尽可能提供 URL、HTTP 状态，失败后不会每帧重试。
+- 同步 `ready` 回调抛错只记录回调错误，不会释放模型；异步回调中的错误仍需自行捕获。
+- 语音归每个精灵独立持有，停止或销毁会取消待完成语音操作，不打断其他模型；播放和口型共用一次下载、解码。
+- 首帧时间间隔为 0，长时间暂停后单次最多推进 100ms；所属页面卸载时应销毁精灵。
 
 ## 功能一览
 
@@ -221,23 +242,27 @@ git clone --recursive https://github.com/Panzer-Jack/easy-live2d.git
 如果已经克隆但没有带 `--recursive`，手动初始化子模块：
 
 ```bash
+git submodule sync
 git submodule update --init --recursive
 ```
 
 这会拉取 `packages/cubism/Framework`（Cubism Web Framework）。
 
-2. 前往 [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) 下载 SDK
-3. 将 SDK 中 `Core/` 目录下的以下文件复制到 `packages/cubism/Core/`：
-   - `live2dcubismcore.js`
-   - `live2dcubismcore.js.map`
-   - `live2dcubismcore.min.js`
-   - `live2dcubismcore.d.ts`
-   - `LICENSE.md`
-   - `CHANGELOG.md`
+2. 安装固定版本 **Cubism 5 SDK for Web R5** 的 Core 和模型资源：
 
-> 由于 Live2D 许可证限制，这些文件未包含在仓库中。
+```bash
+pnpm install --frozen-lockfile
+pnpm setup:cubism
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:browser
+```
+
+已有官方压缩包可使用 `pnpm setup:cubism /path/CubismSdkForWeb-5-r.5.zip`。Core 和模型资源继续由 Git 忽略；着色器已随库内置。运行环境必须支持 WebGL 2。详见 [R5 迁移说明](docs/guide/cubism-r5-migration.md)。
+
+浏览器验证：**25 项测试通过**，覆盖四种模型及运行边界。详见 [验证报告](docs/reports/cubism-r5-validation.md) 中的环境和覆盖限制。
 
 ## 许可证
 
-- 仓库代码：`MPL-2.0`
-- Live2D Cubism Core 与模型资源遵循各自官方许可
+- 项目自身代码：[MIT](LICENSE)
+- Live2D Cubism Core、Framework 与模型资源遵循各自官方许可

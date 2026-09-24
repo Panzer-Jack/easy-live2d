@@ -25,6 +25,7 @@ export default defineConfig({
         nav: [
           { text: '指南', link: '/guide/' },
           { text: 'API', link: '/api/' },
+          { text: '更新日志', link: '/changelog' },
           { text: 'GitHub', link: 'https://github.com/Panzer-Jack/easy-live2d' },
           { text: '在线演示', link: 'https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground?file=src/App.vue' },
         ],
@@ -35,8 +36,10 @@ export default defineConfig({
               items: [
                 { text: '项目概览', link: '/guide/' },
                 { text: '安装配置', link: '/guide/installation' },
+                { text: 'Cubism R5 升级', link: '/guide/cubism-r5-migration' },
                 { text: '快速开始', link: '/guide/getting-started' },
                 { text: '基本用法', link: '/guide/basic-usage' },
+                { text: '更新日志', link: '/changelog' },
               ],
             },
           ],
@@ -59,6 +62,7 @@ export default defineConfig({
         nav: [
           { text: 'Guide', link: '/en/guide/' },
           { text: 'API', link: '/en/api/' },
+          { text: 'Changelog', link: '/en/changelog' },
           { text: 'GitHub', link: 'https://github.com/Panzer-Jack/easy-live2d' },
           { text: 'Live Demo', link: 'https://stackblitz.com/~/github.com/Panzer-Jack/easy-live2d-playground?file=src/App.vue' },
         ],
@@ -69,8 +73,10 @@ export default defineConfig({
               items: [
                 { text: 'Overview', link: '/en/guide/' },
                 { text: 'Installation', link: '/en/guide/installation' },
+                { text: 'Cubism R5 Migration', link: '/en/guide/cubism-r5-migration' },
                 { text: 'Getting Started', link: '/en/guide/getting-started' },
                 { text: 'Basic Usage', link: '/en/guide/basic-usage' },
+                { text: 'Changelog', link: '/en/changelog' },
               ],
             },
           ],
@@ -93,7 +99,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/Panzer-Jack/easy-live2d' },
     ],
     footer: {
-      message: 'Released under MPL-2.0',
+      message: `Released under the <a href="https://github.com/Panzer-Jack/easy-live2d/blob/main/LICENSE">${pkg.license} License</a>`,
       copyright: `Copyright © ${new Date().getFullYear()} Panzer_Jack`,
     },
     search: {

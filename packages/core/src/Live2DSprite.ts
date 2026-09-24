@@ -16,19 +16,15 @@ import type {
   VoiceParams,
 } from './core/types'
 import type { CubismSetting } from './utils/cubismSetting'
-import {
-  CubismFramework,
-  Option,
-} from '@Framework/live2dcubismframework'
 import { InvalidMotionQueueEntryHandleValue } from '@Framework/motion/cubismmotionqueuemanager'
 import { Sprite } from 'pixi.js'
+import { acquireCubism, releaseCubism } from './core/initializeCubism'
 import { Live2DContext } from './core/Live2DContext'
 import { PointerHandler } from './interaction/PointerHandler'
 import { ModelLoader } from './loader/ModelLoader'
 import { TextureLoader } from './loader/TextureLoader'
 import { Live2DModel } from './model/Live2DModel'
 import { ModelRenderer } from './rendering/ModelRenderer'
-import { Config } from './utils/config'
 
 /**
  * Easy Live2D 核心门面类
@@ -44,6 +40,9 @@ export class Live2DSprite extends Sprite {
   private _cubismInitialized = false
   private _renderInitialized = false
   private _renderInitializing = false
+  private _renderFailed = false
+  private _disposed = false
+  private _loadAbort = new AbortController()
   private _requestedWidth: number | null = null
   private _requestedHeight: number | null = null
   private _currentViewport: Viewport | null = null
@@ -52,6 +51,7 @@ export class Live2DSprite extends Sprite {
   public renderer!: Renderer
   public modelPath: string | null = null
   public modelSetting: CubismSetting | null = null
+  /** @deprecated 保留用于兼容；模型更新跟随 Pixi 渲染，无需传入 ticker。 */
   public ticker: Ticker | null = null
 
   private _preQueue = new Set<() => unknown>()
@@ -60,6 +60,7 @@ export class Live2DSprite extends Sprite {
   private _readyPromise!: Promise<void>
   /** Resolver captured from the _readyPromise constructor; cleared after resolving. */
   private _readyResolve: (() => void) | null = null
+  private _readyReject: ((reason: unknown) => void) | null = null
 
   override get width(): number {
     return Math.abs(this.scale.x) * this.getLocalModelWidth()
@@ -110,9 +111,12 @@ export class Live2DSprite extends Sprite {
     this._ctx = new Live2DContext()
     this.renderable = false
     // Create the stable ready promise and capture its resolver.
-    this._readyPromise = new Promise<void>((resolve) => {
+    this._readyPromise = new Promise<void>((resolve, reject) => {
       this._readyResolve = resolve
+      this._readyReject = reject
     })
+    // 仅通过 ready 事件使用的调用方也不会产生未处理的 Promise rejection。
+    void this._readyPromise.catch(() => {})
 
     if (initConfig)
       this.init(initConfig)
@@ -308,21 +312,43 @@ export class Live2DSprite extends Sprite {
   }
 
   destroy(options?: DestroyOptions): void {
+    if (this._disposed)
+      return
+    this._disposed = true
+    this._loadAbort.abort()
+    this._readyReject?.(new Error('Live2DSprite was destroyed before it became ready.'))
+    this._readyResolve = null
+    this._readyReject = null
+    // 正在加载的模型由 renderFrame 的 finally 释放，避免异步回调使用已释放的 Core。
+    if (!this._renderInitializing)
+      this.releaseResources()
+    super.destroy(options)
+  }
+
+  private releaseResources(): void {
     this._pointerHandler?.detach()
+    this._pointerHandler = null
     this._resizeObserver?.disconnect()
-    this._textureLoader?.release()
+    this._resizeObserver = null
+    this._preQueue.clear()
+    this._model?.release()
     this._model = null
+    this._textureLoader?.release()
+    this._textureLoader = null
+    this._modelRenderer?.release()
+    this._modelRenderer = null
     this._ctx.dispose()
     if (this._cubismInitialized) {
-      CubismFramework.dispose()
+      releaseCubism()
       this._cubismInitialized = false
     }
-    super.destroy(options)
   }
 
   // --- 内部方法 ---
 
   private async renderFrame(renderer: Renderer): Promise<void> {
+    if (this._renderFailed || this._disposed)
+      return
     this.renderer = renderer
     if (!this._renderInitialized) {
       if (this._renderInitializing)
@@ -332,36 +358,58 @@ export class Live2DSprite extends Sprite {
       try {
         this.initCubism()
         await this.initModel()
+        if (this._disposed)
+          return
         this.initInteraction()
         this.flushPreQueue()
-        this._ctx.eventBus.emit('ready')
         // Resolve the stable ready Promise exactly once; clear the resolver to free memory.
         // Single-resolution is intentional: a sprite instance initializes at most once.
         this._readyResolve?.()
         this._readyResolve = null
+        this._readyReject = null
         this._renderInitialized = true
+      } catch (error) {
+        this._renderFailed = true
+        this._loadAbort.abort()
+        this._readyReject?.(error)
+        this._readyResolve = null
+        this._readyReject = null
+        if (!this._disposed)
+          console.error('[easy-live2d] Initialization failed:', error)
       } finally {
         this._renderInitializing = false
+        if (this._disposed || this._renderFailed)
+          this.releaseResources()
+      }
+
+      // 用户回调的异常不属于初始化失败，也不能触发资源释放。
+      if (!this._disposed && !this._renderFailed) {
+        try {
+          this._ctx.eventBus.emit('ready')
+        } catch (error) {
+          console.error('[easy-live2d] ready listener failed:', error)
+        }
       }
     }
+
+    if (this._disposed || this._renderFailed)
+      return
 
     const viewport = this.syncViewport()
     this.update(viewport)
   }
 
   private initCubism(): void {
-    const option = new Option()
-    option.logFunction = Config.DebugLogEnable ? console.log : () => {}
-    option.loggingLevel = Config.CubismLoggingLevel
-    CubismFramework.startUp(option)
-    CubismFramework.initialize()
+    acquireCubism()
     this._cubismInitialized = true
   }
 
   private async initModel(): Promise<void> {
     const canvas = this.renderer.canvas as HTMLCanvasElement
     const rendererGl = 'gl' in this.renderer ? this.renderer.gl : null
-    this._ctx.initialize(canvas, this.getCanvasViewport(), rendererGl)
+    if (!this._ctx.initialize(canvas, this.getCanvasViewport(), rendererGl)) {
+      throw new Error('Cubism R5 requires a Pixi WebGL 2 renderer. WebGL 1 and WebGPU are not supported.')
+    }
 
     this._model = new Live2DModel(this._ctx.eventBus)
     this._textureLoader = new TextureLoader(this._ctx.webgl)
@@ -374,7 +422,9 @@ export class Live2DSprite extends Sprite {
     if (!assets) {
       throw new Error('modelPath or modelSetting is required before rendering')
     }
-    await loader.load(assets, this._model, this._textureLoader, this._ctx.webgl.getGl())
+    await loader.load(assets, this._model, this._textureLoader, this._ctx.webgl.getGl(), this._loadAbort.signal)
+    if (this._disposed)
+      return
     this.applyRequestedSize()
     this.onViewUpdate()
 
@@ -406,7 +456,16 @@ export class Live2DSprite extends Sprite {
   private update(viewport: Viewport | null): void {
     if (!this._model?.isReady || !this._modelRenderer || !viewport)
       return
-    this._modelRenderer.render(this._model, viewport, this._ctx.timeManager)
+    try {
+      this._modelRenderer.render(this._model, viewport, this._ctx.timeManager)
+    } finally {
+      // 通知 Pixi 重新绑定缓存的 GL 状态，避免后续精灵沿用 Cubism 修改过的绑定。
+      if ('gl' in this.renderer) {
+        this.renderer.texture.resetState()
+        this.renderer.geometry.resetState()
+        this.renderer.shader.resetState()
+      }
+    }
   }
 
   private getCanvasViewport(): Viewport {

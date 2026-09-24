@@ -38,3 +38,7 @@ selenium-debug.log
 # 忽略 npm 锁文件，但保留 pnpm 锁文件
 package-lock.json
 # pnpm-lock.yaml - 不忽略此文件
+
+# Browser regression artifacts.
+/test-results/
+/playwright-report/

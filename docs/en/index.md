@@ -34,6 +34,6 @@ features:
     details: Model loading, hit detection, dragging, motion playback, expression switching, voice playback, and lip sync out of the box.
   - icon: 📌
     title: Clear Runtime Requirements
-    details: Browser environment + Pixi.js + WebGL + official live2dcubismcore.js. Built for CSR scenarios.
+    details: Browser environment + Pixi.js + WebGL 2 + Cubism R5 Core. Built for CSR scenarios.
 
 ---

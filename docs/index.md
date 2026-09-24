@@ -34,6 +34,6 @@ features:
     details: 模型加载、命中检测、拖拽、动作播放、表情切换、语音播放与口型同步，开箱即用。
   - icon: 📌
     title: 运行要求明确
-    details: 浏览器环境 + Pixi.js + WebGL + 官方 live2dcubismcore.js，适合 CSR 场景。
+    details: 浏览器环境 + Pixi.js + WebGL 2 + Cubism R5 Core，适合 CSR 场景。
 
 ---

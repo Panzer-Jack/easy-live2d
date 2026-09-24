@@ -1,7 +1,7 @@
 {
   "name": "easy-live2d",
   "type": "module",
-  "version": "0.4.4",
+  "version": "1.0.0-uat.0",
   "packageManager": "pnpm@10.12.4",
   "description": "基于 Pixi.js 封装的 轻量级 Live2D Web SDK",
   "author": {
@@ -9,7 +9,7 @@
     "email": "panzer_jack@panzer-jack.cn",
     "url": "https://www.panzer-jack.cn"
   },
-  "license": "MPL-2.0",
+  "license": "MIT",
   "homepage": "https://panzer-jack.github.io/easy-live2d/",
   "repository": "https://github.com/Panzer-Jack/easy-live2d",
   "keywords": [
@@ -46,18 +46,21 @@
     "publish": "npm publish",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "release": "release-it"
+    "release": "release-it",
+    "setup:cubism": "node scripts/setup-cubism.mjs",
+    "test:browser": "pnpm build && playwright test"
   },
   "dependencies": {
-    "@pixi/sound": "^6.0.1",
-    "eslint-plugin-format": "^2.0.1"
+    "@pixi/sound": "^6.0.1"
   },
   "devDependencies": {
     "@easy-live2d/core": "workspace:*",
     "@esbuild-plugins/tsconfig-paths": "^0.1.0",
     "@panzerjack/eslint-config": "catalog:dev",
+    "@playwright/test": "^1.63.0",
     "@types/node": "catalog:dev",
     "eslint": "^9.25.1",
+    "eslint-plugin-format": "^2.0.1",
     "jiti": "catalog:dev",
     "release-it": "^19.0.3",
     "tsup": "catalog:dev",

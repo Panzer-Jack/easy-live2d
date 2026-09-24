@@ -19,9 +19,9 @@ Using the official Cubism Web SDK directly means handling resource organization,
 ## Usage Model
 
 1. You create the Pixi `Application` and `canvas`.
-2. You load the official `live2dcubismcore.js` script in your entry HTML.
+2. You load `live2dcubismcore.js` from Cubism 5 SDK for Web R5 in your entry HTML.
 3. You create `Live2DSprite` with either `modelPath` or `modelSetting`.
-4. You add it to `app.stage` and listen for `onLive2D('ready')` to know when the model is usable.
+4. You add it to `app.stage` and await `sprite.ready` inside `try/catch` to handle readiness or loading failure.
 
 It behaves as a Live2D component hosted by Pixi, not a framework that owns the entire render lifecycle.
 
@@ -33,15 +33,17 @@ It behaves as a Live2D component hosted by Pixi, not a framework that owns the e
 
 ## Runtime Requirements
 
+These branch docs describe the pending R5 implementation. Read the [R5 migration guide](/en/guide/cubism-r5-migration) before upgrading an existing project.
+
 - Browser environment (depends on `document`, `fetch`, `Image`, `ResizeObserver`, `AudioContext`).
-- Pixi.js + WebGL.
-- Official Live2D Core script.
+- Pixi.js + WebGL 2.
+- Official Cubism 5 SDK for Web R5 Core script.
 
 Not intended for SSR. Initialize on the client side.
 
 ## Licensing
 
-- This repository is licensed under `MPL-2.0`.
+- Project code is licensed under [MIT](https://github.com/Panzer-Jack/easy-live2d/blob/main/LICENSE).
 - Live2D Cubism Core and model assets follow their own official licensing and distribution requirements.
 
 Next: [Installation](/en/guide/installation) → [Getting Started](/en/guide/getting-started).

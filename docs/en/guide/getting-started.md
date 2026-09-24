@@ -8,6 +8,8 @@
 
 ## Minimal Example
 
+Use Core from **Cubism 5 SDK for Web R5** and a browser with WebGL 2. Pixi selects WebGL 2 by default; no `ticker` argument is needed. The bare package imports in these examples assume a bundler such as Vite.
+
 ```html
 <!doctype html>
 <html>
@@ -33,7 +35,7 @@
     <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js'
+      import { Application } from 'pixi.js'
       import { Config, Live2DSprite, Priority } from 'easy-live2d'
 
       // Global config (set before creating instances)
@@ -52,22 +54,17 @@
 
       const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared,
       })
 
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
 
-      // Play a motion after the model is ready
-      sprite.onLive2D('ready', async () => {
-        console.log('model ready')
-
-        await sprite.startMotion({
-          group: 'TapBody',
-          no: 0,
-          priority: Priority.Normal,
-        })
-      })
+      try {
+        await sprite.ready
+        await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+      } catch (error) {
+        console.error('Model initialization or motion loading failed', error)
+      }
     </script>
   </body>
 </html>
@@ -86,7 +83,7 @@
 ```vue
 <script setup lang="ts">
 import { Config, Live2DSprite } from 'easy-live2d'
-import { Application, Ticker } from 'pixi.js'
+import { Application } from 'pixi.js'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -97,7 +94,6 @@ Config.MouseFollow = false
 
 const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
   draggable: true,
 })
 
@@ -115,9 +111,12 @@ onMounted(async () => {
   sprite.width = canvasRef.value.clientWidth
   app.stage.addChild(sprite)
 
-  sprite.onLive2D('ready', () => {
+  try {
+    await sprite.ready
     console.log('model ready')
-  })
+  } catch (error) {
+    console.error('Model loading failed or was cancelled', error)
+  }
 })
 
 onUnmounted(() => {

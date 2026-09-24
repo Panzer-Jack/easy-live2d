@@ -1,5 +1,6 @@
 import type { ICubismModelSetting } from '@Framework/icubismmodelsetting'
 import type { CubismIdHandle } from '@Framework/id/cubismid'
+import type { CubismModel } from '@Framework/model/cubismmodel'
 import { CubismDefaultParameterId } from '@Framework/cubismdefaultparameterid'
 import {
   BreathParameterData,
@@ -7,8 +8,7 @@ import {
 } from '@Framework/effect/cubismbreath'
 import { CubismEyeBlink } from '@Framework/effect/cubismeyeblink'
 import { CubismFramework } from '@Framework/live2dcubismframework'
-import { csmVector as CsmVector } from '@Framework/type/csmvector'
-import { sound } from '@pixi/sound'
+import { Sound } from '@pixi/sound'
 import { SoundLoader } from '../loader/SoundLoader'
 
 /**
@@ -18,9 +18,12 @@ import { SoundLoader } from '../loader/SoundLoader'
 export class EffectController {
   private _eyeBlink: CubismEyeBlink | null = null
   private _breath: CubismBreath | null = null
-  private _eyeBlinkIds = new CsmVector<CubismIdHandle>()
-  private _lipSyncIds = new CsmVector<CubismIdHandle>()
+  private _eyeBlinkIds: CubismIdHandle[] = []
+  private _lipSyncIds: CubismIdHandle[] = []
   private _soundLoader = new SoundLoader()
+  private _voices = new Set<Sound>()
+  private _voiceVersion = 0
+  private _disposed = false
 
   // 拖拽相关参数 ID
   private _idParamAngleX: CubismIdHandle
@@ -30,16 +33,12 @@ export class EffectController {
   private _idParamEyeBallY: CubismIdHandle
   private _idParamBodyAngleX: CubismIdHandle
 
-  get eyeBlinkIds(): CsmVector<CubismIdHandle> {
+  get eyeBlinkIds(): CubismIdHandle[] {
     return this._eyeBlinkIds
   }
 
-  get lipSyncIds(): CsmVector<CubismIdHandle> {
+  get lipSyncIds(): CubismIdHandle[] {
     return this._lipSyncIds
-  }
-
-  get soundLoader(): SoundLoader {
-    return this._soundLoader
   }
 
   constructor() {
@@ -57,30 +56,30 @@ export class EffectController {
       this._eyeBlink = CubismEyeBlink.create(setting)
     }
     for (let i = 0; i < setting.getEyeBlinkParameterCount(); i++) {
-      this._eyeBlinkIds.pushBack(setting.getEyeBlinkParameterId(i))
+      this._eyeBlinkIds.push(setting.getEyeBlinkParameterId(i))
     }
   }
 
   setupBreath(): void {
     this._breath = CubismBreath.create()
-    const params: CsmVector<BreathParameterData> = new CsmVector()
+    const params: BreathParameterData[] = []
     const idMgr = CubismFramework.getIdManager()
-    params.pushBack(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamAngleX), 0.0, 15.0, 6.5345, 0.5))
-    params.pushBack(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamAngleY), 0.0, 8.0, 3.5345, 0.5))
-    params.pushBack(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamAngleZ), 0.0, 10.0, 5.5345, 0.5))
-    params.pushBack(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamBodyAngleX), 0.0, 4.0, 15.5345, 0.5))
-    params.pushBack(new BreathParameterData(CubismFramework.getIdManager().getId(CubismDefaultParameterId.ParamBreath), 0.5, 0.5, 3.2345, 0.5))
+    params.push(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamAngleX), 0.0, 15.0, 6.5345, 0.5))
+    params.push(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamAngleY), 0.0, 8.0, 3.5345, 0.5))
+    params.push(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamAngleZ), 0.0, 10.0, 5.5345, 0.5))
+    params.push(new BreathParameterData(idMgr.getId(CubismDefaultParameterId.ParamBodyAngleX), 0.0, 4.0, 15.5345, 0.5))
+    params.push(new BreathParameterData(CubismFramework.getIdManager().getId(CubismDefaultParameterId.ParamBreath), 0.5, 0.5, 3.2345, 0.5))
     this._breath.setParameters(params)
   }
 
   setupLipSyncIds(setting: ICubismModelSetting): void {
     for (let i = 0; i < setting.getLipSyncParameterCount(); i++) {
-      this._lipSyncIds.pushBack(setting.getLipSyncParameterId(i))
+      this._lipSyncIds.push(setting.getLipSyncParameterId(i))
     }
   }
 
   updateEffects(
-    model: any,
+    model: CubismModel,
     deltaTime: number,
     motionUpdated: boolean,
     dragX: number,
@@ -109,27 +108,52 @@ export class EffectController {
     if (lipsync) {
       this._soundLoader.update(deltaTime)
       const value = this._soundLoader.getRms()
-      for (let i = 0; i < this._lipSyncIds.getSize(); i++) {
-        model.addParameterValueById(this._lipSyncIds.at(i), value, 3)
+      for (let i = 0; i < this._lipSyncIds.length; i++) {
+        model.addParameterValueById(this._lipSyncIds[i], value, 3)
       }
     }
   }
 
   async playVoice(voicePath: string, immediate: boolean): Promise<void> {
-    if (!voicePath)
+    if (!voicePath || this._disposed)
       return
     if (immediate)
       this.stopVoice()
-    sound.add('voice', voicePath)
-    await this._soundLoader.start(voicePath)
-    await sound.play('voice')
+    const version = ++this._voiceVersion
+    const buffer = await this._soundLoader.start(voicePath)
+    if (!buffer || this._disposed || version !== this._voiceVersion)
+      return
+
+    // 播放和口型共用一次下载、解码的结果，不注册全局音频别名。
+    const voice = Sound.from({ source: buffer, preload: true })
+    this._voices.add(voice)
+    try {
+      await voice.play({
+        complete: () => {
+          // 等待 Sound 自己完成实例清理后，再销毁音频资源。
+          queueMicrotask(() => this.releaseVoice(voice))
+        },
+      })
+    } catch (error) {
+      this.releaseVoice(voice)
+      throw error
+    }
   }
 
   stopVoice(): void {
-    if (sound.exists('voice')) {
-      sound.stop('voice')
-      sound.remove('voice')
-    }
+    this._voiceVersion++
     this._soundLoader.releasePcmData()
+    for (const voice of this._voices)
+      this.releaseVoice(voice)
+  }
+
+  dispose(): void {
+    this._disposed = true
+    this.stopVoice()
+  }
+
+  private releaseVoice(voice: Sound): void {
+    if (this._voices.delete(voice))
+      voice.destroy()
   }
 }

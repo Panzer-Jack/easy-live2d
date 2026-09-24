@@ -6,11 +6,9 @@
 
 ```ts
 import { Live2DSprite } from 'easy-live2d'
-import { Ticker } from 'pixi.js'
 
 const sprite = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
 })
 ```
 
@@ -21,7 +19,6 @@ const sprite = new Live2DSprite()
 
 sprite.init({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
   draggable: true,
 })
 ```
@@ -30,7 +27,6 @@ sprite.init({
 
 ```ts
 import { CubismSetting, Live2DSprite } from 'easy-live2d'
-import { Ticker } from 'pixi.js'
 
 const modelJSON = await fetch('/Resources/Hiyori/Hiyori.model3.json').then(r => r.json())
 
@@ -46,7 +42,6 @@ modelSetting.redirectPath(({ file }) => {
 
 const sprite = new Live2DSprite({
   modelSetting,
-  ticker: Ticker.shared,
 })
 ```
 
@@ -82,6 +77,8 @@ sprite.scale.set(0.8)
 
 ## Wait for Model Ready
 
+Pixi defaults to WebGL 2; no extra renderer options or `ticker` are needed. Updates follow Pixi renders, with a zero first time step and a maximum 100ms step after long pauses.
+
 The `ready` event fires after internal initialization completes:
 
 ```ts
@@ -96,6 +93,23 @@ Operations that depend on model state — getting the original canvas size, play
 ::: tip
 Calling `startMotion()`, `setExpression()`, `playVoice()`, etc. before `ready` is safe — requests are automatically queued and executed after initialization.
 :::
+
+### Handle Loading Failures
+
+To handle loading failures as well as readiness, await the stable Promise after adding the sprite to the stage:
+
+```ts
+import { Priority } from 'easy-live2d'
+
+try {
+  await sprite.ready
+  await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+} catch (error) {
+  console.error('Model initialization or motion loading failed', error)
+}
+```
+
+Failed initialization does not retry every frame. With `autoStart: false`, call `app.render()` before awaiting readiness. Calls queued before readiness do not wait for actual playback. Synchronous ready listener errors are logged without destroying a loaded model; async listener errors must be handled inside the listener.
 
 ## Hit Areas
 
@@ -207,6 +221,8 @@ sprite.stopVoice()
 - Voice decoding uses Web Audio `decodeAudioData` — supports any browser-decodable audio format (wav, mp3, ogg, etc.).
 - Lip sync requires `LipSync` parameter mapping in the model.
 
+Voice resources are isolated per sprite. Stop/destroy cancels pending voice work without interrupting other sprites; `immediate: false` keeps voices already playing on this sprite. Playback and lip sync share one download/decode. See the [voice API](/en/api/#playvoice) for completion and failure behavior.
+
 ## Size Control
 
 ```ts
@@ -287,17 +303,17 @@ Cleans up pointer listeners, `ResizeObserver`, WebGL texture cache, Live2D conte
 
 ## Multiple Instances
 
+Repeated destruction is safe. Destruction during loading rejects pending readiness and cancels requests; shared Framework resources remain available until the last active/loading sprite is released. Destroy the host Pixi Application separately when your application no longer needs it.
+
 Each `Live2DSprite` holds its own context and event bus, supporting multiple instances in the same Pixi scene:
 
 ```ts
 const spriteA = new Live2DSprite({
   modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-  ticker: Ticker.shared,
 })
 
 const spriteB = new Live2DSprite({
   modelPath: '/Resources/Mark/Mark.model3.json',
-  ticker: Ticker.shared,
 })
 
 spriteA.width = 300

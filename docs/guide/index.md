@@ -19,9 +19,9 @@
 ## 使用模型
 
 1. 你创建 Pixi `Application` 和 `canvas`。
-2. 在页面入口引入官方 `live2dcubismcore.js`。
+2. 在页面入口引入 Cubism 5 SDK for Web R5 的 `live2dcubismcore.js`。
 3. 创建 `Live2DSprite`，传入 `modelPath` 或 `modelSetting`。
-4. 加入 `app.stage`，通过 `onLive2D('ready')` 监听模型就绪。
+4. 加入 `app.stage`，在 `try/catch` 中等待 `sprite.ready`，处理模型就绪或加载失败。
 
 它更像一个"以 Pixi 为宿主的 Live2D 组件"，而非接管整个渲染生命周期的独立框架。
 
@@ -33,15 +33,17 @@
 
 ## 运行前提
 
+本分支文档描述待发布的 R5 实现。升级现有项目请先阅读 [R5 迁移说明](/guide/cubism-r5-migration)。
+
 - 浏览器环境（依赖 `document`、`fetch`、`Image`、`ResizeObserver`、`AudioContext`）。
-- Pixi.js + WebGL。
-- Live2D 官方 Core 脚本。
+- Pixi.js + WebGL 2。
+- Cubism 5 SDK for Web R5 的官方 Core 脚本。
 
 不适合在 SSR 阶段执行，需在客户端生命周期中初始化。
 
 ## 许可说明
 
-- 本仓库代码许可证：`MPL-2.0`。
+- 项目自身代码许可证：[MIT](https://github.com/Panzer-Jack/easy-live2d/blob/main/LICENSE)。
 - Live2D Cubism Core 和模型资源遵循各自的官方许可与分发要求。
 
 下一步：[安装配置](/guide/installation) → [快速开始](/guide/getting-started)。

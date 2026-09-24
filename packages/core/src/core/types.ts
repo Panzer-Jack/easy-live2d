@@ -25,6 +25,7 @@ export interface Live2DSpriteEvents {
 export interface Live2DSpriteInit {
   modelPath?: string
   modelSetting?: CubismSetting
+  /** @deprecated 模型更新跟随 Pixi 渲染，此字段仅为接口兼容保留。 */
   ticker?: Ticker
   draggable?: boolean
 }

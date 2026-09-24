@@ -10,7 +10,7 @@ Making Live2D integration easier! A lightweight, developer-friendly Live2D Web S
 Make your Live2D as easy to control as a pixi sprite!
 
   <div align="center">
-      <img src="https://img.shields.io/badge/node-%5E22.0.0-brightgreen" alt="license">
+      <img src="https://img.shields.io/badge/node-%5E18.0.0%20%7C%7C%20%3E%3D20.0.0-brightgreen" alt="Node.js">
       <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license">
       <img src="https://api.oosmetrics.com/api/v1/badge/achievement/7756c2c0-a022-49fa-b32c-b3cc0916f1bf.svg" alt="oosmetrics">
   </div>
@@ -38,6 +38,26 @@ Public exports:
 - `Priority` — Motion priority enum
 - `LogLevel` — Cubism log level enum
 
+## Version and Cubism Compatibility
+
+**The R5 changes on this branch (planned for `easy-live2d@1.0.0-uat.0`) require the matching Core and Framework from Cubism 5 SDK for Web R5, and WebGL 2.** When upgrading, replace the `live2dcubismcore.js` loaded by your page and update its cache version. Upgrading only the npm package while keeping an older Core is not supported.
+
+If your project needs to keep an older Cubism SDK / Core, roll back and pin easy-live2d to **`0.4.4`**, and keep or restore the matching Core previously validated in your project:
+
+```bash
+pnpm add --save-exact easy-live2d@0.4.4
+# or
+npm install --save-exact easy-live2d@0.4.4
+# or
+yarn add --exact easy-live2d@0.4.4
+```
+
+`0.4.4` is the version before this R5 upgrade; it does not guarantee support for every historical SDK / Core combination. Do not mix the new Framework with an older Core.
+
+These requirements apply to the **SDK / Core**. Existing older `.moc3` models can generally still be loaded by R5. An older model export alone does not require downgrading easy-live2d; validate model behavior after upgrading.
+
+The local package version remains `0.4.4`; these R5 changes have not been published in this task. See the [changelog](docs/en/changelog.md) and [R5 migration guide](docs/en/guide/cubism-r5-migration.md). Unversioned npm installation commands install a published package, which may differ from this branch. Use the local development steps below to validate the current implementation.
+
 ## Installation
 
 ```bash
@@ -50,8 +70,8 @@ yarn add easy-live2d pixi.js
 
 ## Prerequisites
 
-1. Download and load the official `live2dcubismcore.js`（[Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)） in your entry HTML
-2. Browser environment (not SSR)
+1. Download and load `live2dcubismcore.js` from **Cubism 5 SDK for Web R5**（[Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/)） in your entry HTML
+2. A browser supporting WebGL 2 (not SSR)
 3. An accessible Live2D `model3.json`
 
 ```html
@@ -85,7 +105,7 @@ yarn add easy-live2d pixi.js
     <canvas id="live2d"></canvas>
     <script src="/Core/live2dcubismcore.js"></script>
     <script type="module">
-      import { Application, Ticker } from 'pixi.js'
+      import { Application } from 'pixi.js'
       import { Config, Live2DSprite, Priority } from 'easy-live2d'
 
       Config.MotionGroupIdle = 'Idle'
@@ -103,28 +123,29 @@ yarn add easy-live2d pixi.js
 
       const sprite = new Live2DSprite({
         modelPath: '/Resources/Hiyori/Hiyori.model3.json',
-        ticker: Ticker.shared,
       })
 
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
 
-      // Option 1: event callback (existing API)
-      sprite.onLive2D('ready', async () => {
-        await sprite.startMotion({
-          group: 'TapBody',
-          no: 0,
-          priority: Priority.Normal,
-        })
-      })
-
-      // Option 2: async/await (new API)
-      // await sprite.ready
-      // await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+      try {
+        await sprite.ready
+        await sprite.startMotion({ group: 'TapBody', no: 0, priority: Priority.Normal })
+      } catch (error) {
+        console.error('Model initialization or motion loading failed', error)
+      }
     </script>
   </body>
 </html>
 ```
+
+## Runtime Behavior
+
+- Pixi defaults to WebGL 2; no extra renderer options or `ticker` are needed. The `ticker` field remains only for API compatibility.
+- Use `await sprite.ready` to handle initialization failures. Declared resource failures include the URL and HTTP status where available; initialization does not retry every frame.
+- A synchronous `ready` listener error is logged without releasing the model. Handle errors inside asynchronous listeners yourself.
+- Each sprite owns its voice playback. Stopping or destroying it cancels pending voice operations without interrupting other models; playback and lip sync share one download and decode.
+- The first frame advances by zero seconds; a single update after a long pause is capped at 100 ms. Destroy sprites when their page or component is unmounted.
 
 ## Features at a Glance
 
@@ -222,20 +243,27 @@ git clone --recursive https://github.com/Panzer-Jack/easy-live2d.git
 If you've already cloned without `--recursive`, initialize the submodule manually:
 
 ```bash
+git submodule sync
 git submodule update --init --recursive
 ```
 
 This will pull `packages/cubism/Framework` (the Cubism Web Framework).
 
-2. Go to [Live2D Cubism SDK for Web](https://www.live2d.com/en/sdk/download/web/) and download the SDK
-3. Copy the following files from the SDK's `Core/` directory into `packages/cubism/Core/`:
-   - `live2dcubismcore.js`
-   - `live2dcubismcore.min.js`
-   - `live2dcubismcore.d.ts`
+2. Install the pinned **Cubism 5 SDK for Web R5** Core and sample resources:
 
-> These files are not included in the repository due to Live2D's license restrictions.
+```bash
+pnpm install --frozen-lockfile
+pnpm setup:cubism
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:browser
+```
+
+An existing official archive can be passed to `pnpm setup:cubism /path/CubismSdkForWeb-5-r.5.zip`. Core and model files remain git-ignored. WebGL 2 is required. R5 shaders are bundled automatically. See the [R5 migration guide](docs/en/guide/cubism-r5-migration.md).
+
+Browser validation: **25 tests passed**, covering four models and runtime edge cases. See the [validation report (Chinese)](docs/reports/cubism-r5-validation.md) for the environment and coverage limits.
 
 ## License
 
-- Repository code: `MPL-2.0`
-- Live2D Cubism Core and model assets follow their official licenses
+- Project code: [MIT](LICENSE)
+- Live2D Cubism Core, Framework, and model assets follow their respective official licenses

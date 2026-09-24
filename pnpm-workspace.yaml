@@ -18,10 +18,6 @@ catalog:
 catalogs:
   dep:
     # 核心运行时依赖
-    '@tweenjs/tween.js': ^25.0.0
-    dayjs: ^1.11.13
-    localforage: ^1.10.0
-    pixi-filters: ^6.1.0
     pixi.js: ^8.9.1
 
   dev:
