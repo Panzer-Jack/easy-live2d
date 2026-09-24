@@ -33,7 +33,7 @@ It behaves as a Live2D component hosted by Pixi, not a framework that owns the e
 
 ## Runtime Requirements
 
-These branch docs describe the pending R5 implementation. Read the [R5 migration guide](/en/guide/cubism-r5-migration) before upgrading an existing project.
+This guide covers the easy-live2d 1.0.0 API and R5 runtime. Read the [R5 migration guide](/en/guide/cubism-r5-migration) before upgrading an existing project.
 
 - Browser environment (depends on `document`, `fetch`, `Image`, `ResizeObserver`, `AudioContext`).
 - Pixi.js + WebGL 2.

@@ -31,6 +31,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
   },
@@ -42,8 +45,7 @@
     "dev:playground": "pnpm -C packages/playground dev",
     "build:core": "pnpm -C packages/core build",
     "build": "pnpm build:core && tsup",
-    "prepublishOnly": "pnpm build && pnpm release-it",
-    "publish": "npm publish",
+    "prepublishOnly": "pnpm build",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "release": "release-it",

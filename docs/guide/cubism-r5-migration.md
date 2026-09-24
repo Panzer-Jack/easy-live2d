@@ -1,6 +1,6 @@
 # Cubism R5 升级
 
-本分支使用官方 Cubism 5 SDK for Web R5（2026-04-02）。Framework 子模块固定在 `198a376`（官方 `5-r.5` 标签），Core、Framework 必须配套升级；不要继续使用旧版 Core，也不要依赖自动变化的 latest CDN 地址。改动尚未发布，计划版本为 `1.0.0-uat.0`，本地包版本号仍是 `0.4.4`。
+easy-live2d 1.0.0 使用官方 Cubism 5 SDK for Web R5（2026-04-02）。Framework 子模块固定在 `198a376`（官方 `5-r.5` 标签），Core、Framework 必须配套升级；不要继续使用旧版 Core，也不要依赖自动变化的 latest CDN 地址。
 
 ## 使用方
 

@@ -33,7 +33,7 @@
 
 ## 运行前提
 
-本分支文档描述待发布的 R5 实现。升级现有项目请先阅读 [R5 迁移说明](/guide/cubism-r5-migration)。
+本指南面向 easy-live2d 1.0.0 的 API 与 R5 运行环境。升级现有项目请先阅读 [R5 迁移说明](/guide/cubism-r5-migration)。
 
 - 浏览器环境（依赖 `document`、`fetch`、`Image`、`ResizeObserver`、`AudioContext`）。
 - Pixi.js + WebGL 2。

@@ -1,6 +1,6 @@
 # Cubism R5 Migration
 
-This branch uses **Cubism 5 SDK for Web R5** (2026-04-02). Framework is pinned to the official `5-r.5` tag, commit `198a376`. Core and Framework must be upgraded together. The changes are pending release, with `1.0.0-uat.0` as the planned version; the local package version remains `0.4.4`.
+easy-live2d 1.0.0 uses **Cubism 5 SDK for Web R5** (2026-04-02). Framework is pinned to the official `5-r.5` tag, commit `198a376`. Core and Framework must be upgraded together.
 
 ## Application Upgrade
 

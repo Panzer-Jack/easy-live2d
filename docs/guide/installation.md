@@ -2,7 +2,7 @@
 
 ## 安装
 
-本分支文档描述待发布的 R5 实现。不指定版本的 npm 命令获取已发布包，可能与当前分支不同；兼容性与本地验证流程见 [迁移说明](./cubism-r5-migration.md)。
+easy-live2d 1.0.0 使用 Pixi.js 8 与 Cubism 5 SDK for Web R5。已有项目升级前请阅读 [迁移说明](./cubism-r5-migration.md)。
 
 ::: code-group
 
@@ -78,6 +78,8 @@ const setting = new CubismSetting({
 
 ## 最小可运行页面
 
+以下 HTML 示例中的包名导入需要 Vite 等打包环境。
+
 ```html
 <!doctype html>
 <html>
@@ -122,6 +124,13 @@ const setting = new CubismSetting({
 
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
+      try {
+        await sprite.ready
+      } catch (error) {
+        console.error(error)
+        sprite.destroy()
+        app.destroy()
+      }
     </script>
   </body>
 </html>

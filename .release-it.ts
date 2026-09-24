@@ -6,6 +6,11 @@ export default {
     tagName: `v\${version}`,
   },
   npm: {
-    publish: false,
+    publish: true,
+  },
+  github: {
+    release: true,
+    releaseName: `v\${version}`,
+    autoGenerate: true,
   },
 } satisfies Config

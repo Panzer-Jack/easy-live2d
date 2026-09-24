@@ -2,9 +2,9 @@
 
 User-facing changes to easy-live2d, listed by version in descending order. Historical entries are reconstructed from repository tags and commits. Dates refer to the tagged commits, not necessarily npm publication dates.
 
-## Unreleased — planned 1.0.0-uat.0
+## 1.0.0
 
-Pending Cubism R5 upgrade and runtime fixes. The local package version is still `0.4.4`; this work has not performed a release.
+Cubism R5 upgrade and runtime fixes.
 
 ### Compatibility
 
@@ -35,6 +35,7 @@ Pending Cubism R5 upgrade and runtime fixes. The local package version is still 
 
 ### Simplified
 
+- Use `pnpm release` to manage versions, npm publishing, Git commits/tags/pushes, and GitHub Releases with generated release notes and automatic prerelease detection. Build in the prepublish hook, remove recursive publishing scripts, and target the public npm registry explicitly.
 - Reuse cached textures directly and remove redundant loading wrappers, unused model fields, duplicate JSON encoding, and unused runtime dependencies.
 - Deprecate the unused `ticker` field while preserving compatibility; remove it from examples. Pixi defaults to WebGL 2 without extra renderer options.
 - Synchronize both languages of README, guides, API docs, and migration instructions; update sample READMEs.
@@ -110,7 +111,3 @@ Pending Cubism R5 upgrade and runtime fixes. The local package version is still 
 ## 0.1.0 — 2025-05-05
 
 - Early version tag providing a basic Live2D Web wrapper.
-
-## Maintaining this page
-
-Add changes under Unreleased, using Compatibility, Added, Fixed, and Documentation as needed. At release time, move the entries under the actual version and date, and update the Chinese changelog as well. Describe user-visible changes, migration steps, and relevant validation. Keep unreleased changes out of existing version entries.

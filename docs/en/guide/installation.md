@@ -2,7 +2,7 @@
 
 ## Install
 
-These branch docs describe the pending R5 implementation. Unversioned npm commands install published packages, which may differ from this checkout. See [Migration](./cubism-r5-migration.md) for compatibility and local verification.
+easy-live2d 1.0.0 uses Pixi.js 8 and Cubism 5 SDK for Web R5. Read the [migration guide](./cubism-r5-migration.md) before upgrading an existing integration.
 
 ::: code-group
 
@@ -80,6 +80,8 @@ Best for:
 
 ## Smallest Runnable Page
 
+This HTML example assumes a bundler such as Vite for the package imports.
+
 ```html
 <!doctype html>
 <html>
@@ -124,6 +126,13 @@ Best for:
 
       sprite.width = canvas.clientWidth
       app.stage.addChild(sprite)
+      try {
+        await sprite.ready
+      } catch (error) {
+        console.error(error)
+        sprite.destroy()
+        app.destroy()
+      }
     </script>
   </body>
 </html>
