@@ -82,6 +82,7 @@ pnpm release 1.0.0-uat.1 --npm.tag=uat
 
 - 发布目标固定为公共 npm registry。
 - 正式版本默认使用 npm 的 `latest` 标签，并创建 GitHub Latest Release。
+- npm 预检超时设为 120 秒（release-it 默认 10 秒），保留 registry、登录和包发布权限检查。若仍在预检阶段超时，可分别执行 `npm ping --registry=https://registry.npmjs.org`、`npm whoami --registry=https://registry.npmjs.org` 和 `npm view easy-live2d@uat version --registry=https://registry.npmjs.org` 定位慢请求；登录失效时重新执行 `npm login`，不要通过跳过认证检查来正式发布。
 - dry-run 不修改版本、提交、标签或上传包，但会执行 npm 认证检查及打包预演，可能生成本地构建产物；它不验证 GitHub token 的实际发布权限。由于版本修改被跳过，打包预演可能仍显示当前旧版本。
 - 正常发布保留 release-it 的干净工作区检查；不要照搬验证配置时临时使用的跳过检查参数。
 - 直接执行 `npm publish` 只会构建并发布当前版本，不会自动升版。

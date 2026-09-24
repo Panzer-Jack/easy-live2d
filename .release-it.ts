@@ -7,6 +7,7 @@ export default {
   },
   npm: {
     publish: true,
+    timeout: 120,
   },
   github: {
     release: true,
