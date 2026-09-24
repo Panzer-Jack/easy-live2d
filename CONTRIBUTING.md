@@ -2,7 +2,7 @@
 
 ## 准备环境
 
-建议使用 Node.js 22 和 `package.json` 指定的 pnpm 版本。
+建议使用 Node.js 22（至少 22.13）和 `package.json` 指定的 pnpm 版本。
 
 ```bash
 git clone --recursive https://github.com/Panzer-Jack/easy-live2d.git
@@ -40,7 +40,7 @@ pnpm test:browser
 首次发布或登录过期时，完成 npm 和 GitHub CLI 登录（已登录可跳过）：
 
 ```bash
-npm login --registry=https://registry.npmjs.org
+npm login --auth-type=web --registry=https://registry.npmjs.org
 gh auth login --hostname github.com
 ```
 
@@ -53,6 +53,8 @@ gh auth status --hostname github.com
 ```
 
 GitHub 账号需要有该仓库的写入权限。也可以通过环境变量提供有仓库发布权限的 personal access token，不要将 token 写入配置或提交到 Git。未设置 `GITHUB_TOKEN` 时，release-it 会退回到打开网页手动创建 Release，无法自动发布。Git 推送仍使用仓库现有的 SSH 认证。
+
+浏览器认证（Passkey / Touch ID / 安全密钥）需要正常的交互终端。仓库使用 release-it 20.2.1 或更高的 20.x 版本，发布时由 npm 显示认证链接；按提示打开浏览器完成验证后，终端会继续发布。不要为本地浏览器认证添加 `--ci`，也不要把发布命令的输入输出重定向到管道或文件。浏览器登录成功后，发布时仍可能需要再次验证。
 
 ### 正式版
 
@@ -83,9 +85,10 @@ pnpm release 1.0.0-uat.1 --npm.tag=uat
 - 发布目标固定为公共 npm registry。
 - 正式版本默认使用 npm 的 `latest` 标签，并创建 GitHub Latest Release。
 - npm 预检超时设为 120 秒（release-it 默认 10 秒），保留 registry、登录和包发布权限检查。若仍在预检阶段超时，可分别执行 `npm ping --registry=https://registry.npmjs.org`、`npm whoami --registry=https://registry.npmjs.org` 和 `npm view easy-live2d@uat version --registry=https://registry.npmjs.org` 定位慢请求；登录失效时重新执行 `npm login`，不要通过跳过认证检查来正式发布。
-- dry-run 不修改版本、提交、标签或上传包，但会执行 npm 认证检查及打包预演，可能生成本地构建产物；它不验证 GitHub token 的实际发布权限。由于版本修改被跳过，打包预演可能仍显示当前旧版本。
+- dry-run 不修改版本、提交、标签或上传包，但会执行 npm 认证检查及打包预演，可能生成本地构建产物；它不触发 npm 发布的浏览器二次验证，也不验证 GitHub token 的实际发布权限。由于版本修改被跳过，打包预演可能仍显示当前旧版本。
 - 正常发布保留 release-it 的干净工作区检查；不要照搬验证配置时临时使用的跳过检查参数。
 - 直接执行 `npm publish` 只会构建并发布当前版本，不会自动升版。
+- npm 认证阶段取消发布时，release-it 可能自动还原本次版本修改。重试前先检查 `package.json`、Git 标签和 npm 上的版本：若已还原到旧版本，重新执行原发布命令；若目标版本已保留并提交、但尚未发布且没有对应 Git 标签，使用 `pnpm release --no-increment` 继续当前版本。
 - 若发布在 npm 上传后、Git 推送前中断，应先核对 registry 和 Git 状态，再恢复缺失步骤，避免重复升版或重复上传。
 - 若 npm 发布和 Git 标签推送均已成功，只缺 GitHub Release，可在确认对应 Release 尚不存在后，执行 `gh release create v1.0.0 --verify-tag --title v1.0.0 --generate-notes` 补建（替换为实际版本；预发布需加 `--prerelease`）。不要重新执行完整发布流程。
 - `.github/workflows/deploy.yml` 只部署文档站点；推送到 `main` 会触发文档部署，普通推送不会发布 npm 包或创建 GitHub Release。
