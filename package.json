@@ -64,7 +64,7 @@
     "eslint": "^9.25.1",
     "eslint-plugin-format": "^2.0.1",
     "jiti": "catalog:dev",
-    "release-it": "^19.0.3",
+    "release-it": "^20.2.1",
     "tsup": "catalog:dev",
     "typescript": "catalog:dev"
   }
