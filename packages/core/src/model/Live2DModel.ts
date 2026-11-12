@@ -7,6 +7,7 @@ import { CubismFramework } from '@Framework/live2dcubismframework'
 import { CubismUserModel } from '@Framework/model/cubismusermodel'
 import { sound } from '@pixi/sound'
 import { initializeCubismShaders } from '../rendering/CubismShaders'
+import { getMaskBufferCount } from '../rendering/maskBufferCount'
 import { Config, Priority } from '../utils/config'
 import { EffectController } from './EffectController'
 import { ExpressionController } from './ExpressionController'
@@ -118,7 +119,9 @@ export class Live2DModel extends CubismUserModel {
   }
 
   initializeRenderer(gl: WebGL2RenderingContext): void {
-    this.createRenderer(gl.drawingBufferWidth, gl.drawingBufferHeight)
+    const model = this.getModel()
+    const maskBufferCount = getMaskBufferCount(model.getDrawableMasks(), model.getOffscreenMasks())
+    this.createRenderer(gl.drawingBufferWidth, gl.drawingBufferHeight, maskBufferCount)
     this.getRenderer().startUp(gl)
     initializeCubismShaders(gl)
     this.getRenderer().setIsPremultipliedAlpha(true)

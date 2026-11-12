@@ -111,6 +111,7 @@ sprite.onLive2D(eventName, callback)
 | 事件名      | 回调参数                     | 说明                         |
 | ----------- | ---------------------------- | ---------------------------- |
 | `ready`     | `()`                         | 模型、纹理和交互层初始化完成 |
+| `error`     | `(error: unknown)`           | 初始化或绘制失败时触发一次，该精灵停止绘制 |
 | `hit`       | `({ hitAreaName, x, y })`    | 点击命中模型 hit area        |
 | `dragStart` | `({ x, y, deltaX, deltaY })` | 开始拖拽                     |
 | `dragMove`  | `({ x, y, deltaX, deltaY })` | 拖拽移动中                   |

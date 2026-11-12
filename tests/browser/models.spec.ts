@@ -1,4 +1,19 @@
 import { expect, test } from '@playwright/test'
+import { getMaskBufferCount } from '../../packages/core/src/rendering/maskBufferCount'
+
+test('sizes the mask buffers from distinct drawable and offscreen clipping groups', () => {
+  const masks = Array.from({ length: 129 }, (_, i) => Int32Array.of(i))
+  for (const [count, buffers] of [[0, 1], [36, 1], [37, 2], [64, 2], [65, 3], [128, 4], [129, 5]]) {
+    const groups = masks.slice(0, count)
+    expect(getMaskBufferCount(groups, [])).toBe(buffers)
+    expect(getMaskBufferCount([], groups)).toBe(buffers)
+  }
+
+  const shared = Int32Array.of(2, 1)
+  const drawableMasks = [...masks.slice(0, 35), shared, Int32Array.of(1, 2), new Int32Array()]
+  expect(getMaskBufferCount(drawableMasks, masks.slice(0, 36))).toBe(1)
+  expect(Array.from(shared)).toEqual([2, 1])
+})
 
 for (const name of ['Hiyori', 'Haru', 'Rice', 'Ren']) {
   test(`${name}: renders, animates, resizes and shares the Pixi context`, async ({ page }, testInfo) => {

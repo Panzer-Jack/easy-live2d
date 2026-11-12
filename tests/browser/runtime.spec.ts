@@ -56,6 +56,29 @@ test('ready listener errors leave the loaded model usable', async ({ page }) => 
   expect(errors).toEqual([])
 })
 
+test('a draw failure after ready reports the error once and stops that sprite', async ({ page }) => {
+  const unhandled: string[] = []
+  page.on('pageerror', err => unhandled.push(err.message))
+  const failure = await page.evaluate(async () => {
+    const r = (window as any).regression
+    const sprite = r.sprites[0]
+    await sprite.ready
+    const errors: string[] = []
+    let draws = 0
+    sprite.onLive2D('error', (error: Error) => errors.push(error.message))
+    sprite._model.draw = () => {
+      draws++
+      throw new Error('mask draw failed')
+    }
+    r.app.render()
+    await Promise.resolve()
+    r.app.render()
+    return { errors, draws, released: sprite._model === null }
+  })
+  expect(failure).toEqual({ errors: ['mask draw failed'], draws: 1, released: true })
+  expect(unhandled).toEqual([])
+})
+
 test('initialization failure removes interaction and resize listeners', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', e => errors.push(e.message))
