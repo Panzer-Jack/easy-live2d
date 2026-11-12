@@ -122,7 +122,7 @@ export class Live2DSprite extends Sprite {
       this.init(initConfig)
 
     this.onRender = (renderer: Renderer) => {
-      void this.renderFrame(renderer)
+      void this.renderFrame(renderer).catch(error => this.handleRenderError(error))
     }
   }
 
@@ -346,6 +346,24 @@ export class Live2DSprite extends Sprite {
 
   // --- 内部方法 ---
 
+  private handleRenderError(error: unknown): void {
+    if (this._disposed || this._renderFailed)
+      return
+    this._renderFailed = true
+    this._loadAbort.abort()
+    this._readyReject?.(error)
+    this._readyResolve = null
+    this._readyReject = null
+    console.error('[easy-live2d] Model rendering failed:', error)
+    try {
+      this._ctx.eventBus.emit('error', error)
+    } catch (listenerError) {
+      console.error('[easy-live2d] error listener failed:', listenerError)
+    }
+    if (!this._disposed)
+      this.releaseResources()
+  }
+
   private async renderFrame(renderer: Renderer): Promise<void> {
     if (this._renderFailed || this._disposed)
       return
@@ -368,17 +386,9 @@ export class Live2DSprite extends Sprite {
         this._readyResolve = null
         this._readyReject = null
         this._renderInitialized = true
-      } catch (error) {
-        this._renderFailed = true
-        this._loadAbort.abort()
-        this._readyReject?.(error)
-        this._readyResolve = null
-        this._readyReject = null
-        if (!this._disposed)
-          console.error('[easy-live2d] Initialization failed:', error)
       } finally {
         this._renderInitializing = false
-        if (this._disposed || this._renderFailed)
+        if (this._disposed)
           this.releaseResources()
       }
 

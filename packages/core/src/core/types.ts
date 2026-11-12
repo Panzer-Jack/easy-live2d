@@ -14,6 +14,7 @@ export interface Live2DSpriteDragEvent {
 export interface Live2DSpriteEvents {
   hit: [{ hitAreaName: string, x: number, y: number }]
   ready: []
+  error: [error: unknown]
   dragStart: [Live2DSpriteDragEvent]
   dragMove: [Live2DSpriteDragEvent]
   dragEnd: [Live2DSpriteDragEvent]

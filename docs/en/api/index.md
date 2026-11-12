@@ -111,6 +111,7 @@ sprite.onLive2D(eventName, callback)
 | Event       | Callback Args                | Description                                  |
 | ----------- | ---------------------------- | -------------------------------------------- |
 | `ready`     | `()`                         | Model, textures, and interaction initialized |
+| `error`     | `(error: unknown)`           | Fires once if initialization or drawing fails. The sprite stops drawing. |
 | `hit`       | `({ hitAreaName, x, y })`    | Click hit a model hit area                   |
 | `dragStart` | `({ x, y, deltaX, deltaY })` | Drag started                                 |
 | `dragMove`  | `({ x, y, deltaX, deltaY })` | Dragging                                     |
