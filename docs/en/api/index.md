@@ -3,7 +3,7 @@
 ## Export Overview
 
 ```ts
-export type { ExpressionInfo, MotionInfo, ParameterValueRange } from './core/types'
+export type { BeforePhysicsCallback, ExpressionInfo, Live2DFrameParameters, MotionInfo, ParameterValueRange } from './core/types'
 export { Live2DSprite } from './Live2DSprite'
 export { Config, ConfigType, LogLevel, Priority } from './utils/config'
 export { CubismSetting } from './utils/cubismSetting'
@@ -213,6 +213,27 @@ interface ExpressionInfo {
 Returns all available expressions of the model. Returns an empty array if called before the model is ready.
 
 ### Parameter Control
+
+#### onBeforePhysics
+
+`sprite.onBeforePhysics(callback)` runs synchronously once per model update. Motion, expressions, dragging, breath and lip sync have already updated the parameters. Pose and physics use the resulting values. For example, a head turn from face tracking can be added to an idle motion so the model's hair reacts to the turn.
+
+```ts
+sprite.onBeforePhysics((frame) => {
+  frame.addParameterValueById('ParamAngleX', 5)
+})
+```
+
+You can register before `ready`. Register again to replace the callback, or call `sprite.onBeforePhysics(null)` to remove it. The second callback argument, `deltaTime`, is in seconds. Use `frame` only during the callback. Writes apply to the current frame. Persistent parameter overrides still apply after physics.
+
+| `Live2DFrameParameters` method | Behavior |
+| --- | --- |
+| `getParameterValueById(id)` | Reads the current value. Returns `null` for an ID absent from the model. |
+| `setParameterValueById(id, value, weight?)` | Blends the current value toward the target using the given weight. |
+| `addParameterValueById(id, value, weight?)` | Adds `value × weight` to the current value. |
+| `isMotionFinished()` | Returns `true` when all motions have finished, including idle motions. |
+
+Both write methods default to a weight of `1` and ignore unknown IDs.
 
 #### setParameterValueById
 

@@ -62,6 +62,16 @@ export interface ParameterValueRange {
   max: number
 }
 
+/** 当帧姿势与物理计算的输入参数，仅在 onBeforePhysics 回调期间使用。 */
+export interface Live2DFrameParameters {
+  getParameterValueById: (id: string) => number | null
+  setParameterValueById: (id: string, value: number, weight?: number) => void
+  addParameterValueById: (id: string, value: number, weight?: number) => void
+  isMotionFinished: () => boolean
+}
+
+export type BeforePhysicsCallback = (parameters: Live2DFrameParameters, deltaTime: number) => void
+
 /**
  * 语音播放参数
  */
