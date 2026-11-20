@@ -43,6 +43,8 @@ export class ModelRenderer {
 
     timeManager.update()
     model.update(timeManager.deltaTime)
+    if (!model.isReady)
+      return
 
     const projection = new CubismMatrix44()
     const cubismModel = model.getModel()

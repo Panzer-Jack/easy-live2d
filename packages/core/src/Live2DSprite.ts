@@ -5,6 +5,7 @@ import type {
 import type { CubismMotionQueueEntryHandle } from '@Framework/motion/cubismmotionqueuemanager'
 import type { DestroyOptions, Renderer, Size, Ticker } from 'pixi.js'
 import type {
+  BeforePhysicsCallback,
   ExpressionInfo,
   ExpressionParams,
   Live2DSpriteEvents,
@@ -23,6 +24,7 @@ import { Live2DContext } from './core/Live2DContext'
 import { PointerHandler } from './interaction/PointerHandler'
 import { ModelLoader } from './loader/ModelLoader'
 import { TextureLoader } from './loader/TextureLoader'
+import { BeforePhysicsHook } from './model/BeforePhysicsHook'
 import { Live2DModel } from './model/Live2DModel'
 import { ModelRenderer } from './rendering/ModelRenderer'
 
@@ -55,6 +57,7 @@ export class Live2DSprite extends Sprite {
   public ticker: Ticker | null = null
 
   private _preQueue = new Set<() => unknown>()
+  private readonly _beforePhysics = new BeforePhysicsHook()
 
   /** Stable Promise that resolves once the sprite is ready. */
   private _readyPromise!: Promise<void>
@@ -231,6 +234,12 @@ export class Live2DSprite extends Sprite {
     return this._model?.getExpressionInfos() ?? []
   }
 
+  /** 每帧在效果更新后、姿势和物理计算前同步调用。可在 ready 前注册，传 null 取消。 */
+  onBeforePhysics(callback: BeforePhysicsCallback | null): void {
+    if (!this._disposed && !this._renderFailed)
+      this._beforePhysics.callback = callback
+  }
+
   setParameterValueById(id: string, value: number, weight?: number): void {
     const fn = () => this._model!.setParameterValueById(id, value, weight)
     if (!this._model?.isReady) {
@@ -331,6 +340,7 @@ export class Live2DSprite extends Sprite {
     this._resizeObserver?.disconnect()
     this._resizeObserver = null
     this._preQueue.clear()
+    this._beforePhysics.clear()
     this._model?.release()
     this._model = null
     this._textureLoader?.release()
@@ -421,7 +431,7 @@ export class Live2DSprite extends Sprite {
       throw new Error('Cubism R5 requires a Pixi WebGL 2 renderer. WebGL 1 and WebGPU are not supported.')
     }
 
-    this._model = new Live2DModel(this._ctx.eventBus)
+    this._model = new Live2DModel(this._ctx.eventBus, this._beforePhysics)
     this._textureLoader = new TextureLoader(this._ctx.webgl)
     this._modelRenderer = new ModelRenderer(this._ctx.viewTransform)
     this._modelRenderer.setFrameBuffer(this._ctx.frameBuffer)

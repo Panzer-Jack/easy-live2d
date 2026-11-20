@@ -3,7 +3,7 @@
 ## 导出总览
 
 ```ts
-export type { ExpressionInfo, MotionInfo, ParameterValueRange } from './core/types'
+export type { BeforePhysicsCallback, ExpressionInfo, Live2DFrameParameters, MotionInfo, ParameterValueRange } from './core/types'
 export { Live2DSprite } from './Live2DSprite'
 export { Config, ConfigType, LogLevel, Priority } from './utils/config'
 export { CubismSetting } from './utils/cubismSetting'
@@ -213,6 +213,27 @@ interface ExpressionInfo {
 获取模型所有可用表情列表。模型就绪前调用返回空数组。
 
 ### 驱动参数控制
+
+#### onBeforePhysics
+
+`sprite.onBeforePhysics(callback)` 每次更新模型时同步调用一次回调。动作、表情、拖拽、呼吸和口型已经写入当帧参数，接下来的姿势和物理计算会读到回调写入的值。例如，可以在待机动作上叠加面捕的转头角度，让头发随之摆动。
+
+```ts
+sprite.onBeforePhysics((frame) => {
+  frame.addParameterValueById('ParamAngleX', 5)
+})
+```
+
+可在 `ready` 前注册。再次注册会替换当前回调，调用 `sprite.onBeforePhysics(null)` 取消。回调的第二个参数 `deltaTime` 以秒为单位。`frame` 仅在回调期间有效，写入只作用于当前帧。已有的持久参数覆盖仍在物理计算后生效。
+
+| `Live2DFrameParameters` 方法 | 作用 |
+| --- | --- |
+| `getParameterValueById(id)` | 读取当前值。模型中没有这个 ID 时返回 `null`。 |
+| `setParameterValueById(id, value, weight?)` | 将当前值与目标值按权重混合。 |
+| `addParameterValueById(id, value, weight?)` | 在当前值上加上 `value × weight`。 |
+| `isMotionFinished()` | 所有动作均已结束时返回 `true`，播放中的待机动作也计入。 |
+
+两种写入方法的默认权重都是 `1`，未知 ID 的写入会被忽略。
 
 #### setParameterValueById
 

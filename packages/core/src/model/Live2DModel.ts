@@ -3,6 +3,7 @@ import type { CubismMatrix44 } from '@Framework/math/cubismmatrix44'
 import type { EventBus } from '../core/EventBus'
 import type { ExpressionInfo, MotionInfo, ParameterValueRange, Viewport } from '../core/types'
 import type { IRedirectPath } from '../utils/cubismSetting'
+import type { BeforePhysicsHook } from './BeforePhysicsHook'
 import { CubismFramework } from '@Framework/live2dcubismframework'
 import { CubismUserModel } from '@Framework/model/cubismusermodel'
 import { sound } from '@pixi/sound'
@@ -37,7 +38,7 @@ export class Live2DModel extends CubismUserModel {
   readonly effectCtrl: EffectController
   readonly hitTestHelper: HitTestHelper
 
-  constructor(eventBus: EventBus) {
+  constructor(eventBus: EventBus, private readonly beforePhysics: BeforePhysicsHook) {
     super()
     sound.disableAutoPause = true
 
@@ -182,6 +183,11 @@ export class Live2DModel extends CubismUserModel {
       dragY,
       this._lipsync,
     )
+
+    this.beforePhysics.run(this._model, this._motionManager, deltaTime)
+    // 回调可同步销毁 sprite，此时 Cubism 资源已释放。
+    if (!this._ready)
+      return
 
     if (this._pose)
       this._pose.updateParameters(this._model, deltaTime)
